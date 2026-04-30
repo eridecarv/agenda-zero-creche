@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─────────────────────────────────────────
+   AGENDA ZERO — Design System v1.0
+   Tokens de design baseados no guia visual
+   ───────────────────────────────────────── */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* ── Cores principais ── */
+  --color-primary:       #FF8C66;  /* Peach Rose · ações */
+  --color-success:       #72AA78;  /* Sage Green · sucesso */
+  --color-warning:       #F5C632;  /* Butter Yellow · destaque */
+  --color-info:          #5A8ED6;  /* Sky Blue · informativo */
+  --color-lavender:      #9E78D8;  /* Lavender · saúde */
+  --color-danger:        #E86C88;  /* Rose Talc · alertas */
+
+  /* ── Fundo e superfície ── */
+  --color-bg:            #FAF7F2;  /* Fundo padrão das telas */
+  --color-surface:       #FFFDF9;  /* Cards, sheets */
+
+  /* ── Texto ── */
+  --color-fg1:           #3A2E24;  /* Texto primário */
+  --color-fg2:           #8C7060;  /* Texto secundário */
+
+  /* ── Border radius ── */
+  --radius-xs:           6px;      /* badge, micro-element */
+  --radius-sm:           10px;     /* tag */
+  --radius-md:           14px;     /* botão */
+  --radius-lg:           20px;     /* card */
+  --radius-xl:           28px;     /* modal, sheet */
+  --radius-pill:         999px;    /* chip */
+
+  /* ── Sombras (sempre warm, nunca preto) ── */
+  --shadow-sm:  0 2px 8px rgba(180, 140, 120, 0.12);
+  --shadow-md:  0 4px 16px rgba(180, 140, 120, 0.16);
+  --shadow-lg:  0 8px 24px rgba(180, 140, 120, 0.20);
+  --shadow-xl:  0 16px 40px rgba(180, 140, 120, 0.24);
+
+/* ── Tipografia ── */
+  --font-display: var(--font-display);   /* headings */
+  --font-body:    var(--font-body);      /* UI e corpo */
+
+  /* ── Transições ── */
+  --transition-fast:    all 0.2s ease-out;  /* microinterações */
+  --transition-normal:  all 0.28s ease-out; /* transições de tela */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ── Estilos globais ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg1);
+  font-family: var(--font-body), 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display), 'Nunito', sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
 }
