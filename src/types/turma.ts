@@ -2,16 +2,11 @@
  * Tipos relacionados a turmas e suas classificações.
  */
 
-export type Nivel =
-  | 'bercario_1'
-  | 'bercario_2'
-  | 'maternal_1'
-  | 'maternal_2'
-
 export type Turno =
   | 'manha'
   | 'tarde'
   | 'integral'
+  | 'noite'
 
 export type TipoTurma =
   | 'regular'
@@ -21,12 +16,13 @@ export type Turma = {
   id: string
   escola_id: string
   nome: string
-  nivel: Nivel | null
+  nivel: string | null
   turno: Turno | null
   tipo: TipoTurma
   ano: number
   ativo: boolean
   criado_em: string
+  desativado_em: string | null
 }
 
 export type CriancaTurma = {

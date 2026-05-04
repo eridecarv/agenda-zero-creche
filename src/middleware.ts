@@ -1,3 +1,15 @@
+/**
+ * Middleware de autenticação e roteamento.
+ *
+ * Responsabilidades:
+ * - Protege todas as rotas — redireciona para /login se não houver sessão.
+ * - Redireciona / para /adm quando o usuário está logado.
+ *   (no futuro, esse redirecionamento pode verificar o role e
+ *    enviar professor para /professor, responsavel para /responsavel, etc.)
+ *
+ * Rotas públicas: /login, /convite/[token]
+ */
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -29,7 +41,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Se não está logado e não está na página de login ou convite, redireciona
+  // Sem sessão — redireciona para /login (exceto rotas públicas)
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
@@ -37,6 +49,14 @@ export async function middleware(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Logado na raiz — redireciona para /adm
+  // No futuro: verificar role e redirecionar para a rota correta
+  if (user && request.nextUrl.pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/adm'
     return NextResponse.redirect(url)
   }
 

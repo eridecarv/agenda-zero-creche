@@ -56,7 +56,7 @@ export default function LoginPage() {
             Agenda Zero
           </h1>
           <p className="mt-1 text-sm text-[#8C7060]">
-            Diário da creche ☀️
+            Diário da Creche ☀️
           </p>
         </div>
 
