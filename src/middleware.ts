@@ -52,14 +52,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Logado na raiz — redireciona para /adm
-  // No futuro: verificar role e redirecionar para a rota correta
-  if (user && request.nextUrl.pathname === '/') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/adm'
-    return NextResponse.redirect(url)
-  }
+// Logado na raiz — redireciona conforme o role
+if (user && request.nextUrl.pathname === '/') {
+  const { data: usuario } = await supabase
+    .from('usuarios')
+    .select('role')
+    .eq('id', user.id)
+    .single()
 
+  const url = request.nextUrl.clone()
+  url.pathname = usuario?.role === 'responsavel' ? '/responsavel' : '/adm'
+  return NextResponse.redirect(url)
+}
   return supabaseResponse
 }
 
@@ -67,4 +71,4 @@ export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+} 

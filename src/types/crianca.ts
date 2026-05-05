@@ -10,6 +10,7 @@ export type Crianca = {
   observacoes: string | null
   ativo: boolean
   criado_em: string
+  desativado_em: string | null
 }
 
 export type TipoVinculo = 'principal' | 'secundario'
@@ -36,4 +37,13 @@ export type Vinculo = {
   data_fim: string | null
   adicionado_por: string | null
   criado_em: string
+}
+
+export type CriancaTurma = {
+  id: string
+  escola_id: string
+  crianca_id: string
+  turma_id: string
+  data_inicio: string
+  data_fim: string | null
 }
