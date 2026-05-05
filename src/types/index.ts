@@ -5,7 +5,7 @@
 
 export type { Escola, Usuario, Role } from './escola'
 
-export type { Turma, CriancaTurma, Nivel, Turno, TipoTurma } from './turma'
+export type { Turma, CriancaTurma, Turno, TipoTurma } from './turma'
 
 export type {
   Crianca,
