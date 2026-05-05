@@ -2,11 +2,10 @@
  * Tipos relacionados a comunicados, cardápio e seus anexos.
  */
 
-import type { Nivel, Turno } from './turma'
+import type { Turno } from './turma'
 
 export type EscopoComunicado =
   | 'turma'
-  | 'nivel'
   | 'turno'
   | 'escola'
 
@@ -22,7 +21,6 @@ export type Comunicado = {
   conteudo: string
   escopo: EscopoComunicado
   turma_id: string | null
-  nivel: Nivel | null
   turno: Turno | null
   publicado_por: string | null
   criado_em: string
