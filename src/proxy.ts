@@ -1,5 +1,5 @@
 /**
- * Middleware de autenticação e roteamento.
+ * Proxy (antigo Middleware) de autenticação e roteamento.
  *
  * Responsabilidades:
  * - Protege todas as rotas — redireciona para /login se não houver sessão.
@@ -13,7 +13,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
