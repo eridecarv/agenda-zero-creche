@@ -15,7 +15,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEscola } from "@/hooks/useEscola";
-import { createClient } from '@/lib/supabase'
+import { createClient } from "@/lib/supabase";
 
 // ── Tipo de item de navegação ──
 type NavItem = {
@@ -54,6 +54,13 @@ const navItems: NavItem[] = [
     emoji: "🍽",
     href: "/adm/cardapio",
     disponivel: false,
+  },
+  {
+    label: "Diários",
+    descricao: "Registre o dia a dia das crianças por turma",
+    emoji: "📖",
+    href: "/adm/diarios",
+    disponivel: true,
   },
   {
     label: "Configurações",

@@ -45,3 +45,5 @@ export type {
 export type { Convite } from './convite'
 
 export type { Sessao, ResultadoAuth } from './auth'
+
+export type { Recado } from './recado'

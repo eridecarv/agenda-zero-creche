@@ -55,6 +55,7 @@ export type RegistroAlimentacao = {
   registro_diario_id: string
   refeicao: Refeicao
   aceitacao: Aceitacao
+  observacao: string | null  
   criado_em: string
 }
 
