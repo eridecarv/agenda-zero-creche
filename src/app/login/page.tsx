@@ -1,6 +1,10 @@
 /**
  * Tela de login.
  * Ponto de entrada para adm e responsáveis.
+ *
+ * O identificador do usuário no Supabase Auth é um email fictício
+ * no formato {telefone}@agendazero.internal — montado aqui,
+ * invisível para quem usa.
  */
 
 'use client'
@@ -15,7 +19,7 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [email, setEmail] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
@@ -25,13 +29,16 @@ export default function LoginPage() {
     setErro('')
     setCarregando(true)
 
+    const telefoneLimpo = telefone.replace(/\D/g, '')
+    const email = `${telefoneLimpo}@agendazero.internal`
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: senha,
     })
 
     if (error) {
-      setErro('Email ou senha incorretos.')
+      setErro('Telefone ou senha incorretos.')
       setCarregando(false)
       return
     }
@@ -66,11 +73,11 @@ export default function LoginPage() {
           className="flex flex-col gap-4 rounded-[20px] bg-[#FFFDF9] p-6 shadow-[0_4px_16px_rgba(180,140,120,0.16)]"
         >
           <Input
-            label="Email"
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            label="Telefone com DDD"
+            type="tel"
+            placeholder="11999990000"
+            value={telefone}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTelefone(e.target.value)}
             required
           />
           <Input
@@ -82,7 +89,6 @@ export default function LoginPage() {
             required
           />
 
-          {/* Erro */}
           {erro && (
             <p className="text-center text-xs text-[#E86C88]">{erro}</p>
           )}
