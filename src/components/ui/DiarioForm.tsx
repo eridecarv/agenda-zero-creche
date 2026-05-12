@@ -5,6 +5,9 @@
  * carrega o registro existente (se houver) e permite registrar
  * ou atualizar presença, humor, sono, alimentação, higiene e recado.
  *
+ * A seção "Saída" é a última — registra horário e responsável que buscou.
+ * Quando preenchida, encerra o dia no feed do responsável.
+ *
  * Estrutura em acordeão — cada seção expande ao clicar.
  */
 
@@ -60,6 +63,7 @@ function Secao({
   onToggle,
   children,
   completa,
+  desabilitada,
 }: {
   titulo: string
   emoji: string
@@ -67,12 +71,14 @@ function Secao({
   onToggle: () => void
   children: React.ReactNode
   completa?: boolean
+  desabilitada?: boolean
 }) {
   return (
     <Card padding="lg" className="overflow-hidden !p-0">
       <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-5 py-4"
+        onClick={desabilitada ? undefined : onToggle}
+        disabled={desabilitada}
+        className={`w-full flex items-center justify-between px-5 py-4 ${desabilitada ? 'opacity-40 cursor-not-allowed' : ''}`}
       >
         <div className="flex items-center gap-3">
           <span className="text-xl">{emoji}</span>
@@ -81,12 +87,14 @@ function Secao({
             <span className="text-xs text-[#72AA78] font-medium">✓</span>
           )}
         </div>
-        <span className={`text-[#C8B8A8] transition-transform duration-200 ${aberta ? 'rotate-180' : ''}`}>
-          ▾
-        </span>
+        {!desabilitada && (
+          <span className={`text-[#C8B8A8] transition-transform duration-200 ${aberta ? 'rotate-180' : ''}`}>
+            ▾
+          </span>
+        )}
       </button>
 
-      {aberta && (
+      {aberta && !desabilitada && (
         <div className="px-5 pb-5 border-t border-[#F0E8E0] pt-5">
           {children}
         </div>
@@ -167,6 +175,13 @@ type HigieneState = {
   observacao: string
 }
 
+type Responsavel = {
+  usuario_id: string
+  nome: string
+  apelido: string | null
+  relacao: string
+}
+
 type Props = {
   criancaId: string
   escolaId: string
@@ -183,6 +198,16 @@ const alimentacaoInicial: AlimentacaoState = {
   jantar:       { aceitacao: null, observacao: '' },
 }
 
+const RELACAO_LABEL: Record<string, string> = {
+  mae: 'Mãe',
+  pai: 'Pai',
+  avo: 'Avô',
+  ava: 'Avó',
+  tio: 'Tio',
+  tia: 'Tia',
+  outro: 'Responsável',
+}
+
 // ── Componente principal ──────────────────────────────────
 
 export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }: Props) {
@@ -195,6 +220,7 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
     alimentacao: false,
     higiene:     false,
     recado:      false,
+    saida:       false,
   })
 
   const [registroDiarioId, setRegistroDiarioId] = useState<string | null>(null)
@@ -212,6 +238,12 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
     banho: false, escovacao: false, evacuacao: false, observacao: '',
   })
 
+  // Saída
+  const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
+  const [horarioSaida, setHorarioSaida] = useState('')
+  const [buscouId, setBuscouId] = useState<string | null>(null)
+  const [saidaRegistrada, setSaidaRegistrada] = useState(false)
+
   const [salvando, setSalvando] = useState(false)
   const [salvoEm, setSalvoEm] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -219,6 +251,33 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
   useEffect(() => {
     async function carregar() {
       setLoading(true)
+
+      // Carrega responsáveis vinculados à criança
+      const { data: vinculos } = await supabase
+        .from('vinculos')
+        .select('usuario_id, apelido, relacao')
+        .eq('crianca_id', criancaId)
+        .eq('ativo', true)
+
+      if (vinculos && vinculos.length > 0) {
+        const usuarioIds = vinculos.map((v: any) => v.usuario_id)
+        const { data: usuarios } = await supabase
+          .from('usuarios')
+          .select('id, nome')
+          .in('id', usuarioIds)
+
+        const usuarioMap: Record<string, string> = {}
+        usuarios?.forEach((u: any) => { usuarioMap[u.id] = u.nome })
+
+        setResponsaveis(
+          vinculos.map((v: any) => ({
+            usuario_id: v.usuario_id,
+            nome: usuarioMap[v.usuario_id] ?? '',
+            apelido: v.apelido,
+            relacao: v.relacao,
+          }))
+        )
+      }
 
       const { data: rd } = await supabase
         .from('registros_diarios')
@@ -243,6 +302,23 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
         if (rp) {
           setPresencaId(rp.id)
           setPresente(rp.presente)
+
+          if (rp.saida) {
+            // Converte timestamp para HH:MM para exibir no input
+            const saida = new Date(rp.saida)
+            setHorarioSaida(
+              saida.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/Recife',
+              })
+            )
+            setSaidaRegistrada(true)
+          }
+
+          if (rp.buscou_id) {
+            setBuscouId(rp.buscou_id)
+          }
         }
 
         const { data: ras } = await supabase
@@ -287,6 +363,12 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
     setAbertas(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
+  function nomeExibidoResponsavel(r: Responsavel): string {
+    if (r.apelido) return r.apelido
+    const relLabel = RELACAO_LABEL[r.relacao] ?? 'Responsável'
+    return `${relLabel} — ${r.nome.split(' ')[0]}`
+  }
+
   async function salvar() {
     setSalvando(true)
     try {
@@ -319,17 +401,34 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
 
       if (!rdId) throw new Error('Falha ao criar registro diário')
 
+      // Monta timestamp de saída a partir do horário digitado e da data do registro
+      const saidaTimestamp = horarioSaida
+        ? (() => {
+            const [h, m] = horarioSaida.split(':').map(Number)
+            const d = new Date(`${data}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`)
+            return d.toISOString()
+          })()
+        : null
+
       if (presente !== null) {
         if (presencaId) {
           await supabase.from('registros_presenca')
-            .update({ presente }).eq('id', presencaId)
+            .update({
+              presente,
+              saida: saidaTimestamp,
+              buscou_id: buscouId,
+            }).eq('id', presencaId)
         } else {
           const { data: rp } = await supabase.from('registros_presenca').insert({
             registro_diario_id: rdId,
             presente,
+            saida: saidaTimestamp,
+            buscou_id: buscouId,
           }).select('id').single()
           setPresencaId(rp?.id ?? null)
         }
+
+        if (saidaTimestamp) setSaidaRegistrada(true)
       }
 
       const refeicoesRegistradas = (Object.entries(alimentacao) as [Refeicao, RefeicaoState][])
@@ -394,6 +493,8 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
       </div>
     )
   }
+
+  const saidaCompleta = !!(horarioSaida && buscouId)
 
   return (
     <div className="flex flex-col gap-3">
@@ -584,6 +685,138 @@ export function DiarioForm({ criancaId, escolaId, data, registradoPor, onSalvo }
         <p className="text-xs text-[#B0A090] mt-2">
           O recado será enviado assim que você salvar.
         </p>
+      </Secao>
+
+      {/* Saída — só aparece se a criança está presente */}
+      <Secao
+        titulo="Saída"
+        emoji="👋"
+        aberta={abertas.saida}
+        onToggle={() => toggleSecao('saida')}
+        completa={saidaCompleta}
+        desabilitada={presente !== true}
+      >
+        {saidaRegistrada ? (
+          // Estado: saída já registrada
+          <div className="flex flex-col gap-3">
+            <div
+              className="flex items-center gap-3 rounded-[14px] px-4 py-3"
+              style={{ backgroundColor: '#EAF3DE' }}
+            >
+              <span className="text-lg">✓</span>
+              <div>
+                <p className="text-sm font-semibold text-[#3A7A42]">
+                  Saída registrada às {horarioSaida}
+                </p>
+                {buscouId && (
+                  <p className="text-xs text-[#5A8A62] mt-0.5">
+                    {nomeExibidoResponsavel(
+                      responsaveis.find(r => r.usuario_id === buscouId) ?? {
+                        usuario_id: buscouId,
+                        nome: '',
+                        apelido: null,
+                        relacao: 'outro',
+                      }
+                    )}
+                  </p>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-[#B0A090]">
+              O dia desta criança está encerrado no app dos responsáveis.
+              Você pode corrigir salvando novamente.
+            </p>
+            {/* Permite corrigir */}
+            <div className="flex flex-col gap-3 pt-1">
+              <div>
+                <p className="text-xs text-[#B0A090] mb-1">Horário de saída</p>
+                <input
+                  type="time"
+                  value={horarioSaida}
+                  onChange={e => setHorarioSaida(e.target.value)}
+                  className="
+                    w-full rounded-[14px] bg-[#F5EFE8] px-4 py-3
+                    text-sm text-[#3A2E24]
+                    focus:outline-none focus:ring-2 focus:ring-[#FF8C66]/30
+                  "
+                />
+              </div>
+              <div>
+                <p className="text-xs text-[#B0A090] mb-1">Com quem saiu</p>
+                <div className="flex flex-col gap-2">
+                  {responsaveis.map(r => (
+                    <Button
+                      key={r.usuario_id}
+                      fullWidth
+                      variant="ghost"
+                      customColor={buscouId === r.usuario_id ? '#FEF0E8' : '#F5EFE8'}
+                      customTextColor={buscouId === r.usuario_id ? '#C05A2A' : '#8C7060'}
+                      onClick={() => setBuscouId(r.usuario_id)}
+                    >
+                      <span className="flex items-center gap-3 w-full">
+                        <span className="flex-1 text-left">{nomeExibidoResponsavel(r)}</span>
+                        {buscouId === r.usuario_id && (
+                          <span className="text-[#FF8C66]">✓</span>
+                        )}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Estado: saída ainda não registrada
+          <div className="flex flex-col gap-4">
+            <div>
+              <p className="text-xs text-[#B0A090] mb-1">Horário de saída</p>
+              <input
+                type="time"
+                value={horarioSaida}
+                onChange={e => setHorarioSaida(e.target.value)}
+                className="
+                  w-full rounded-[14px] bg-[#F5EFE8] px-4 py-3
+                  text-sm text-[#3A2E24]
+                  focus:outline-none focus:ring-2 focus:ring-[#FF8C66]/30
+                "
+              />
+            </div>
+
+            {responsaveis.length > 0 ? (
+              <div>
+                <p className="text-xs text-[#B0A090] mb-2">Com quem saiu</p>
+                <div className="flex flex-col gap-2">
+                  {responsaveis.map(r => (
+                    <Button
+                      key={r.usuario_id}
+                      fullWidth
+                      variant="ghost"
+                      customColor={buscouId === r.usuario_id ? '#FEF0E8' : '#F5EFE8'}
+                      customTextColor={buscouId === r.usuario_id ? '#C05A2A' : '#8C7060'}
+                      onClick={() => setBuscouId(r.usuario_id)}
+                    >
+                      <span className="flex items-center gap-3 w-full">
+                        <span className="flex-1 text-left">{nomeExibidoResponsavel(r)}</span>
+                        {buscouId === r.usuario_id && (
+                          <span className="text-[#FF8C66]">✓</span>
+                        )}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-[#C4A882]">
+                Nenhum responsável vinculado a esta criança.
+              </p>
+            )}
+
+            <p className="text-xs text-[#B0A090]">
+              Ao salvar com a saída preenchida, o dia será encerrado
+              no app dos responsáveis.
+            </p>
+          </div>
+        )}
       </Secao>
 
       {/* Botão salvar */}

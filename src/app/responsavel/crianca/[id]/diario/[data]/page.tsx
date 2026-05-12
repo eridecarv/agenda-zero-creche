@@ -1,4 +1,4 @@
-// src/app/responsavel/crianca/[id]/page.tsx
+// src/app/responsavel/crianca/[id]/diario/[data]/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -8,7 +8,7 @@ import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Card } from '@/components/ui/Card'
 import type { Humor, Sono, Refeicao, Aceitacao } from '@/types'
 
-// ── Templates ─────────────────────────────────────────────
+// ── Templates (mesmos da home) ────────────────────────────
 
 const HUMOR_TEMPLATES: Record<Humor, string[]> = {
   contente: ['ficou contente o dia todo', 'estava bem-humorada'],
@@ -61,7 +61,6 @@ type RegistroDia = {
   buscou_nome: string | null
   alimentacao: { refeicao: Refeicao; aceitacao: Aceitacao; observacao: string | null }[]
   higiene: { banho: boolean; escovacao: boolean; evacuacao: boolean; observacao: string | null } | null
-  recados: { id: string; mensagem: string; criado_em: string; lido: boolean }[]
 }
 
 // ── Subcomponentes ────────────────────────────────────────
@@ -82,24 +81,18 @@ function SecaoTitulo({ children }: { children: React.ReactNode }) {
 }
 
 function Divisor() {
-  return (
-    <div style={{ height: '0.5px', backgroundColor: '#C4A882', opacity: 0.25, margin: '10px 0' }} />
-  )
+  return <div style={{ height: '0.5px', backgroundColor: '#C4A882', opacity: 0.25, margin: '10px 0' }} />
 }
 
 function TextoPrincipal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>
-      {children}
-    </p>
+    <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>{children}</p>
   )
 }
 
 function TextoSecundario({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>
-      {children}
-    </p>
+    <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>{children}</p>
   )
 }
 
@@ -109,38 +102,35 @@ function fraseHigiene(h: RegistroDia['higiene']): string {
   if (h.banho) feitos.push('tomou banho')
   if (h.escovacao) feitos.push('escovou os dentinhos')
   if (h.evacuacao) feitos.push('fez xixi e cocô')
-  if (feitos.length === 0) return 'Nenhum cuidado registrado ainda.'
+  if (feitos.length === 0) return 'Nenhum cuidado registrado.'
   const primeiro = feitos[0].charAt(0).toUpperCase() + feitos[0].slice(1)
-  if (feitos.length === 1) return `${primeiro} hoje.`
+  if (feitos.length === 1) return `${primeiro}.`
   const resto = feitos.slice(1)
   const ultimo = resto.pop()
   return resto.length > 0
-    ? `${primeiro}, ${resto.join(', ')} e ${ultimo} hoje.`
-    : `${primeiro} e ${ultimo} hoje.`
+    ? `${primeiro}, ${resto.join(', ')} e ${ultimo}.`
+    : `${primeiro} e ${ultimo}.`
+}
+
+function formatarDataLonga(dataStr: string): string {
+  const [ano, mes, dia] = dataStr.split('-').map(Number)
+  const d = new Date(ano, mes - 1, dia)
+  return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 // ── Componente principal ──────────────────────────────────
 
-export default function CriancaHomePage() {
+export default function DiarioDetalheDataPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
+  const data = params.data as string  // 'YYYY-MM-DD'
   const supabase = createClient()
 
   const [nomeCrianca, setNomeCrianca] = useState('')
   const [registro, setRegistro] = useState<RegistroDia | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const hoje = new Date()
-    .toLocaleDateString('pt-BR', {
-      timeZone: 'America/Recife',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    .split('/')
-    .reverse()
-    .join('-')
+  const [naoEncontrado, setNaoEncontrado] = useState(false)
 
   useEffect(() => {
     async function carregar() {
@@ -155,14 +145,14 @@ export default function CriancaHomePage() {
         .from('registros_diarios')
         .select('id, humor, humor_obs, sono, sono_obs')
         .eq('crianca_id', id)
-        .eq('data', hoje)
+        .eq('data', data)
         .single()
 
-      if (!rd) { setLoading(false); return }
+      if (!rd) { setNaoEncontrado(true); setLoading(false); return }
 
       const { data: rp } = await supabase
         .from('registros_presenca')
-        .select('presente, saida, buscou_id, usuarios(nome, apelido)')
+        .select('presente, saida, buscou_id')
         .eq('registro_diario_id', rd.id)
         .single()
 
@@ -177,14 +167,6 @@ export default function CriancaHomePage() {
         .eq('registro_diario_id', rd.id)
         .single()
 
-      const { data: recados } = await supabase
-        .from('recados')
-        .select('id, mensagem, criado_em, lido')
-        .eq('crianca_id', id)
-        .order('criado_em', { ascending: false })
-        .limit(5)
-
-      // Resolve nome de quem buscou — apelido do vínculo ou nome do usuário
       let buscouNome: string | null = null
       if (rp?.buscou_id) {
         const { data: vinculo } = await supabase
@@ -207,13 +189,12 @@ export default function CriancaHomePage() {
         buscou_nome: buscouNome,
         alimentacao: ras ?? [],
         higiene: rh ?? null,
-        recados: recados ?? [],
       })
 
       setLoading(false)
     }
     carregar()
-  }, [id])
+  }, [id, data])
 
   function montarNarrativa(): React.ReactNode {
     if (!registro) return null
@@ -222,34 +203,34 @@ export default function CriancaHomePage() {
 
     if (registro.humor) {
       const template = sorteia(HUMOR_TEMPLATES[registro.humor])
-      if (registro.humor_obs) {
-        partes.push(<ExpandableText key="humor" texto={template} detalhe={registro.humor_obs} />)
-      } else {
-        partes.push(<span key="humor">{template}</span>)
-      }
+      partes.push(
+        registro.humor_obs
+          ? <ExpandableText key="humor" texto={template} detalhe={registro.humor_obs} />
+          : <span key="humor">{template}</span>
+      )
     }
 
     const almoco = registro.alimentacao.find(r => r.refeicao === 'almoco')
     const refPrincipal = almoco ?? registro.alimentacao[0]
     if (refPrincipal) {
       const template = sorteia(ACEITACAO_TEMPLATES[refPrincipal.aceitacao])
-      if (refPrincipal.observacao) {
-        partes.push(<ExpandableText key="alimentacao" texto={template} detalhe={refPrincipal.observacao} />)
-      } else {
-        partes.push(<span key="alimentacao">{template}</span>)
-      }
+      partes.push(
+        refPrincipal.observacao
+          ? <ExpandableText key="alimentacao" texto={template} detalhe={refPrincipal.observacao} />
+          : <span key="alimentacao">{template}</span>
+      )
     }
 
     if (registro.sono) {
       const template = sorteia(SONO_TEMPLATES[registro.sono])
-      if (registro.sono_obs) {
-        partes.push(<ExpandableText key="sono" texto={template} detalhe={registro.sono_obs} />)
-      } else {
-        partes.push(<span key="sono">{template}</span>)
-      }
+      partes.push(
+        registro.sono_obs
+          ? <ExpandableText key="sono" texto={template} detalhe={registro.sono_obs} />
+          : <span key="sono">{template}</span>
+      )
     }
 
-    if (partes.length === 0) return `${nome} teve seu dia registrado hoje.`
+    if (partes.length === 0) return `${nome} teve seu dia registrado.`
 
     return (
       <>
@@ -268,10 +249,10 @@ export default function CriancaHomePage() {
     if (!registro) return []
     const chips: { label: string; bg: string; text: string }[] = []
 
-    if (registro.presente === true) {
-      chips.push({ label: 'Presente hoje', bg: '#EAF3DE', text: '#4A7A3A' })
-    } else if (registro.presente === false) {
-      chips.push({ label: 'Faltou hoje', bg: '#FDE8EC', text: '#A03050' })
+    if (registro.presente === false) {
+      chips.push({ label: 'Faltou', bg: '#FDE8EC', text: '#A03050' })
+    } else if (registro.presente === true) {
+      chips.push({ label: 'Presente', bg: '#EAF3DE', text: '#4A7A3A' })
     }
 
     if (registro.sono) {
@@ -280,10 +261,10 @@ export default function CriancaHomePage() {
         ruim: 'Dormiu mal', nao_dormiu: 'Não dormiu',
       }
       const sonoCor: Record<Sono, { bg: string; text: string }> = {
-        bom:       { bg: '#EEF0FE', text: '#4A4AAA' },
-        regular:   { bg: '#FEF6E4', text: '#9A6F2A' },
-        ruim:      { bg: '#FDE8EC', text: '#A03050' },
-        nao_dormiu:{ bg: '#F5EFE8', text: '#8C7060' },
+        bom:        { bg: '#EEF0FE', text: '#4A4AAA' },
+        regular:    { bg: '#FEF6E4', text: '#9A6F2A' },
+        ruim:       { bg: '#FDE8EC', text: '#A03050' },
+        nao_dormiu: { bg: '#F5EFE8', text: '#8C7060' },
       }
       chips.push({ label: sonoLabel[registro.sono], ...sonoCor[registro.sono] })
     }
@@ -305,17 +286,21 @@ export default function CriancaHomePage() {
     )
   }
 
-  const hojeFormatado = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  })
-
-  const diaDiEncerrado = !!registro?.saida
-
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-8">
-      {/* Header */}
+      {/* Header com botão voltar */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.06)]">
-        <p style={{ color: '#C4A882' }} className="text-xs capitalize mb-1">{hojeFormatado}</p>
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1 mb-3"
+          style={{ color: '#C4A882' }}
+        >
+          <span className="text-sm">‹</span>
+          <span className="text-xs">Voltar</span>
+        </button>
+        <p style={{ color: '#C4A882' }} className="text-xs capitalize mb-1">
+          {formatarDataLonga(data)}
+        </p>
         <h1 style={{ color: '#A08060' }} className="font-display text-2xl font-bold">
           O dia de {nomeCrianca}
         </h1>
@@ -324,15 +309,15 @@ export default function CriancaHomePage() {
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
 
         {/* Sem registro */}
-        {!registro && (
+        {naoEncontrado && (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#FEF0E8] flex items-center justify-center text-3xl">🌸</div>
+              <div className="w-16 h-16 rounded-full bg-[#F5EFE8] flex items-center justify-center text-3xl">📋</div>
               <p style={{ color: '#A08060' }} className="text-base font-semibold">
-                O dia ainda está começando
+                Nenhum registro encontrado
               </p>
               <p style={{ color: '#C4A882' }} className="text-sm leading-relaxed">
-                Assim que a professora registrar as novidades, elas vão aparecer aqui com carinho.
+                Não há informações registradas para este dia.
               </p>
             </div>
           </Card>
@@ -343,15 +328,8 @@ export default function CriancaHomePage() {
           <Card padding="lg">
             <TextoPrincipal className="mb-4">{montarNarrativa()}</TextoPrincipal>
 
-            {/* Dia em andamento */}
-            {!diaDiEncerrado && (
-              <TextoSecundario className="italic mb-4">
-                O dia ainda está acontecendo — mais novidades aparecem aqui ao longo do dia.
-              </TextoSecundario>
-            )}
-
-            {/* Dia encerrado — quem buscou */}
-            {diaDiEncerrado && (
+            {/* Saída — sempre encerrado no histórico */}
+            {registro.saida && (
               <div
                 className="flex items-center gap-2 rounded-[12px] px-3 py-2 mb-4"
                 style={{ backgroundColor: '#F5EFE8' }}
@@ -359,7 +337,7 @@ export default function CriancaHomePage() {
                 <span className="text-base">👋</span>
                 <TextoSecundario>
                   Saiu às{' '}
-                  {new Date(registro.saida!).toLocaleTimeString('pt-BR', {
+                  {new Date(registro.saida).toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
                     minute: '2-digit',
                     timeZone: 'America/Recife',
@@ -378,7 +356,7 @@ export default function CriancaHomePage() {
         {/* Alimentação */}
         {registro && registro.alimentacao.length > 0 && (
           <Card padding="lg">
-            <SecaoTitulo>O que comeu hoje</SecaoTitulo>
+            <SecaoTitulo>O que comeu</SecaoTitulo>
             <div className="flex flex-col">
               {registro.alimentacao.map((r, i) => {
                 const estilo = ACEITACAO_ESTILO[r.aceitacao]
@@ -410,34 +388,6 @@ export default function CriancaHomePage() {
             {registro.higiene.observacao && (
               <><Divisor /><TextoSecundario>{registro.higiene.observacao}</TextoSecundario></>
             )}
-          </Card>
-        )}
-
-        {/* Recados */}
-        {registro && registro.recados.length > 0 && (
-          <Card padding="lg">
-            <SecaoTitulo>Recado da professora</SecaoTitulo>
-            <div className="flex flex-col">
-              {registro.recados.map((r, i) => (
-                <div key={r.id}>
-                  <div className="flex items-start justify-between gap-3 py-1">
-                    <TextoPrincipal className="flex-1">{r.mensagem}</TextoPrincipal>
-                    {!r.lido && (
-                      <span
-                        style={{ backgroundColor: '#FEF0E8', color: '#C05A2A' }}
-                        className="flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-full"
-                      >
-                        Novo
-                      </span>
-                    )}
-                  </div>
-                  <p style={{ color: '#C4A882' }} className="text-[10px] pb-1">
-                    {new Date(r.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                  {i < registro.recados.length - 1 && <Divisor />}
-                </div>
-              ))}
-            </div>
           </Card>
         )}
       </div>
