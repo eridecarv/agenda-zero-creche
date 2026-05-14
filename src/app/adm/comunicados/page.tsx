@@ -93,10 +93,10 @@ export default function ComunicadosPage() {
   // ── Busca comunicados do mês ──
   useEffect(() => {
     if (!escolaId) return
-    buscarComunicados()
+    buscarComunicados(escolaId, mes)
   }, [escolaId, mes])
 
-  async function buscarComunicados() {
+  async function buscarComunicados(escolaId: string, mes: Date) {
     setCarregando(true)
     const inicio = mes.toISOString()
     const fim = new Date(mes.getFullYear(), mes.getMonth() + 1, 1).toISOString()
@@ -197,7 +197,7 @@ export default function ComunicadosPage() {
     setErrors({})
     setModalAberto(false)
     setSalvando(false)
-    buscarComunicados()
+    buscarComunicados(escolaId, mes)
   }
 
   // ── Pill de escopo ──
@@ -471,7 +471,7 @@ export default function ComunicadosPage() {
               {comunicadoAberto.conteudo}
             </p>
 
-            {comunicadoAberto.comunicados_anexos?.map((anexo) => (
+            {comunicadoAberto.comunicados_anexos?.map((anexo: ComunicadoAnexo) => (
               <a
                 key={anexo.id}
                 href={anexo.url}
