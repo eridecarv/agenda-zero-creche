@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
     descricao: "Envie avisos para turmas ou toda a escola",
     emoji: "📣",
     href: "/adm/comunicados",
-    disponivel: false,
+    disponivel: true,
   },
   {
     label: "Cardápio",
