@@ -38,7 +38,7 @@ export function CardExamples() {
       {/* ── Card com componentes internos ── */}
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Avatar nome="Lara" emoji="👧" />
+          <Avatar name="Lara" emoji="👧" />
           <div>
             <p style={{ margin: 0, fontWeight: 500 }}>Lara Mendes</p>
             <p style={{ margin: 0, fontSize: 12, color: '#8C7060' }}>
@@ -52,9 +52,9 @@ export function CardExamples() {
       {/* ── Card com grade de métricas ── */}
       <Card>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-          <MetricCard label="Presentes" valor={34} cor="#72AA78" />
-          <MetricCard label="Ausentes" valor={6} cor="#E86C88" />
-          <MetricCard label="Turmas" valor={5} cor="#3A2E24" />
+          <MetricCard label="Presentes" value={34} color="#72AA78" />
+          <MetricCard label="Ausentes" value={6} color="#E86C88" />
+          <MetricCard label="Turmas" value={5} color="#3A2E24" />
         </div>
       </Card>
 
