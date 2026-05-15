@@ -1,13 +1,13 @@
 /**
- * ColaboradoresPage — listagem e gerenciamento de colaboradores.
+ * StaffPage — listagem e gerenciamento de colaboradores.
  *
  * Exibe os colaboradores ativos da escola e permite criar, editar
- * e desativar via ColaboradorModal (bottom sheet).
+ * e desativar via StaffModal (bottom sheet).
  *
- * Autenticação e escola_id delegados ao hook useEscola.
- * Toda ação de escrita acontece dentro do ColaboradorModal.
+ * Autenticação e school_id delegados ao hook useSchool.
+ * Toda ação de escrita acontece dentro do StaffModal.
  *
- * Rota: /adm/cadastros/colaboradores
+ * Rota: /adm/registrations/staff
  */
 
 'use client'
@@ -16,10 +16,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { ColaboradorModal } from '@/components/ui/ColaboradorModal'
+import { StaffModal } from '@/components/ui/StaffModal'
 import { createClient } from '@/lib/supabase'
-import { useEscola } from '@/hooks/useEscola'
-import type { Usuario, Role } from '@/types'
+import { useSchool } from '@/hooks/useSchool'
+import type { User, Role } from '@/types'
 
 const roleLabels: Record<Role, string> = {
   adm: 'Administrador',
@@ -29,48 +29,48 @@ const roleLabels: Record<Role, string> = {
   responsavel: 'Responsável',
 }
 
-export default function ColaboradoresPage() {
+export default function StaffPage() {
   const router = useRouter()
   const supabase = createClient()
-  const { escolaId, loading } = useEscola()
+  const { schoolId, loading } = useSchool()
 
-  const [colaboradores, setColaboradores] = useState<Usuario[]>([])
-  const [modalAberto, setModalAberto] = useState(false)
-  const [colaboradorSelecionado, setColaboradorSelecionado] = useState<Usuario | undefined>(undefined)
+  const [staffMembers, setStaffMembers] = useState<User[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedStaff, setSelectedStaff] = useState<User | undefined>(undefined)
 
   useEffect(() => {
-    if (escolaId) carregarColaboradores(escolaId)
-  }, [escolaId])
+    if (schoolId) loadStaff(schoolId)
+  }, [schoolId])
 
-  async function carregarColaboradores(eid: string) {
+  async function loadStaff(sid: string) {
     const { data } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
-      .eq('escola_id', eid)
-      .eq('ativo', true)
+      .eq('school_id', sid)
+      .eq('active', true)
       .in('role', ['coordenador', 'professor', 'auxiliar'])
-      .order('nome')
+      .order('name')
 
-    if (data) setColaboradores(data)
+    if (data) setStaffMembers(data)
   }
 
-  function abrirNovo() {
-    setColaboradorSelecionado(undefined)
-    setModalAberto(true)
+  function openNew() {
+    setSelectedStaff(undefined)
+    setModalOpen(true)
   }
 
-  function abrirEdicao(colaborador: Usuario) {
-    setColaboradorSelecionado(colaborador)
-    setModalAberto(true)
+  function openEdit(staffMember: User) {
+    setSelectedStaff(staffMember)
+    setModalOpen(true)
   }
 
-  function fecharModal() {
-    setModalAberto(false)
-    setColaboradorSelecionado(undefined)
+  function closeModal() {
+    setModalOpen(false)
+    setSelectedStaff(undefined)
   }
 
-  function aoSalvar() {
-    if (escolaId) carregarColaboradores(escolaId)
+  function onSaved() {
+    if (schoolId) loadStaff(schoolId)
   }
 
   if (loading) {
@@ -96,10 +96,10 @@ export default function ColaboradoresPage() {
           <div>
             <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Colaboradores</h1>
             <p className="text-sm text-[#8C7060] mt-0.5">
-              {colaboradores.length} {colaboradores.length === 1 ? 'colaborador ativo' : 'colaboradores ativos'}
+              {staffMembers.length} {staffMembers.length === 1 ? 'colaborador ativo' : 'colaboradores ativos'}
             </p>
           </div>
-          <Button variant="pill" fullWidth={false} onClick={abrirNovo}>
+          <Button variant="pill" fullWidth={false} onClick={openNew}>
             + Novo
           </Button>
         </div>
@@ -107,24 +107,24 @@ export default function ColaboradoresPage() {
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
 
-        {colaboradores.length === 0 && (
+        {staffMembers.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhum colaborador cadastrado ainda.</p>
-            <Button variant="primary" fullWidth={false} onClick={abrirNovo}>
+            <Button variant="primary" fullWidth={false} onClick={openNew}>
               Cadastrar primeiro colaborador
             </Button>
           </div>
         )}
 
-        {colaboradores.map((colaborador) => (
-          <Card key={colaborador.id} onClick={() => abrirEdicao(colaborador)}>
+        {staffMembers.map((staffMember) => (
+          <Card key={staffMember.id} onClick={() => openEdit(staffMember)}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-[#3A2E24]">
-                  {colaborador.apelido || colaborador.nome.split(' ')[0]}
+                  {staffMember.nickname || staffMember.name.split(' ')[0]}
                 </span>
                 <span className="text-xs text-[#8C7060]">
-                  {colaborador.nome} · {roleLabels[colaborador.role]}
+                  {staffMember.name} · {roleLabels[staffMember.role]}
                 </span>
               </div>
               <span className="text-xs text-[#8C7060]">›</span>
@@ -134,12 +134,12 @@ export default function ColaboradoresPage() {
 
       </div>
 
-      {modalAberto && escolaId && (
-        <ColaboradorModal
-          escolaId={escolaId}
-          colaborador={colaboradorSelecionado}
-          onClose={fecharModal}
-          onSaved={aoSalvar}
+      {modalOpen && schoolId && (
+        <StaffModal
+          schoolId={schoolId}
+          staffMember={selectedStaff}
+          onClose={closeModal}
+          onSaved={onSaved}
         />
       )}
 

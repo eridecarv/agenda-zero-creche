@@ -1,214 +1,213 @@
 /**
- * ComunicadosPage — página de comunicados do painel administrativo.
+ * AnnouncementsPage — página de comunicados do painel administrativo.
  *
  * Lista comunicados do mês selecionado com seletor de mês.
  * Permite criar novo comunicado via modal.
  *
- * Rota: /adm/comunicados
+ * Rota: /adm/announcements
  */
 
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useEscola } from '@/hooks/useEscola'
+import { useSchool } from '@/hooks/useSchool'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { criarComunicado } from '@/app/actions/criarComunicado'
-import type { Turma, Turno } from '@/types'
-import type { Comunicado, ComunicadoAnexo, EscopoComunicado } from '@/types'
+import { createAnnouncement } from '@/app/actions/createAnnouncement'
+import type { Class, Shift, Announcement, AnnouncementAttachment, AnnouncementScope } from '@/types'
 
 // ── Labels ────────────────────────────────────────────────────
-const turnoLabels: Record<Turno, string> = {
+const shiftLabels: Record<Shift, string> = {
   manha: 'Manhã',
   tarde: 'Tarde',
   integral: 'Integral',
   noite: 'Noite',
 }
 
-const escopoLabels: Record<EscopoComunicado, string> = {
+const scopeLabels: Record<AnnouncementScope, string> = {
   turma: 'Turma',
   turno: 'Turno',
   escola: 'Toda a escola',
 }
 
 // ── Tipo local ─────────────────────────────────────────────────
-type ComunicadoComAnexo = Comunicado & {
-  comunicados_anexos: ComunicadoAnexo[]
+type AnnouncementWithAttachments = Announcement & {
+  announcement_attachments: AnnouncementAttachment[]
 }
 
 // ── Formata mês ───────────────────────────────────────────────
-function formatarMes(data: Date): string {
-  return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+function formatMonth(date: Date): string {
+  return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 }
 
-export default function ComunicadosPage() {
+export default function AnnouncementsPage() {
   const router = useRouter()
-  const { escolaId, usuarioId, loading } = useEscola()
+  const { schoolId, userId, loading } = useSchool()
   const supabase = createClient()
 
   // Mês atual
-  const hoje = new Date()
-  const [mes, setMes] = useState(new Date(hoje.getFullYear(), hoje.getMonth(), 1))
+  const today = new Date()
+  const [month, setMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
 
   // Lista
-  const [comunicados, setComunicados] = useState<ComunicadoComAnexo[]>([])
-  const [carregando, setCarregando] = useState(false)
+  const [announcements, setAnnouncements] = useState<AnnouncementWithAttachments[]>([])
+  const [loadingList, setLoadingList] = useState(false)
 
   // Modal de criação
-  const [modalAberto, setModalAberto] = useState(false)
-  const [comunicadoAberto, setComunicadoAberto] = useState<ComunicadoComAnexo | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [openAnnouncement, setOpenAnnouncement] = useState<AnnouncementWithAttachments | null>(null)
 
   // Turmas
-  const [turmas, setTurmas] = useState<Turma[]>([])
+  const [classes, setClasses] = useState<Class[]>([])
 
   // Form
-  const [titulo, setTitulo] = useState('')
-  const [conteudo, setConteudo] = useState('')
-  const [escopo, setEscopo] = useState<EscopoComunicado>('escola')
-  const [turmaId, setTurmaId] = useState<string | null>(null)
-  const [turno, setTurno] = useState<Turno | null>(null)
-  const [arquivo, setArquivo] = useState<File | null>(null)
-  const [erroArquivo, setErroArquivo] = useState('')
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [scope, setScope] = useState<AnnouncementScope>('escola')
+  const [classId, setClassId] = useState<string | null>(null)
+  const [shift, setShift] = useState<Shift | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [salvando, setSalvando] = useState(false)
-  const inputArquivoRef = useRef<HTMLInputElement>(null)
+  const [saving, setSaving] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ── Busca turmas ──
   useEffect(() => {
-    if (!escolaId) return
-    async function buscarTurmas() {
+    if (!schoolId) return
+    async function fetchClasses() {
       const { data } = await supabase
-        .from('turmas')
+        .from('classes')
         .select('*')
-        .eq('escola_id', escolaId)
-        .eq('ativo', true)
-        .order('nome')
-      if (data) setTurmas(data)
+        .eq('school_id', schoolId)
+        .eq('active', true)
+        .order('name')
+      if (data) setClasses(data)
     }
-    buscarTurmas()
-  }, [escolaId])
+    fetchClasses()
+  }, [schoolId])
 
   // ── Busca comunicados do mês ──
   useEffect(() => {
-    if (!escolaId) return
-    buscarComunicados(escolaId, mes)
-  }, [escolaId, mes])
+    if (!schoolId) return
+    fetchAnnouncements(schoolId, month)
+  }, [schoolId, month])
 
-  async function buscarComunicados(escolaId: string, mes: Date) {
-    setCarregando(true)
-    const inicio = mes.toISOString()
-    const fim = new Date(mes.getFullYear(), mes.getMonth() + 1, 1).toISOString()
+  async function fetchAnnouncements(schoolId: string, month: Date) {
+    setLoadingList(true)
+    const start = month.toISOString()
+    const end = new Date(month.getFullYear(), month.getMonth() + 1, 1).toISOString()
 
     const { data } = await supabase
-      .from('comunicados')
-      .select('*, comunicados_anexos(*)')
-      .eq('escola_id', escolaId)
-      .gte('criado_em', inicio)
-      .lt('criado_em', fim)
-      .order('criado_em', { ascending: false })
+      .from('announcements')
+      .select('*, announcement_attachments(*)')
+      .eq('school_id', schoolId)
+      .gte('created_at', start)
+      .lt('created_at', end)
+      .order('created_at', { ascending: false })
 
-    setComunicados((data as ComunicadoComAnexo[]) ?? [])
-    setCarregando(false)
+    setAnnouncements((data as AnnouncementWithAttachments[]) ?? [])
+    setLoadingList(false)
   }
 
   // ── Navega entre meses ──
-  function mesAnterior() {
-    setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))
+  function prevMonth() {
+    setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))
   }
 
-  function proximoMes() {
-    const proximo = new Date(mes.getFullYear(), mes.getMonth() + 1, 1)
-    if (proximo <= hoje) setMes(proximo)
+  function nextMonth() {
+    const next = new Date(month.getFullYear(), month.getMonth() + 1, 1)
+    if (next <= today) setMonth(next)
   }
 
   // ── Valida arquivo ──
-  function handleArquivo(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setErroArquivo('')
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0]
+    if (!selected) return
+    setFileError('')
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErroArquivo('O arquivo deve ter no máximo 5MB.')
+    if (selected.size > 5 * 1024 * 1024) {
+      setFileError('O arquivo deve ter no máximo 5MB.')
       return
     }
 
-    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
-    if (!tiposPermitidos.includes(file.type)) {
-      setErroArquivo('Apenas imagens (JPG, PNG, WEBP) e PDF são permitidos.')
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+    if (!allowedTypes.includes(selected.type)) {
+      setFileError('Apenas imagens (JPG, PNG, WEBP) e PDF são permitidos.')
       return
     }
 
-    setArquivo(file)
+    setFile(selected)
   }
 
   // ── Validação do form ──
-  function validar() {
+  function validate() {
     const e: Record<string, string> = {}
-    if (!titulo.trim()) e.titulo = 'Título é obrigatório.'
-    if (!conteudo.trim()) e.conteudo = 'Mensagem é obrigatória.'
-    if (escopo === 'turma' && !turmaId) e.turma = 'Selecione a turma.'
-    if (escopo === 'turno' && !turno) e.turno = 'Selecione o turno.'
+    if (!title.trim()) e.title = 'Título é obrigatório.'
+    if (!content.trim()) e.content = 'Mensagem é obrigatória.'
+    if (scope === 'turma' && !classId) e.class = 'Selecione a turma.'
+    if (scope === 'turno' && !shift) e.shift = 'Selecione o turno.'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   // ── Salvar ──
-  async function handleSalvar() {
-    if (!validar() || !escolaId || !usuarioId) return
-    setSalvando(true)
+  async function handleSave() {
+    if (!validate() || !schoolId || !userId) return
+    setSaving(true)
 
-    let anexoPayload = null
+    let attachmentPayload = null
 
-    if (arquivo) {
-      const bytes = Array.from(new Uint8Array(await arquivo.arrayBuffer()))
-      anexoPayload = {
-        nome: arquivo.name,
-        tipo: arquivo.type,
+    if (file) {
+      const bytes = Array.from(new Uint8Array(await file.arrayBuffer()))
+      attachmentPayload = {
+        name: file.name,
+        type: file.type,
         bytes,
       }
     }
 
-    const resultado = await criarComunicado({
-      escolaId,
-      publicadoPor: usuarioId,
-      titulo,
-      conteudo,
-      escopo,
-      turmaId: escopo === 'turma' ? turmaId : null,
-      turno: escopo === 'turno' ? turno : null,
-      anexo: anexoPayload,
+    const result = await createAnnouncement({
+      schoolId,
+      publishedBy: userId,
+      title,
+      content,
+      scope,
+      classId: scope === 'turma' ? classId : null,
+      shift: scope === 'turno' ? shift : null,
+      attachment: attachmentPayload,
     })
 
-    if (!resultado.ok) {
-      setErrors({ geral: resultado.erro })
-      setSalvando(false)
+    if (!result.ok) {
+      setErrors({ general: result.error })
+      setSaving(false)
       return
     }
 
     // Reseta form e fecha modal
-    setTitulo('')
-    setConteudo('')
-    setEscopo('escola')
-    setTurmaId(null)
-    setTurno(null)
-    setArquivo(null)
+    setTitle('')
+    setContent('')
+    setScope('escola')
+    setClassId(null)
+    setShift(null)
+    setFile(null)
     setErrors({})
-    setModalAberto(false)
-    setSalvando(false)
-    buscarComunicados(escolaId, mes)
+    setModalOpen(false)
+    setSaving(false)
+    fetchAnnouncements(schoolId, month)
   }
 
   // ── Pill de escopo ──
-  function PillEscopo({ comunicado }: { comunicado: ComunicadoComAnexo }) {
+  function ScopePill({ announcement }: { announcement: AnnouncementWithAttachments }) {
     let label = 'Toda a escola'
-    if (comunicado.escopo === 'turma' && comunicado.turma_id) {
-      const turma = turmas.find(t => t.id === comunicado.turma_id)
-      label = turma?.nome ?? 'Turma'
+    if (announcement.scope === 'turma' && announcement.class_id) {
+      const cls = classes.find(c => c.id === announcement.class_id)
+      label = cls?.name ?? 'Turma'
     }
-    if (comunicado.escopo === 'turno' && comunicado.turno) {
-      label = turnoLabels[comunicado.turno as Turno] ?? comunicado.turno
+    if (announcement.scope === 'turno' && announcement.shift) {
+      label = shiftLabels[announcement.shift as Shift] ?? announcement.shift
     }
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FFF0E8] text-[#FF8C66]">
@@ -239,7 +238,7 @@ export default function ComunicadosPage() {
           </button>
           <h1 className="font-display text-xl font-bold text-[#3A2E24]">Comunicados</h1>
         </div>
-        <Button variant="primary" onClick={() => setModalAberto(true)}>
+        <Button variant="primary" onClick={() => setModalOpen(true)}>
           + Novo comunicado
         </Button>
       </div>
@@ -248,17 +247,17 @@ export default function ComunicadosPage() {
       <div className="px-5 pt-5 max-w-lg mx-auto">
         <div className="flex items-center justify-between bg-[#FFFDF9] rounded-[16px] px-4 py-3 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
           <button
-            onClick={mesAnterior}
+            onClick={prevMonth}
             className="text-[#8C7060] hover:text-[#3A2E24] text-lg px-2 transition-colors"
           >
             ‹
           </button>
           <span className="text-sm font-medium text-[#3A2E24] capitalize">
-            {formatarMes(mes)}
+            {formatMonth(month)}
           </span>
           <button
-            onClick={proximoMes}
-            disabled={new Date(mes.getFullYear(), mes.getMonth() + 1, 1) > hoje}
+            onClick={nextMonth}
+            disabled={new Date(month.getFullYear(), month.getMonth() + 1, 1) > today}
             className="text-[#8C7060] hover:text-[#3A2E24] text-lg px-2 transition-colors disabled:opacity-30"
           >
             ›
@@ -268,31 +267,31 @@ export default function ComunicadosPage() {
 
       {/* Lista */}
       <div className="px-5 pt-4 max-w-lg mx-auto flex flex-col gap-2">
-        {carregando ? (
+        {loadingList ? (
           <p className="text-sm text-[#8C7060] text-center py-8">Carregando...</p>
-        ) : comunicados.length === 0 ? (
+        ) : announcements.length === 0 ? (
           <p className="text-sm text-[#8C7060] text-center py-8">
-            Nenhum comunicado em {formatarMes(mes)}.
+            Nenhum comunicado em {formatMonth(month)}.
           </p>
         ) : (
-          comunicados.map((c) => (
+          announcements.map((a) => (
             <button
-              key={c.id}
-              onClick={() => setComunicadoAberto(c)}
+              key={a.id}
+              onClick={() => setOpenAnnouncement(a)}
               className="w-full text-left bg-[#FFFDF9] rounded-[16px] px-4 py-3.5 shadow-[0_2px_8px_rgba(180,140,120,0.08)] hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)] transition-all active:scale-[0.98]"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <PillEscopo comunicado={c} />
+                  <ScopePill announcement={a} />
                   <span className="text-sm font-medium text-[#3A2E24] truncate">
-                    {c.titulo}
+                    {a.title}
                   </span>
-                  {c.comunicados_anexos?.length > 0 && (
+                  {a.announcement_attachments?.length > 0 && (
                     <span className="text-xs text-[#8C7060]">📎</span>
                   )}
                 </div>
                 <span className="text-xs text-[#8C7060] shrink-0">
-                  {new Date(c.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  {new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                 </span>
               </div>
             </button>
@@ -301,9 +300,9 @@ export default function ComunicadosPage() {
       </div>
 
       {/* Modal de criação */}
-      {modalAberto && (
+      {modalOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setModalAberto(false)} />
+          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setModalOpen(false)} />
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9] rounded-t-[28px] shadow-[0_-4px_24px_rgba(180,140,120,0.18)] px-5 pt-5 pb-10 max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
             <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
             <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-4">Novo comunicado</h2>
@@ -314,107 +313,107 @@ export default function ComunicadosPage() {
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-[#3A2E24]">Para quem?</span>
                 <div className="flex gap-2">
-                  {(['escola', 'turma', 'turno'] as EscopoComunicado[]).map((e) => (
+                  {(['escola', 'turma', 'turno'] as AnnouncementScope[]).map((s) => (
                     <button
-                      key={e}
+                      key={s}
                       type="button"
-                      onClick={() => { setEscopo(e); setTurmaId(null); setTurno(null) }}
+                      onClick={() => { setScope(s); setClassId(null); setShift(null) }}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
-                        escopo === e
+                        scope === s
                           ? 'bg-[#FF8C66] text-white'
                           : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
                       }`}
                     >
-                      {escopoLabels[e]}
+                      {scopeLabels[s]}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Turma */}
-              {escopo === 'turma' && (
+              {scope === 'turma' && (
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-[#3A2E24]">Turma</span>
                   <div className="flex flex-col gap-1">
-                    {turmas.map((t) => (
+                    {classes.map((c) => (
                       <button
-                        key={t.id}
+                        key={c.id}
                         type="button"
-                        onClick={() => setTurmaId(t.id)}
+                        onClick={() => setClassId(c.id)}
                         className={`w-full text-left px-4 py-2.5 rounded-[10px] text-sm transition-all border ${
-                          turmaId === t.id
+                          classId === c.id
                             ? 'border-[#FF8C66] bg-[#FFF5F0] font-medium text-[#3A2E24]'
                             : 'border-[#E8E0D8] text-[#3A2E24] hover:border-[#FF8C66]'
                         }`}
                       >
-                        {t.nome}
+                        {c.name}
                       </button>
                     ))}
                   </div>
-                  {errors.turma && <span className="text-xs text-[#E86C88]">{errors.turma}</span>}
+                  {errors.class && <span className="text-xs text-[#E86C88]">{errors.class}</span>}
                 </div>
               )}
 
               {/* Turno */}
-              {escopo === 'turno' && (
+              {scope === 'turno' && (
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-[#3A2E24]">Turno</span>
                   <div className="flex flex-wrap gap-2">
-                    {(['manha', 'tarde', 'integral'] as Turno[]).map((t) => (
+                    {(['manha', 'tarde', 'integral'] as Shift[]).map((s) => (
                       <button
-                        key={t}
+                        key={s}
                         type="button"
-                        onClick={() => setTurno(t)}
+                        onClick={() => setShift(s)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
-                          turno === t
+                          shift === s
                             ? 'bg-[#FF8C66] text-white'
                             : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
                         }`}
                       >
-                        {turnoLabels[t]}
+                        {shiftLabels[s]}
                       </button>
                     ))}
                   </div>
-                  {errors.turno && <span className="text-xs text-[#E86C88]">{errors.turno}</span>}
+                  {errors.shift && <span className="text-xs text-[#E86C88]">{errors.shift}</span>}
                 </div>
               )}
 
               <Input
                 label="Título"
                 placeholder="Ex: Reunião de pais — maio"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-                error={errors.titulo}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                error={errors.title}
               />
 
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-[#3A2E24]">Mensagem</label>
                 <textarea
                   placeholder="Digite o conteúdo do comunicado..."
-                  value={conteudo}
-                  onChange={(e) => setConteudo(e.target.value)}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                   rows={5}
                   className="w-full rounded-[14px] border border-[#E8E0D8] px-4 py-3 text-sm bg-[#FFFDF9] text-[#3A2E24] placeholder:text-[#C4B5A8] outline-none transition-all duration-200 focus:border-[#FF8C66] focus:ring-2 focus:ring-[#FF8C66]/20 resize-none"
                 />
-                {errors.conteudo && <span className="text-xs text-[#E86C88]">{errors.conteudo}</span>}
+                {errors.content && <span className="text-xs text-[#E86C88]">{errors.content}</span>}
               </div>
 
               {/* Anexo */}
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-[#3A2E24]">Anexo (opcional)</span>
                 <input
-                  ref={inputArquivoRef}
+                  ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,application/pdf"
-                  onChange={handleArquivo}
+                  onChange={handleFile}
                   className="hidden"
                 />
-                {arquivo ? (
+                {file ? (
                   <div className="flex items-center justify-between bg-[#FAF7F2] rounded-[12px] px-4 py-3 border border-[#E8E0D8]">
-                    <span className="text-sm text-[#3A2E24] truncate">{arquivo.name}</span>
+                    <span className="text-sm text-[#3A2E24] truncate">{file.name}</span>
                     <button
                       type="button"
-                      onClick={() => { setArquivo(null); if (inputArquivoRef.current) inputArquivoRef.current.value = '' }}
+                      onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
                       className="text-xs text-[#E86C88] ml-3 shrink-0"
                     >
                       Remover
@@ -423,23 +422,23 @@ export default function ComunicadosPage() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => inputArquivoRef.current?.click()}
+                    onClick={() => fileInputRef.current?.click()}
                     className="w-full rounded-[14px] border border-dashed border-[#E8E0D8] px-4 py-3 text-sm text-[#8C7060] hover:border-[#FF8C66] hover:text-[#FF8C66] transition-all text-center"
                   >
                     Anexar imagem ou PDF
                   </button>
                 )}
-                {erroArquivo && <span className="text-xs text-[#E86C88]">{erroArquivo}</span>}
+                {fileError && <span className="text-xs text-[#E86C88]">{fileError}</span>}
               </div>
 
-              {errors.geral && (
-                <span className="text-xs text-[#E86C88] text-center">{errors.geral}</span>
+              {errors.general && (
+                <span className="text-xs text-[#E86C88] text-center">{errors.general}</span>
               )}
 
-              <Button variant="primary" loading={salvando} onClick={handleSalvar}>
+              <Button variant="primary" loading={saving} onClick={handleSave}>
                 Publicar comunicado
               </Button>
-              <Button variant="ghost" onClick={() => setModalAberto(false)}>
+              <Button variant="ghost" onClick={() => setModalOpen(false)}>
                 Cancelar
               </Button>
             </div>
@@ -448,45 +447,45 @@ export default function ComunicadosPage() {
       )}
 
       {/* Modal de visualização */}
-      {comunicadoAberto && (
+      {openAnnouncement && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setComunicadoAberto(null)} />
+          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setOpenAnnouncement(null)} />
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9] rounded-t-[28px] shadow-[0_-4px_24px_rgba(180,140,120,0.18)] px-5 pt-5 pb-10 max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
             <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
             <div className="flex items-center gap-2 mb-1">
-              <PillEscopo comunicado={comunicadoAberto} />
+              <ScopePill announcement={openAnnouncement} />
               <span className="text-xs text-[#8C7060]">
-                {new Date(comunicadoAberto.criado_em).toLocaleDateString('pt-BR', {
+                {new Date(openAnnouncement.created_at).toLocaleDateString('pt-BR', {
                   day: '2-digit', month: 'long', year: 'numeric'
                 })}
               </span>
             </div>
 
             <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-3">
-              {comunicadoAberto.titulo}
+              {openAnnouncement.title}
             </h2>
 
             <p className="text-sm text-[#5C4A3A] leading-relaxed whitespace-pre-wrap mb-4">
-              {comunicadoAberto.conteudo}
+              {openAnnouncement.content}
             </p>
 
-            {comunicadoAberto.comunicados_anexos?.map((anexo: ComunicadoAnexo) => (
+            {openAnnouncement.announcement_attachments?.map((attachment: AnnouncementAttachment) => (
               <a
-                key={anexo.id}
-                href={anexo.url}
+                key={attachment.id}
+                href={attachment.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 bg-[#FAF7F2] rounded-[14px] px-4 py-3 border border-[#E8E0D8] hover:border-[#FF8C66] transition-all"
               >
-                <span className="text-xl">{anexo.tipo === 'pdf' ? '📄' : '🖼️'}</span>
+                <span className="text-xl">{attachment.type === 'pdf' ? '📄' : '🖼️'}</span>
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-medium text-[#3A2E24] truncate">
-                    {anexo.nome_arquivo ?? 'Anexo'}
+                    {attachment.file_name ?? 'Anexo'}
                   </span>
-                  {anexo.tamanho_bytes && (
+                  {attachment.size_bytes && (
                     <span className="text-xs text-[#8C7060]">
-                      {(anexo.tamanho_bytes / 1024).toFixed(0)}KB
+                      {(attachment.size_bytes / 1024).toFixed(0)}KB
                     </span>
                   )}
                 </div>
@@ -495,7 +494,7 @@ export default function ComunicadosPage() {
             ))}
 
             <div className="mt-4">
-              <Button variant="ghost" onClick={() => setComunicadoAberto(null)}>
+              <Button variant="ghost" onClick={() => setOpenAnnouncement(null)}>
                 Fechar
               </Button>
             </div>

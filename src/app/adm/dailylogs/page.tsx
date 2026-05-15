@@ -1,6 +1,6 @@
 /**
- * AdmDiariosPage — lista de turmas para registro de diário.
- * Rota: /adm/diarios
+ * DailyLogsPage — lista de turmas para registro de diário.
+ * Rota: /adm/dailylogs
  */
 
 'use client'
@@ -8,33 +8,33 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import type { Turma } from '@/types'
+import type { Class } from '@/types'
 
-const TURNO_LABEL: Record<string, string> = {
+const SHIFT_LABEL: Record<string, string> = {
   manha: 'Manhã', tarde: 'Tarde', integral: 'Integral', noite: 'Noite',
 }
 
-export default function AdmDiariosPage() {
+export default function DailyLogsPage() {
   const router = useRouter()
   const supabase = createClient()
-  const [turmas, setTurmas] = useState<Turma[]>([])
+  const [classes, setClasses] = useState<Class[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function carregar() {
+    async function load() {
       const { data } = await supabase
-        .from('turmas')
+        .from('classes')
         .select('*')
-        .is('desativado_em', null)
-        .order('nome')
+        .is('deactivated_at', null)
+        .order('name')
 
-      if (data) setTurmas(data)
+      if (data) setClasses(data)
       setLoading(false)
     }
-    carregar()
+    load()
   }, [])
 
-  const hoje = new Date().toLocaleDateString('pt-BR', {
+  const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long', day: 'numeric', month: 'long'
   })
 
@@ -58,21 +58,21 @@ export default function AdmDiariosPage() {
           ← Painel
         </button>
         <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Diários</h1>
-        <p className="text-xs text-[#8C7060] mt-1 capitalize">{hoje}</p>
+        <p className="text-xs text-[#8C7060] mt-1 capitalize">{today}</p>
       </div>
 
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-3">
-        {turmas.length === 0 && (
+        {classes.length === 0 && (
           <div className="text-center py-16">
             <p className="text-2xl mb-2">🏫</p>
             <p className="text-sm text-[#B0A090]">Nenhuma turma cadastrada.</p>
           </div>
         )}
 
-        {turmas.map(t => (
+        {classes.map(c => (
           <button
-            key={t.id}
-            onClick={() => router.push(`/adm/diarios/${t.id}`)}
+            key={c.id}
+            onClick={() => router.push(`/adm/dailylogs/${c.id}`)}
             className="
               w-full text-left rounded-[20px] bg-[#FFFDF9] p-5
               shadow-[0_2px_8px_rgba(180,140,120,0.12)]
@@ -81,10 +81,10 @@ export default function AdmDiariosPage() {
             "
           >
             <div>
-              <p className="text-sm font-semibold text-[#3A2E24]">{t.nome}</p>
-              {t.turno && (
+              <p className="text-sm font-semibold text-[#3A2E24]">{c.name}</p>
+              {c.shift && (
                 <p className="text-xs text-[#8C7060] mt-0.5">
-                  {TURNO_LABEL[t.turno] ?? t.turno}
+                  {SHIFT_LABEL[c.shift] ?? c.shift}
                 </p>
               )}
             </div>

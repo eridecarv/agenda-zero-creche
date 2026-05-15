@@ -1,14 +1,14 @@
 /**
- * TurmasPage — listagem e gerenciamento de turmas da escola.
+ * ClassroomsPage — listagem e gerenciamento de turmas da escola.
  *
  * Exibe as turmas ativas da escola e permite criar, editar
- * e desativar turmas via TurmaModal (bottom sheet).
+ * e desativar turmas via ClassModal (bottom sheet).
  *
- * Autenticação e escola_id delegados ao hook useEscola.
+ * Autenticação e school_id delegados ao hook useSchool.
  * Toda ação de escrita (criar/editar/desativar) acontece dentro
- * do TurmaModal — esta página só controla a lista e o estado do modal.
+ * do ClassModal — esta página só controla a lista e o estado do modal.
  *
- * Rota: /adm/cadastros/turmas
+ * Rota: /adm/registrations/classrooms
  */
 'use client'
 
@@ -16,59 +16,59 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { TurmaModal } from '@/components/ui/TurmaModal'
+import { ClassModal } from '@/components/ui/ClassModal'
 import { createClient } from '@/lib/supabase'
-import { useEscola } from '@/hooks/useEscola'
-import type { Turma, Turno } from '@/types'
+import { useSchool } from '@/hooks/useSchool'
+import type { Class, Shift } from '@/types'
 
-const turnoLabels: Record<Turno, string> = {
+const shiftLabels: Record<Shift, string> = {
   manha: 'Manhã',
   tarde: 'Tarde',
   noite: 'Noite',
   integral: 'Integral',
 }
 
-export default function TurmasPage() {
+export default function ClassroomsPage() {
   const router = useRouter()
   const supabase = createClient()
-  const { escolaId, loading } = useEscola()
+  const { schoolId, loading } = useSchool()
 
-  const [turmas, setTurmas] = useState<Turma[]>([])
-  const [modalAberto, setModalAberto] = useState(false)
-  const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | undefined>(undefined)
+  const [classes, setClasses] = useState<Class[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedClass, setSelectedClass] = useState<Class | undefined>(undefined)
 
   useEffect(() => {
-    if (escolaId) carregarTurmas(escolaId)
-  }, [escolaId])
+    if (schoolId) loadClasses(schoolId)
+  }, [schoolId])
 
-  async function carregarTurmas(eid: string) {
+  async function loadClasses(sid: string) {
     const { data } = await supabase
-      .from('turmas')
+      .from('classes')
       .select('*')
-      .eq('escola_id', eid)
-      .eq('ativo', true)
-      .order('nome')
+      .eq('school_id', sid)
+      .eq('active', true)
+      .order('name')
 
-    if (data) setTurmas(data)
+    if (data) setClasses(data)
   }
 
-  function abrirNova() {
-    setTurmaSelecionada(undefined)
-    setModalAberto(true)
+  function openNew() {
+    setSelectedClass(undefined)
+    setModalOpen(true)
   }
 
-  function abrirEdicao(turma: Turma) {
-    setTurmaSelecionada(turma)
-    setModalAberto(true)
+  function openEdit(cls: Class) {
+    setSelectedClass(cls)
+    setModalOpen(true)
   }
 
-  function fecharModal() {
-    setModalAberto(false)
-    setTurmaSelecionada(undefined)
+  function closeModal() {
+    setModalOpen(false)
+    setSelectedClass(undefined)
   }
 
-  function aoSalvar() {
-    if (escolaId) carregarTurmas(escolaId)
+  function onSaved() {
+    if (schoolId) loadClasses(schoolId)
   }
 
   if (loading) {
@@ -94,10 +94,10 @@ export default function TurmasPage() {
           <div>
             <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Turmas</h1>
             <p className="text-sm text-[#8C7060] mt-0.5">
-              {turmas.length} {turmas.length === 1 ? 'turma ativa' : 'turmas ativas'}
+              {classes.length} {classes.length === 1 ? 'turma ativa' : 'turmas ativas'}
             </p>
           </div>
-          <Button variant="pill" fullWidth={false} onClick={abrirNova}>
+          <Button variant="pill" fullWidth={false} onClick={openNew}>
             + Nova turma
           </Button>
         </div>
@@ -105,25 +105,25 @@ export default function TurmasPage() {
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
 
-        {turmas.length === 0 && (
+        {classes.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhuma turma cadastrada ainda.</p>
-            <Button variant="primary" fullWidth={false} onClick={abrirNova}>
+            <Button variant="primary" fullWidth={false} onClick={openNew}>
               Criar primeira turma
             </Button>
           </div>
         )}
 
-        {turmas.map((turma) => (
-          <Card key={turma.id} onClick={() => abrirEdicao(turma)}>
+        {classes.map((cls) => (
+          <Card key={cls.id} onClick={() => openEdit(cls)}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-semibold text-[#3A2E24]">{turma.nome}</span>
+                <span className="text-sm font-semibold text-[#3A2E24]">{cls.name}</span>
                 <span className="text-xs text-[#8C7060]">
                   {[
-                    turma.nivel,
-                    turma.turno ? turnoLabels[turma.turno as Turno] : null,
-                    turma.ano,
+                    cls.level,
+                    cls.shift ? shiftLabels[cls.shift as Shift] : null,
+                    cls.year,
                   ]
                     .filter(Boolean)
                     .join(' · ')}
@@ -136,12 +136,12 @@ export default function TurmasPage() {
 
       </div>
 
-      {modalAberto && escolaId && (
-        <TurmaModal
-          escolaId={escolaId}
-          turma={turmaSelecionada}
-          onClose={fecharModal}
-          onSaved={aoSalvar}
+      {modalOpen && schoolId && (
+        <ClassModal
+          schoolId={schoolId}
+          class={selectedClass}
+          onClose={closeModal}
+          onSaved={onSaved}
         />
       )}
 

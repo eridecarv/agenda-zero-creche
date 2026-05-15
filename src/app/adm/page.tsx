@@ -14,7 +14,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEscola } from "@/hooks/useEscola";
+import { useSchool } from "@/hooks/useSchool";
 import { createClient } from "@/lib/supabase";
 
 // ── Tipo de item de navegação ──
@@ -23,7 +23,7 @@ type NavItem = {
   descricao: string;
   emoji: string;
   href: string;
-  disponivel: boolean;
+  available: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -31,49 +31,49 @@ const navItems: NavItem[] = [
     label: "Cadastros",
     descricao: "Turmas, crianças, colaboradores e responsáveis",
     emoji: "📋",
-    href: "/adm/cadastros",
-    disponivel: true,
+    href: "/adm/registrations",
+    available: true,
   },
   {
     label: "Ocorrências",
     descricao: "Registre e acompanhe ocorrências das crianças",
     emoji: "📝",
-    href: "/adm/ocorrencias",
-    disponivel: false,
+    href: "/adm/incidents",
+    available: false,
   },
   {
     label: "Comunicados",
     descricao: "Envie avisos para turmas ou toda a escola",
     emoji: "📣",
-    href: "/adm/comunicados",
-    disponivel: true,
+    href: "/adm/announcements",
+    available: true,
   },
   {
     label: "Cardápio",
     descricao: "Gerencie o cardápio semanal",
     emoji: "🍽",
-    href: "/adm/cardapio",
-    disponivel: false,
+    href: "/adm/menu",
+    available: false,
   },
   {
     label: "Diários",
     descricao: "Registre o dia a dia das crianças por turma",
     emoji: "📖",
-    href: "/adm/diarios",
-    disponivel: true,
+    href: "/adm/dailylogs",
+    available: true,
   },
   {
     label: "Configurações",
     descricao: "Dados da escola e preferências",
     emoji: "⚙️",
-    href: "/adm/configuracoes",
-    disponivel: false,
+    href: "/adm/settings",
+    available: false,
   },
 ];
 
 export default function AdmPage() {
   const router = useRouter();
-  const { loading } = useEscola();
+  const { loading } = useSchool();
 
   if (loading) {
     return (
@@ -112,14 +112,14 @@ export default function AdmPage() {
         {navItems.map((item) => (
           <button
             key={item.href}
-            onClick={() => item.disponivel && router.push(item.href)}
-            disabled={!item.disponivel}
+            onClick={() => item.available && router.push(item.href)}
+            disabled={!item.available}
             className={`
               w-full text-left rounded-[20px] bg-[#FFFDF9] p-5
               shadow-[0_2px_8px_rgba(180,140,120,0.12)]
               transition-all duration-200
               ${
-                item.disponivel
+                item.available
                   ? "active:scale-[0.97] hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)] cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }
@@ -137,7 +137,7 @@ export default function AdmPage() {
                   </span>
                 </div>
               </div>
-              {item.disponivel ? (
+              {item.available ? (
                 <span className="text-xs text-[#8C7060]">›</span>
               ) : (
                 <span className="text-xs text-[#C4B5A8]">em breve</span>

@@ -1,13 +1,13 @@
 /**
- * CriancasPage — listagem e gerenciamento de crianças.
+ * ChildrenPage — listagem e gerenciamento de crianças.
  *
  * Exibe as crianças ativas da escola com turma atual e
- * permite criar, editar e desativar via CriancaModal.
+ * permite criar, editar e desativar via ChildModal.
  *
- * Autenticação e escola_id delegados ao hook useEscola.
- * Toda ação de escrita acontece dentro do CriancaModal.
+ * Autenticação e school_id delegados ao hook useSchool.
+ * Toda ação de escrita acontece dentro do ChildModal.
  *
- * Rota: /adm/cadastros/criancas
+ * Rota: /adm/registrations/children
  */
 
 'use client'
@@ -16,20 +16,20 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { CriancaModal } from '@/components/ui/CriancaModal'
+import { ChildModal } from '@/components/ui/ChildModal'
 import { createClient } from '@/lib/supabase'
-import { useEscola } from '@/hooks/useEscola'
-import type { Crianca } from '@/types'
+import { useSchool } from '@/hooks/useSchool'
+import type { Child } from '@/types'
 
 // ── Tipo local com turma atual ────────────────────────────────
-type CriancaComTurma = Crianca & {
-  turma_nome: string | null
+type ChildWithClass = Child & {
+  class_name: string | null
 }
 
 // ── Calcula idade ─────────────────────────────────────────────
-function calcularIdade(dataNasc: string | null): string {
-  if (!dataNasc) return ''
-  const nasc = new Date(dataNasc)
+function calculateAge(birthDate: string | null): string {
+  if (!birthDate) return ''
+  const nasc = new Date(birthDate)
   const hoje = new Date()
   const meses =
     (hoje.getFullYear() - nasc.getFullYear()) * 12 +
@@ -40,63 +40,63 @@ function calcularIdade(dataNasc: string | null): string {
   return mesesRest > 0 ? `${anos}a ${mesesRest}m` : `${anos}a`
 }
 
-export default function CriancasPage() {
+export default function ChildrenPage() {
   const router = useRouter()
   const supabase = createClient()
-  const { escolaId,usuarioId, loading } = useEscola()
+  const { schoolId, userId, loading } = useSchool()
 
-  const [criancas, setCriancas] = useState<CriancaComTurma[]>([])
-  const [modalAberto, setModalAberto] = useState(false)
-  const [criancaSelecionada, setCriancaSelecionada] = useState<Crianca | undefined>(undefined)
+  const [children, setChildren] = useState<ChildWithClass[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedChild, setSelectedChild] = useState<Child | undefined>(undefined)
 
   useEffect(() => {
-    if (escolaId) carregarCriancas(escolaId)
-  }, [escolaId])
+    if (schoolId) loadChildren(schoolId)
+  }, [schoolId])
 
-  async function carregarCriancas(eid: string) {
+  async function loadChildren(sid: string) {
     const { data } = await supabase
-      .from('criancas')
+      .from('children')
       .select(`
         *,
-        crianca_turma!left (
-          data_fim,
-          turmas ( nome )
+        child_class!left (
+          end_date,
+          classes ( name )
         )
       `)
-      .eq('escola_id', eid)
-      .eq('ativo', true)
-      .order('nome')
+      .eq('school_id', sid)
+      .eq('active', true)
+      .order('name')
 
     if (data) {
-      const formatadas: CriancaComTurma[] = data.map((c: any) => {
-        const vinculoAtivo = c.crianca_turma?.find((ct: any) => ct.data_fim === null)
+      const formatted: ChildWithClass[] = data.map((c: any) => {
+        const activeEnrollment = c.child_class?.find((cc: any) => cc.end_date === null)
         return {
           ...c,
-          turma_nome: vinculoAtivo?.turmas?.nome ?? null,
-          crianca_turma: undefined,
+          class_name: activeEnrollment?.classes?.name ?? null,
+          child_class: undefined,
         }
       })
-      setCriancas(formatadas)
+      setChildren(formatted)
     }
   }
 
-  function abrirNova() {
-    setCriancaSelecionada(undefined)
-    setModalAberto(true)
+  function openNew() {
+    setSelectedChild(undefined)
+    setModalOpen(true)
   }
 
-  function abrirEdicao(crianca: Crianca) {
-    setCriancaSelecionada(crianca)
-    setModalAberto(true)
+  function openEdit(child: Child) {
+    setSelectedChild(child)
+    setModalOpen(true)
   }
 
-  function fecharModal() {
-    setModalAberto(false)
-    setCriancaSelecionada(undefined)
+  function closeModal() {
+    setModalOpen(false)
+    setSelectedChild(undefined)
   }
 
-  function aoSalvar() {
-    if (escolaId) carregarCriancas(escolaId)
+  function onSaved() {
+    if (schoolId) loadChildren(schoolId)
   }
 
   if (loading) {
@@ -122,10 +122,10 @@ export default function CriancasPage() {
           <div>
             <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Crianças</h1>
             <p className="text-sm text-[#8C7060] mt-0.5">
-              {criancas.length} {criancas.length === 1 ? 'criança ativa' : 'crianças ativas'}
+              {children.length} {children.length === 1 ? 'criança ativa' : 'crianças ativas'}
             </p>
           </div>
-          <Button variant="pill" fullWidth={false} onClick={abrirNova}>
+          <Button variant="pill" fullWidth={false} onClick={openNew}>
             + Nova
           </Button>
         </div>
@@ -133,28 +133,28 @@ export default function CriancasPage() {
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
 
-        {criancas.length === 0 && (
+        {children.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhuma criança cadastrada ainda.</p>
-            <Button variant="primary" fullWidth={false} onClick={abrirNova}>
+            <Button variant="primary" fullWidth={false} onClick={openNew}>
               Cadastrar primeira criança
             </Button>
           </div>
         )}
 
-        {criancas.map((crianca) => (
-          <Card key={crianca.id} onClick={() => abrirEdicao(crianca)}>
+        {children.map((child) => (
+          <Card key={child.id} onClick={() => openEdit(child)}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-semibold text-[#3A2E24]">{crianca.nome}</span>
+                <span className="text-sm font-semibold text-[#3A2E24]">{child.name}</span>
                 <span className="text-xs text-[#8C7060]">
                   {[
-                    calcularIdade(crianca.data_nascimento),
-                    crianca.turma_nome ?? 'Sem turma',
+                    calculateAge(child.birth_date),
+                    child.class_name ?? 'Sem turma',
                   ].filter(Boolean).join(' · ')}
                 </span>
-                {crianca.observacoes && (
-                  <span className="text-xs text-[#E86C88] mt-0.5">⚠ {crianca.observacoes}</span>
+                {child.notes && (
+                  <span className="text-xs text-[#E86C88] mt-0.5">⚠ {child.notes}</span>
                 )}
               </div>
               <span className="text-xs text-[#8C7060]">›</span>
@@ -164,13 +164,13 @@ export default function CriancasPage() {
 
       </div>
 
-      {modalAberto && escolaId && usuarioId && (
-        <CriancaModal
-          escolaId={escolaId}
-          usuarioId={usuarioId}
-          crianca={criancaSelecionada}
-          onClose={fecharModal}
-          onSaved={aoSalvar}
+      {modalOpen && schoolId && userId && (
+        <ChildModal
+          schoolId={schoolId}
+          userId={userId}
+          child={selectedChild}
+          onClose={closeModal}
+          onSaved={onSaved}
         />
       )}
 

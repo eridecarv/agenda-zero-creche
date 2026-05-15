@@ -1,5 +1,5 @@
 /**
- * CadastrosPage — hub de navegação dos cadastros.
+ * RegistrationsPage — hub de navegação dos cadastros.
  *
  * Ponto de entrada para os cadastros do sistema:
  * turmas, colaboradores e crianças.
@@ -7,45 +7,45 @@
  * Cada item navega para sua respectiva página de listagem,
  * onde o modal de criação/edição é aberto.
  *
- * Rota: /adm/cadastros
+ * Rota: /adm/registrations
  */
 
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEscola } from '@/hooks/useEscola'
+import { useSchool } from '@/hooks/useSchool'
 
-type CadastroItem = {
+type RegistrationItem = {
   label: string
   descricao: string
   emoji: string
   href: string
 }
 
-const cadastros: CadastroItem[] = [
+const registrationItems: RegistrationItem[] = [
   {
     label: 'Turmas',
     descricao: 'Crie e gerencie as turmas da escola',
     emoji: '🏫',
-    href: '/adm/cadastros/turmas',
+    href: '/adm/registrations/classrooms',
   },
   {
     label: 'Colaboradores',
     descricao: 'Professores, assistentes e coordenadores',
     emoji: '👩‍🏫',
-    href: '/adm/cadastros/colaboradores',
+    href: '/adm/registrations/staff',
   },
   {
     label: 'Crianças',
     descricao: 'Cadastre as crianças e vincule às turmas',
     emoji: '🧒',
-    href: '/adm/cadastros/criancas',
+    href: '/adm/registrations/children',
   },
 ]
 
-export default function CadastrosPage() {
+export default function RegistrationsPage() {
   const router = useRouter()
-  const { loading } = useEscola()
+  const { loading } = useSchool()
 
   if (loading) {
     return (
@@ -72,7 +72,7 @@ export default function CadastrosPage() {
 
       {/* Lista */}
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
-        {cadastros.map((item) => (
+        {registrationItems.map((item) => (
           <button
             key={item.href}
             onClick={() => router.push(item.href)}
