@@ -1,4 +1,4 @@
-// src/app/responsavel/crianca/[id]/diario/[data]/page.tsx
+// src/app/guardian/child/[id]/dailylog/[date]/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -6,31 +6,31 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Card } from '@/components/ui/Card'
-import type { Humor, Sono, Refeicao, Aceitacao } from '@/types'
+import type { Mood, Sleep, Meal, Acceptance } from '@/types'
 
 // ── Templates (mesmos da home) ────────────────────────────
 
-const HUMOR_TEMPLATES: Record<Humor, string[]> = {
+const MOOD_TEMPLATES: Record<Mood, string[]> = {
   contente: ['ficou contente o dia todo', 'estava bem-humorada'],
   tranquilo: ['passou o dia tranquila', 'ficou calma e serena'],
   agitado: ['ficou um pouco agitada hoje', 'teve um dia mais agitado'],
   choroso: ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
 }
 
-const SONO_TEMPLATES: Record<Sono, string[]> = {
+const SLEEP_TEMPLATES: Record<Sleep, string[]> = {
   bom: ['descansou bem no horário', 'dormiu direitinho'],
   regular: ['dormiu um pouco', 'o soninho foi tranquilo'],
   ruim: ['teve dificuldade para dormir', 'dormiu mal hoje'],
   nao_dormiu: ['não conseguiu dormir hoje', 'ficou sem dormir'],
 }
 
-const ACEITACAO_TEMPLATES: Record<Aceitacao, string[]> = {
+const ACCEPTANCE_TEMPLATES: Record<Acceptance, string[]> = {
   boa: ['comeu bem', 'aceitou bem as refeições'],
   regular: ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
   recusou: ['não quis comer muito hoje', 'teve pouco apetite'],
 }
 
-const REFEICAO_LABEL: Record<Refeicao, string> = {
+const MEAL_LABEL: Record<Meal, string> = {
   cafe: 'Café da manhã',
   lanche_manha: 'Lanche da manhã',
   almoco: 'Almoço',
@@ -38,29 +38,29 @@ const REFEICAO_LABEL: Record<Refeicao, string> = {
   jantar: 'Jantar',
 }
 
-const ACEITACAO_ESTILO: Record<Aceitacao, { bg: string; text: string; label: string }> = {
+const ACCEPTANCE_STYLE: Record<Acceptance, { bg: string; text: string; label: string }> = {
   boa:     { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
   regular: { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
   recusou: { bg: '#FDE8EC', text: '#A03050', label: 'Recusou' },
 }
 
-function sorteia<T>(arr: T[]): T {
+function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
 // ── Tipos ─────────────────────────────────────────────────
 
-type RegistroDia = {
+type DayLog = {
   id: string
-  humor: Humor | null
-  humor_obs: string | null
-  sono: Sono | null
-  sono_obs: string | null
-  presente: boolean | null
-  saida: string | null
-  buscou_nome: string | null
-  alimentacao: { refeicao: Refeicao; aceitacao: Aceitacao; observacao: string | null }[]
-  higiene: { banho: boolean; escovacao: boolean; evacuacao: boolean; observacao: string | null } | null
+  mood: Mood | null
+  mood_notes: string | null
+  sleep: Sleep | null
+  sleep_notes: string | null
+  present: boolean | null
+  check_out: string | null
+  picked_up_name: string | null
+  feeding: { meal: Meal; acceptance: Acceptance; notes: string | null }[]
+  hygiene: { bath: boolean; brushing: boolean; bowel_movement: boolean; notes: string | null } | null
 }
 
 // ── Subcomponentes ────────────────────────────────────────
@@ -76,203 +76,203 @@ function Chip({ label, bg, text }: { label: string; bg: string; text: string }) 
   )
 }
 
-function SecaoTitulo({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return <p style={{ color: '#C4A882' }} className="text-xs font-medium mb-3">{children}</p>
 }
 
-function Divisor() {
+function Divider() {
   return <div style={{ height: '0.5px', backgroundColor: '#C4A882', opacity: 0.25, margin: '10px 0' }} />
 }
 
-function TextoPrincipal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function PrimaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>{children}</p>
   )
 }
 
-function TextoSecundario({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function SecondaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>{children}</p>
   )
 }
 
-function fraseHigiene(h: RegistroDia['higiene']): string {
+function hygienePhrase(h: DayLog['hygiene']): string {
   if (!h) return ''
-  const feitos: string[] = []
-  if (h.banho) feitos.push('tomou banho')
-  if (h.escovacao) feitos.push('escovou os dentinhos')
-  if (h.evacuacao) feitos.push('fez xixi e cocô')
-  if (feitos.length === 0) return 'Nenhum cuidado registrado.'
-  const primeiro = feitos[0].charAt(0).toUpperCase() + feitos[0].slice(1)
-  if (feitos.length === 1) return `${primeiro}.`
-  const resto = feitos.slice(1)
-  const ultimo = resto.pop()
-  return resto.length > 0
-    ? `${primeiro}, ${resto.join(', ')} e ${ultimo}.`
-    : `${primeiro} e ${ultimo}.`
+  const done: string[] = []
+  if (h.bath) done.push('tomou banho')
+  if (h.brushing) done.push('escovou os dentinhos')
+  if (h.bowel_movement) done.push('fez xixi e cocô')
+  if (done.length === 0) return 'Nenhum cuidado registrado.'
+  const first = done[0].charAt(0).toUpperCase() + done[0].slice(1)
+  if (done.length === 1) return `${first}.`
+  const rest = done.slice(1)
+  const last = rest.pop()
+  return rest.length > 0
+    ? `${first}, ${rest.join(', ')} e ${last}.`
+    : `${first} e ${last}.`
 }
 
-function formatarDataLonga(dataStr: string): string {
-  const [ano, mes, dia] = dataStr.split('-').map(Number)
-  const d = new Date(ano, mes - 1, dia)
+function formatLongDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const d = new Date(year, month - 1, day)
   return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 // ── Componente principal ──────────────────────────────────
 
-export default function DiarioDetalheDataPage() {
+export default function DailyLogDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
-  const data = params.data as string  // 'YYYY-MM-DD'
+  const date = params.date as string  // 'YYYY-MM-DD'
   const supabase = createClient()
 
-  const [nomeCrianca, setNomeCrianca] = useState('')
-  const [registro, setRegistro] = useState<RegistroDia | null>(null)
+  const [childName, setChildName] = useState('')
+  const [dayLog, setDayLog] = useState<DayLog | null>(null)
   const [loading, setLoading] = useState(true)
-  const [naoEncontrado, setNaoEncontrado] = useState(false)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    async function carregar() {
+    async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const { data: c } = await supabase
-        .from('criancas').select('nome').eq('id', id).single()
-      if (c) setNomeCrianca(c.nome.split(' ')[0])
+      const { data: child } = await supabase
+        .from('children').select('name').eq('id', id).single()
+      if (child) setChildName(child.name.split(' ')[0])
 
-      const { data: rd } = await supabase
-        .from('registros_diarios')
-        .select('id, humor, humor_obs, sono, sono_obs')
-        .eq('crianca_id', id)
-        .eq('data', data)
+      const { data: dl } = await supabase
+        .from('daily_logs')
+        .select('id, mood, mood_notes, sleep, sleep_notes')
+        .eq('child_id', id)
+        .eq('date', date)
         .single()
 
-      if (!rd) { setNaoEncontrado(true); setLoading(false); return }
+      if (!dl) { setNotFound(true); setLoading(false); return }
 
-      const { data: rp } = await supabase
-        .from('registros_presenca')
-        .select('presente, saida, buscou_id')
-        .eq('registro_diario_id', rd.id)
+      const { data: al } = await supabase
+        .from('attendance_logs')
+        .select('present, check_out, picked_up_by')
+        .eq('daily_log_id', dl.id)
         .single()
 
-      const { data: ras } = await supabase
-        .from('registros_alimentacao')
-        .select('refeicao, aceitacao, observacao')
-        .eq('registro_diario_id', rd.id)
+      const { data: fls } = await supabase
+        .from('feeding_logs')
+        .select('meal, acceptance, notes')
+        .eq('daily_log_id', dl.id)
 
-      const { data: rh } = await supabase
-        .from('registros_higiene')
-        .select('banho, escovacao, evacuacao, observacao')
-        .eq('registro_diario_id', rd.id)
+      const { data: hl } = await supabase
+        .from('hygiene_logs')
+        .select('bath, brushing, bowel_movement, notes')
+        .eq('daily_log_id', dl.id)
         .single()
 
-      let buscouNome: string | null = null
-      if (rp?.buscou_id) {
-        const { data: vinculo } = await supabase
-          .from('vinculos')
-          .select('apelido, usuarios(nome)')
-          .eq('crianca_id', id)
-          .eq('usuario_id', rp.buscou_id)
+      let pickedUpName: string | null = null
+      if (al?.picked_up_by) {
+        const { data: guardianship } = await supabase
+          .from('guardianships')
+          .select('nickname, users(name)')
+          .eq('child_id', id)
+          .eq('user_id', al.picked_up_by)
           .single()
-        buscouNome = vinculo?.apelido ?? (vinculo as any)?.usuarios?.nome ?? null
+        pickedUpName = guardianship?.nickname ?? (guardianship as any)?.users?.name ?? null
       }
 
-      setRegistro({
-        id: rd.id,
-        humor: rd.humor,
-        humor_obs: rd.humor_obs,
-        sono: rd.sono,
-        sono_obs: rd.sono_obs,
-        presente: rp?.presente ?? null,
-        saida: rp?.saida ?? null,
-        buscou_nome: buscouNome,
-        alimentacao: ras ?? [],
-        higiene: rh ?? null,
+      setDayLog({
+        id: dl.id,
+        mood: dl.mood,
+        mood_notes: dl.mood_notes,
+        sleep: dl.sleep,
+        sleep_notes: dl.sleep_notes,
+        present: al?.present ?? null,
+        check_out: al?.check_out ?? null,
+        picked_up_name: pickedUpName,
+        feeding: fls ?? [],
+        hygiene: hl ?? null,
       })
 
       setLoading(false)
     }
-    carregar()
-  }, [id, data])
+    load()
+  }, [id, date])
 
-  function montarNarrativa(): React.ReactNode {
-    if (!registro) return null
-    const nome = nomeCrianca
-    const partes: React.ReactNode[] = []
+  function buildNarrative(): React.ReactNode {
+    if (!dayLog) return null
+    const name = childName
+    const parts: React.ReactNode[] = []
 
-    if (registro.humor) {
-      const template = sorteia(HUMOR_TEMPLATES[registro.humor])
-      partes.push(
-        registro.humor_obs
-          ? <ExpandableText key="humor" texto={template} detalhe={registro.humor_obs} />
-          : <span key="humor">{template}</span>
+    if (dayLog.mood) {
+      const template = pickRandom(MOOD_TEMPLATES[dayLog.mood])
+      parts.push(
+        dayLog.mood_notes
+          ? <ExpandableText key="mood" text={template} detail={dayLog.mood_notes} />
+          : <span key="mood">{template}</span>
       )
     }
 
-    const almoco = registro.alimentacao.find(r => r.refeicao === 'almoco')
-    const refPrincipal = almoco ?? registro.alimentacao[0]
-    if (refPrincipal) {
-      const template = sorteia(ACEITACAO_TEMPLATES[refPrincipal.aceitacao])
-      partes.push(
-        refPrincipal.observacao
-          ? <ExpandableText key="alimentacao" texto={template} detalhe={refPrincipal.observacao} />
-          : <span key="alimentacao">{template}</span>
+    const lunch = dayLog.feeding.find(f => f.meal === 'almoco')
+    const mainMeal = lunch ?? dayLog.feeding[0]
+    if (mainMeal) {
+      const template = pickRandom(ACCEPTANCE_TEMPLATES[mainMeal.acceptance])
+      parts.push(
+        mainMeal.notes
+          ? <ExpandableText key="feeding" text={template} detail={mainMeal.notes} />
+          : <span key="feeding">{template}</span>
       )
     }
 
-    if (registro.sono) {
-      const template = sorteia(SONO_TEMPLATES[registro.sono])
-      partes.push(
-        registro.sono_obs
-          ? <ExpandableText key="sono" texto={template} detalhe={registro.sono_obs} />
-          : <span key="sono">{template}</span>
+    if (dayLog.sleep) {
+      const template = pickRandom(SLEEP_TEMPLATES[dayLog.sleep])
+      parts.push(
+        dayLog.sleep_notes
+          ? <ExpandableText key="sleep" text={template} detail={dayLog.sleep_notes} />
+          : <span key="sleep">{template}</span>
       )
     }
 
-    if (partes.length === 0) return `${nome} teve seu dia registrado.`
+    if (parts.length === 0) return `${name} teve seu dia registrado.`
 
     return (
       <>
-        {nome}{' '}
-        {partes.map((p, i) => (
+        {name}{' '}
+        {parts.map((p, i) => (
           <span key={i}>
             {p}
-            {i < partes.length - 2 ? ', ' : i === partes.length - 2 ? ' e ' : '.'}
+            {i < parts.length - 2 ? ', ' : i === parts.length - 2 ? ' e ' : '.'}
           </span>
         ))}
       </>
     )
   }
 
-  function montarChips() {
-    if (!registro) return []
+  function buildChips() {
+    if (!dayLog) return []
     const chips: { label: string; bg: string; text: string }[] = []
 
-    if (registro.presente === false) {
+    if (dayLog.present === false) {
       chips.push({ label: 'Faltou', bg: '#FDE8EC', text: '#A03050' })
-    } else if (registro.presente === true) {
+    } else if (dayLog.present === true) {
       chips.push({ label: 'Presente', bg: '#EAF3DE', text: '#4A7A3A' })
     }
 
-    if (registro.sono) {
-      const sonoLabel: Record<Sono, string> = {
+    if (dayLog.sleep) {
+      const sleepLabel: Record<Sleep, string> = {
         bom: 'Dormiu bem', regular: 'Dormiu um pouco',
         ruim: 'Dormiu mal', nao_dormiu: 'Não dormiu',
       }
-      const sonoCor: Record<Sono, { bg: string; text: string }> = {
+      const sleepColor: Record<Sleep, { bg: string; text: string }> = {
         bom:        { bg: '#EEF0FE', text: '#4A4AAA' },
         regular:    { bg: '#FEF6E4', text: '#9A6F2A' },
         ruim:       { bg: '#FDE8EC', text: '#A03050' },
         nao_dormiu: { bg: '#F5EFE8', text: '#8C7060' },
       }
-      chips.push({ label: sonoLabel[registro.sono], ...sonoCor[registro.sono] })
+      chips.push({ label: sleepLabel[dayLog.sleep], ...sleepColor[dayLog.sleep] })
     }
 
-    if (registro.higiene) {
-      const feitos = [registro.higiene.banho, registro.higiene.escovacao, registro.higiene.evacuacao]
+    if (dayLog.hygiene) {
+      const done = [dayLog.hygiene.bath, dayLog.hygiene.brushing, dayLog.hygiene.bowel_movement]
         .filter(Boolean).length
-      if (feitos > 0) chips.push({ label: 'Cuidados feitos', bg: '#FEF0E8', text: '#9A5A2A' })
+      if (done > 0) chips.push({ label: 'Cuidados feitos', bg: '#FEF0E8', text: '#9A5A2A' })
     }
 
     return chips
@@ -299,17 +299,17 @@ export default function DiarioDetalheDataPage() {
           <span className="text-xs">Voltar</span>
         </button>
         <p style={{ color: '#C4A882' }} className="text-xs capitalize mb-1">
-          {formatarDataLonga(data)}
+          {formatLongDate(date)}
         </p>
         <h1 style={{ color: '#A08060' }} className="font-display text-2xl font-bold">
-          O dia de {nomeCrianca}
+          O dia de {childName}
         </h1>
       </div>
 
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
 
         {/* Sem registro */}
-        {naoEncontrado && (
+        {notFound && (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
               <div className="w-16 h-16 rounded-full bg-[#F5EFE8] flex items-center justify-center text-3xl">📋</div>
@@ -324,55 +324,55 @@ export default function DiarioDetalheDataPage() {
         )}
 
         {/* Narrativa + chips */}
-        {registro && (
+        {dayLog && (
           <Card padding="lg">
-            <TextoPrincipal className="mb-4">{montarNarrativa()}</TextoPrincipal>
+            <PrimaryText className="mb-4">{buildNarrative()}</PrimaryText>
 
             {/* Saída — sempre encerrado no histórico */}
-            {registro.saida && (
+            {dayLog.check_out && (
               <div
                 className="flex items-center gap-2 rounded-[12px] px-3 py-2 mb-4"
                 style={{ backgroundColor: '#F5EFE8' }}
               >
                 <span className="text-base">👋</span>
-                <TextoSecundario>
+                <SecondaryText>
                   Saiu às{' '}
-                  {new Date(registro.saida).toLocaleTimeString('pt-BR', {
+                  {new Date(dayLog.check_out).toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
                     minute: '2-digit',
                     timeZone: 'America/Recife',
                   })}
-                  {registro.buscou_nome ? ` com ${registro.buscou_nome}` : ''}
-                </TextoSecundario>
+                  {dayLog.picked_up_name ? ` com ${dayLog.picked_up_name}` : ''}
+                </SecondaryText>
               </div>
             )}
 
             <div className="flex flex-wrap gap-2">
-              {montarChips().map((chip, i) => <Chip key={i} {...chip} />)}
+              {buildChips().map((chip, i) => <Chip key={i} {...chip} />)}
             </div>
           </Card>
         )}
 
         {/* Alimentação */}
-        {registro && registro.alimentacao.length > 0 && (
+        {dayLog && dayLog.feeding.length > 0 && (
           <Card padding="lg">
-            <SecaoTitulo>O que comeu</SecaoTitulo>
+            <SectionTitle>O que comeu</SectionTitle>
             <div className="flex flex-col">
-              {registro.alimentacao.map((r, i) => {
-                const estilo = ACEITACAO_ESTILO[r.aceitacao]
+              {dayLog.feeding.map((f, i) => {
+                const style = ACCEPTANCE_STYLE[f.acceptance]
                 return (
                   <div key={i}>
                     <div className="flex items-center justify-between py-1">
-                      <TextoPrincipal>{REFEICAO_LABEL[r.refeicao]}</TextoPrincipal>
+                      <PrimaryText>{MEAL_LABEL[f.meal]}</PrimaryText>
                       <span
-                        style={{ backgroundColor: estilo.bg, color: estilo.text }}
+                        style={{ backgroundColor: style.bg, color: style.text }}
                         className="text-xs font-medium px-3 py-1 rounded-full"
                       >
-                        {estilo.label}
+                        {style.label}
                       </span>
                     </div>
-                    {r.observacao && <TextoSecundario className="pb-1">{r.observacao}</TextoSecundario>}
-                    {i < registro.alimentacao.length - 1 && <Divisor />}
+                    {f.notes && <SecondaryText className="pb-1">{f.notes}</SecondaryText>}
+                    {i < dayLog.feeding.length - 1 && <Divider />}
                   </div>
                 )
               })}
@@ -381,12 +381,12 @@ export default function DiarioDetalheDataPage() {
         )}
 
         {/* Higiene */}
-        {registro?.higiene && (registro.higiene.banho || registro.higiene.escovacao || registro.higiene.evacuacao) && (
+        {dayLog?.hygiene && (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
           <Card padding="lg">
-            <SecaoTitulo>Cuidados do dia</SecaoTitulo>
-            <TextoPrincipal>{fraseHigiene(registro.higiene)}</TextoPrincipal>
-            {registro.higiene.observacao && (
-              <><Divisor /><TextoSecundario>{registro.higiene.observacao}</TextoSecundario></>
+            <SectionTitle>Cuidados do dia</SectionTitle>
+            <PrimaryText>{hygienePhrase(dayLog.hygiene)}</PrimaryText>
+            {dayLog.hygiene.notes && (
+              <><Divider /><SecondaryText>{dayLog.hygiene.notes}</SecondaryText></>
             )}
           </Card>
         )}

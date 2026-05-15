@@ -1,30 +1,30 @@
-// src/app/responsavel/page.tsx
+// src/app/guardian/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-type CriancaVinculada = {
+type LinkedChild = {
   id: string
-  nome: string
-  data_nascimento: string | null
+  name: string
+  birth_date: string | null
 }
 
-type Comunicado = {
+type Announcement = {
   id: string
-  titulo: string
-  conteudo: string
-  criado_em: string
+  title: string
+  content: string
+  created_at: string
 }
 
-export default function ResponsavelPage() {
+export default function GuardianPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [criancas, setCriancas] = useState<CriancaVinculada[]>([])
-  const [comunicados, setComunicados] = useState<Comunicado[]>([])
-  const [nomeResponsavel, setNomeResponsavel] = useState('')
+  const [children, setChildren] = useState<LinkedChild[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [guardianName, setGuardianName] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,37 +32,37 @@ export default function ResponsavelPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const { data: usuario } = await supabase
-        .from('usuarios')
-        .select('nome, escola_id')
+      const { data: userData } = await supabase
+        .from('users')
+        .select('name, school_id')
         .eq('id', user.id)
         .single()
 
-      if (usuario) setNomeResponsavel(usuario.nome.split(' ')[0])
+      if (userData) setGuardianName(userData.name.split(' ')[0])
 
-      const { data: vinculos } = await supabase
-        .from('vinculos')
-        .select('criancas(id, nome, data_nascimento)')
-        .eq('usuario_id', user.id)
-        .eq('ativo', true)
-        .is('data_fim', null)
+      const { data: guardianships } = await supabase
+        .from('guardianships')
+        .select('children(id, name, birth_date)')
+        .eq('user_id', user.id)
+        .eq('active', true)
+        .is('end_date', null)
 
-      if (vinculos) {
-        const lista = vinculos
-          .map((v: any) => v.criancas)
+      if (guardianships) {
+        const list = guardianships
+          .map((g: any) => g.children)
           .filter(Boolean)
-        setCriancas(lista)
+        setChildren(list)
       }
 
-      if (usuario?.escola_id) {
+      if (userData?.school_id) {
         const { data: comms } = await supabase
-          .from('comunicados')
-          .select('id, titulo, conteudo, criado_em')
-          .eq('escola_id', usuario.escola_id)
-          .order('criado_em', { ascending: false })
+          .from('announcements')
+          .select('id, title, content, created_at')
+          .eq('school_id', userData.school_id)
+          .order('created_at', { ascending: false })
           .limit(10)
 
-        if (comms) setComunicados(comms)
+        if (comms) setAnnouncements(comms)
       }
 
       setLoading(false)
@@ -70,9 +70,9 @@ export default function ResponsavelPage() {
     init()
   }, [])
 
-  function calcularIdade(dataNasc: string | null): string {
-    if (!dataNasc) return ''
-    const nasc = new Date(dataNasc)
+  function calculateAge(birthDate: string | null): string {
+    if (!birthDate) return ''
+    const nasc = new Date(birthDate)
     const hoje = new Date()
     const meses =
       (hoje.getFullYear() - nasc.getFullYear()) * 12 +
@@ -84,14 +84,14 @@ export default function ResponsavelPage() {
     return `${anos}a ${mesesRest}m`
   }
 
-  function saudacao(): string {
+  function greeting(): string {
     const h = new Date().getHours()
     if (h < 12) return 'Bom dia'
     if (h < 18) return 'Boa tarde'
     return 'Boa noite'
   }
 
-  function formatarData(iso: string): string {
+  function formatDate(iso: string): string {
     const d = new Date(iso)
     const hoje = new Date()
     const ontem = new Date(hoje)
@@ -102,7 +102,7 @@ export default function ResponsavelPage() {
     return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
   }
 
-  async function handleSair() {
+  async function handleSignOut() {
     await supabase.auth.signOut()
     router.push('/login')
   }
@@ -122,13 +122,13 @@ export default function ResponsavelPage() {
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-[#8C7060] mb-0.5">{saudacao()},</p>
+            <p className="text-xs text-[#8C7060] mb-0.5">{greeting()},</p>
             <h1 className="font-display text-2xl font-bold text-[#3A2E24]">
-              {nomeResponsavel || 'Responsável'} 👋
+              {guardianName || 'Responsável'} 👋
             </h1>
           </div>
           <button
-            onClick={handleSair}
+            onClick={handleSignOut}
             className="text-sm text-[#8C7060] hover:text-[#E86C88] transition-colors"
           >
             Sair
@@ -141,21 +141,21 @@ export default function ResponsavelPage() {
         {/* Crianças */}
         <section>
           <p className="text-xs font-semibold uppercase tracking-widest text-[#8C7060] mb-3">
-            {criancas.length === 1 ? 'Sua criança' : 'Suas crianças'}
+            {children.length === 1 ? 'Sua criança' : 'Suas crianças'}
           </p>
 
           <div className="flex flex-col gap-3">
-            {criancas.length === 0 && (
+            {children.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-2xl mb-2">👶</p>
                 <p className="text-sm text-[#B0A090]">Nenhuma criança vinculada ainda.</p>
               </div>
             )}
 
-            {criancas.map((c) => (
+            {children.map((child) => (
               <button
-                key={c.id}
-                onClick={() => router.push(`/responsavel/crianca/${c.id}`)}
+                key={child.id}
+                onClick={() => router.push(`/guardian/child/${child.id}`)}
                 className="
                   w-full text-left
                   rounded-[20px] bg-[#FFFDF9] p-5
@@ -175,11 +175,11 @@ export default function ResponsavelPage() {
 
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-[#3A2E24] truncate">
-                    {c.nome}
+                    {child.name}
                   </p>
-                  {c.data_nascimento && (
+                  {child.birth_date && (
                     <p className="text-xs text-[#8C7060] mt-0.5">
-                      {calcularIdade(c.data_nascimento)}
+                      {calculateAge(child.birth_date)}
                     </p>
                   )}
                 </div>
@@ -202,7 +202,7 @@ export default function ResponsavelPage() {
             Comunicados
           </p>
 
-          {comunicados.length === 0 ? (
+          {announcements.length === 0 ? (
             <div className="
               rounded-[20px] bg-[#FFFDF9] p-6
               shadow-[0_2px_8px_rgba(180,140,120,0.08)]
@@ -215,9 +215,9 @@ export default function ResponsavelPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {comunicados.map((c) => (
+              {announcements.map((a) => (
                 <div
-                  key={c.id}
+                  key={a.id}
                   className="
                     rounded-[20px] bg-[#FFFDF9] p-5
                     shadow-[0_2px_8px_rgba(180,140,120,0.08)]
@@ -225,14 +225,14 @@ export default function ResponsavelPage() {
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <p className="text-sm font-semibold text-[#3A2E24] leading-snug">
-                      {c.titulo}
+                      {a.title}
                     </p>
                     <span className="text-xs text-[#B0A090] flex-shrink-0 mt-0.5">
-                      {formatarData(c.criado_em)}
+                      {formatDate(a.created_at)}
                     </span>
                   </div>
                   <p className="text-sm text-[#8C7060] leading-relaxed line-clamp-3">
-                    {c.conteudo}
+                    {a.content}
                   </p>
                 </div>
               ))}

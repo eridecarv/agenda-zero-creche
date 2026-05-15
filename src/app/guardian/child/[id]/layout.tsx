@@ -1,10 +1,10 @@
-// src/app/responsavel/crianca/[id]/layout.tsx
+// src/app/guardian/child/[id]/layout.tsx
 /**
  * Layout da área da criança — responsável.
  *
- * Envolve todas as páginas dentro de /responsavel/crianca/[id].
+ * Envolve todas as páginas dentro de /guardian/child/[id].
  * Renderiza o BottomNav com cinco abas:
- *   🏠 Início   → volta para a seleção de criança (/responsavel)
+ *   🏠 Início   → volta para a seleção de criança (/guardian)
  *   ☀️ Hoje     → diário do dia atual da criança selecionada
  *   📖 Diário   → histórico de dias anteriores
  *   📢 Avisos   → comunicados da escola
@@ -19,42 +19,42 @@
 import { useParams, usePathname } from 'next/navigation'
 import { BottomNav } from '@/components/ui/BottomNav'
 
-export default function CriancaLayout({ children }: { children: React.ReactNode }) {
+export default function ChildLayout({ children }: { children: React.ReactNode }) {
   const params = useParams()
   const pathname = usePathname()
   const id = params.id as string
-  const base = `/responsavel/crianca/${id}`
+  const base = `/guardian/child/${id}`
 
-  const itens = [
+  const items = [
     {
       label: 'Início',
       icon: '🏠',
-      href: '/responsavel',           // ← volta para seleção de criança
-      ativo: false,                   // nunca "ativo" — é uma saída, não uma aba
+      href: '/guardian',
+      active: false,
     },
     {
       label: 'Hoje',
       icon: '☀️',
       href: base,
-      ativo: pathname === base,
+      active: pathname === base,
     },
     {
       label: 'Diário',
       icon: '📖',
-      href: `${base}/diario`,
-      ativo: pathname.startsWith(`${base}/diario`),
+      href: `${base}/dailylog`,
+      active: pathname.startsWith(`${base}/dailylog`),
     },
     {
       label: 'Avisos',
       icon: '📢',
-      href: `${base}/comunicados`,
-      ativo: pathname.startsWith(`${base}/comunicados`),
+      href: `${base}/announcements`,
+      active: pathname.startsWith(`${base}/announcements`),
     },
     {
       label: 'Perfil',
       icon: '👤',
       href: `${base}/perfil`,
-      ativo: pathname.startsWith(`${base}/perfil`),
+      active: pathname.startsWith(`${base}/perfil`),
     },
   ]
 
@@ -63,7 +63,7 @@ export default function CriancaLayout({ children }: { children: React.ReactNode 
       <div className="flex-1 pb-24">
         {children}
       </div>
-      <BottomNav itens={itens} />
+      <BottomNav items={items} />
     </div>
   )
 }

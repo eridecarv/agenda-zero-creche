@@ -1,7 +1,7 @@
 /**
- * ConvitePage — página pública de ativação de conta do responsável.
+ * InvitePage — página pública de ativação de conta do responsável.
  *
- * Acessada via link enviado pelo WhatsApp: /convite/[token]
+ * Acessada via link enviado pelo WhatsApp: /invite/[token]
  *
  * Etapas:
  * 1. Valida o token ao carregar — existe, não expirou, não foi usado
@@ -18,70 +18,69 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { ativarResponsavel } from "@/app/actions/ativarResponsavel";
+import { activateGuardian } from "@/app/actions/activateGuardian";
 import { createClient } from "@/lib/supabase";
 
-type StatusToken = "carregando" | "valido" | "invalido" | "expirado" | "usado";
+type TokenStatus = "loading" | "valid" | "invalid" | "expired" | "used";
 
 // ── Formata CPF enquanto digita ───────────────────────────────
-function formatarCpf(valor: string): string {
-  const nums = valor.replace(/\D/g, "").slice(0, 11);
+function formatCpf(value: string): string {
+  const nums = value.replace(/\D/g, "").slice(0, 11);
   return nums
     .replace(/(\d{3})(\d)/, "$1.$2")
     .replace(/(\d{3})(\d)/, "$1.$2")
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 }
 
-export default function ConvitePage() {
+export default function InvitePage() {
   const params = useParams();
   const router = useRouter();
   const supabase = createClient();
   const token = params.token as string;
 
   // Status do token
-  const [statusToken, setStatusToken] = useState<StatusToken>("carregando");
-  const [nomeCrianca, setNomeCrianca] = useState<string | null>(null);
+  const [tokenStatus, setTokenStatus] = useState<TokenStatus>("loading");
+  const [childName, setChildName] = useState<string | null>(null);
 
   // Form
   const [cpf, setCpf] = useState("");
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Estado
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [ativando, setAtivando] = useState(false);
-  const [etapa, setEtapa] = useState<"cpf" | "senha">("cpf");
+  const [activating, setActivating] = useState(false);
+  const [step, setStep] = useState<"cpf" | "password">("cpf");
 
   // ── Valida o token ao carregar ──
   useEffect(() => {
-    async function validarToken() {
-      // 1. Busca só o convite — tabela pública
-      const { data: convite } = await supabase
-        .from("convites")
-        .select("id, expira_em, usado_em, usuario_id")
+    async function validateToken() {
+      const { data: invite } = await supabase
+        .from("invites")
+        .select("id, expires_at, used_at, user_id")
         .eq("token", token)
         .single();
 
-      if (!convite) {
-        setStatusToken("invalido");
+      if (!invite) {
+        setTokenStatus("invalid");
         return;
       }
-      if (convite.usado_em) {
-        setStatusToken("usado");
+      if (invite.used_at) {
+        setTokenStatus("used");
         return;
       }
-      if (new Date(convite.expira_em) < new Date()) {
-        setStatusToken("expirado");
+      if (new Date(invite.expires_at) < new Date()) {
+        setTokenStatus("expired");
         return;
       }
 
-      setStatusToken("valido");
+      setTokenStatus("valid");
     }
-    validarToken();
+    validateToken();
   }, [token]);
 
   // ── Validação do CPF ──
-  function validarCpf() {
+  function validateCpf() {
     const e: Record<string, string> = {};
     if (cpf.replace(/\D/g, "").length !== 11) e.cpf = "CPF inválido.";
     setErrors(e);
@@ -89,39 +88,36 @@ export default function ConvitePage() {
   }
 
   // ── Validação da senha ──
-  function validarSenha() {
+  function validatePassword() {
     const e: Record<string, string> = {};
-    if (senha.length < 6) e.senha = "A senha deve ter pelo menos 6 caracteres.";
-    if (senha !== confirmarSenha) e.confirmarSenha = "As senhas não coincidem.";
+    if (password.length < 6) e.password = "A senha deve ter pelo menos 6 caracteres.";
+    if (password !== confirmPassword) e.confirmPassword = "As senhas não coincidem.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   // ── Ativa a conta ──
-  async function handleAtivar() {
-    if (!validarSenha()) return;
-    setAtivando(true);
+  async function handleActivate() {
+    if (!validatePassword()) return;
+    setActivating(true);
 
-    const resultado = await ativarResponsavel({
+    const result = await activateGuardian({
       token,
       cpf: cpf.replace(/\D/g, ""),
-      senha,
+      password,
     });
 
-    if (!resultado.ok) {
-      setErrors({ geral: resultado.erro });
-      setAtivando(false);
+    if (!result.ok) {
+      setErrors({ general: result.error });
+      setActivating(false);
       return;
     }
 
-    // Faz login automaticamente após ativar
-    // O email fictício é telefone@agendazero.internal
-    // mas não temos o telefone aqui — vamos redirecionar para o login
     router.push("/login?ativado=true");
   }
 
   // ── Estados de token inválido ──
-  if (statusToken === "carregando") {
+  if (tokenStatus === "loading") {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
         <span className="text-sm text-[#8C7060]">Verificando convite...</span>
@@ -129,7 +125,7 @@ export default function ConvitePage() {
     );
   }
 
-  if (statusToken === "invalido") {
+  if (tokenStatus === "invalid") {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-5">
         <div className="text-center max-w-sm">
@@ -146,7 +142,7 @@ export default function ConvitePage() {
     );
   }
 
-  if (statusToken === "expirado") {
+  if (tokenStatus === "expired") {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-5">
         <div className="text-center max-w-sm">
@@ -163,7 +159,7 @@ export default function ConvitePage() {
     );
   }
 
-  if (statusToken === "usado") {
+  if (tokenStatus === "used") {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-5">
         <div className="text-center max-w-sm">
@@ -191,19 +187,16 @@ export default function ConvitePage() {
           <h1 className="font-display text-2xl font-bold text-[#3A2E24]">
             Bem-vindo(a)!
           </h1>
-          {nomeCrianca && (
+          {childName && (
             <p className="text-sm text-[#8C7060] mt-2">
               Você foi convidado(a) para acompanhar{" "}
-              <span className="font-semibold text-[#3A2E24]">
-                {nomeCrianca}
-              </span>
-              .
+              <span className="font-semibold text-[#3A2E24]">{childName}</span>.
             </p>
           )}
         </div>
 
         {/* Etapa 1: CPF */}
-        {etapa === "cpf" && (
+        {step === "cpf" && (
           <div className="flex flex-col gap-4">
             <div className="bg-[#FFFDF9] rounded-[20px] p-5 shadow-[0_2px_8px_rgba(180,140,120,0.12)]">
               <h2 className="font-display text-base font-bold text-[#3A2E24] mb-1">
@@ -212,12 +205,11 @@ export default function ConvitePage() {
               <p className="text-xs text-[#8C7060] mb-4">
                 Digite seu CPF para confirmar que é você.
               </p>
-
               <Input
                 label="CPF"
                 placeholder="000.000.000-00"
                 value={cpf}
-                onChange={(e) => setCpf(formatarCpf(e.target.value))}
+                onChange={(e) => setCpf(formatCpf(e.target.value))}
                 error={errors.cpf}
               />
             </div>
@@ -225,7 +217,7 @@ export default function ConvitePage() {
             <Button
               variant="primary"
               onClick={() => {
-                if (validarCpf()) setEtapa("senha");
+                if (validateCpf()) setStep("password");
               }}
             >
               Confirmar
@@ -234,7 +226,7 @@ export default function ConvitePage() {
         )}
 
         {/* Etapa 2: Senha */}
-        {etapa === "senha" && (
+        {step === "password" && (
           <div className="flex flex-col gap-4">
             <div className="bg-[#FFFDF9] rounded-[20px] p-5 shadow-[0_2px_8px_rgba(180,140,120,0.12)]">
               <h2 className="font-display text-base font-bold text-[#3A2E24] mb-1">
@@ -249,32 +241,32 @@ export default function ConvitePage() {
                   label="Senha"
                   type="password"
                   placeholder="Mínimo 6 caracteres"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  error={errors.senha}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={errors.password}
                 />
                 <Input
                   label="Confirmar senha"
                   type="password"
                   placeholder="Digite a senha novamente"
-                  value={confirmarSenha}
-                  onChange={(e) => setConfirmarSenha(e.target.value)}
-                  error={errors.confirmarSenha}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={errors.confirmPassword}
                 />
               </div>
             </div>
 
-            {errors.geral && (
+            {errors.general && (
               <span className="text-xs text-[#E86C88] text-center">
-                {errors.geral}
+                {errors.general}
               </span>
             )}
 
-            <Button variant="primary" loading={ativando} onClick={handleAtivar}>
+            <Button variant="primary" loading={activating} onClick={handleActivate}>
               Criar conta e entrar
             </Button>
 
-            <Button variant="ghost" onClick={() => setEtapa("cpf")}>
+            <Button variant="ghost" onClick={() => setStep("cpf")}>
               Voltar
             </Button>
           </div>

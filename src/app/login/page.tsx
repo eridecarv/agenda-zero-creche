@@ -19,27 +19,27 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [telefone, setTelefone] = useState('')
-  const [senha, setSenha] = useState('')
-  const [erro, setErro] = useState('')
-  const [carregando, setCarregando] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    setErro('')
-    setCarregando(true)
+    setError('')
+    setLoading(true)
 
-    const telefoneLimpo = telefone.replace(/\D/g, '')
-    const email = `${telefoneLimpo}@agendazero.internal`
+    const cleanPhone = phone.replace(/\D/g, '')
+    const email = `${cleanPhone}@agendazero.internal`
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
-      password: senha,
+      password,
     })
 
-    if (error) {
-      setErro('Telefone ou senha incorretos.')
-      setCarregando(false)
+    if (authError) {
+      setError('Telefone ou senha incorretos.')
+      setLoading(false)
       return
     }
 
@@ -76,25 +76,25 @@ export default function LoginPage() {
             label="Telefone com DDD"
             type="tel"
             placeholder="11999990000"
-            value={telefone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTelefone(e.target.value)}
+            value={phone}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
             required
           />
           <Input
             label="Senha"
             type="password"
             placeholder="••••••••"
-            value={senha}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenha(e.target.value)}
+            value={password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             required
           />
 
-          {erro && (
-            <p className="text-center text-xs text-[#E86C88]">{erro}</p>
+          {error && (
+            <p className="text-center text-xs text-[#E86C88]">{error}</p>
           )}
 
           <div className="mt-2">
-            <Button type="submit" loading={carregando}>
+            <Button type="submit" loading={loading}>
               Entrar
             </Button>
           </div>
