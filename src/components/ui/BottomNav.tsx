@@ -25,7 +25,7 @@ export function BottomNav({ items }: BottomNavProps) {
     >
       <div className="flex items-center justify-around px-2 py-2">
         {items.map((item) => (
-          
+          <a
             key={item.href}
             href={item.href}
             className={`flex flex-col items-center gap-1 px-3 py-1 transition-all duration-200 ${
