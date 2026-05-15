@@ -16,9 +16,9 @@ export function ExpandableTextExamples() {
       <p style={{ fontSize: 15, color: '#8C7060', lineHeight: 1.7 }}>
         Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio amoada —{' '}
         <ExpandableText
-          texto="dormiu pouco"
-          detalhe="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
-          autor="Profa. Ana · 14:05"
+          text="dormiu pouco"
+          detail="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
+          author="Profa. Ana · 14:05"
         />
         .
       </p>
@@ -27,8 +27,8 @@ export function ExpandableTextExamples() {
       <p style={{ fontSize: 15, color: '#8C7060', lineHeight: 1.7 }}>
         Lara{' '}
         <ExpandableText
-          texto="comeu bem"
-          detalhe="Aceitou o almoço todo e ainda pediu mais fruta."
+          text="comeu bem"
+          detail="Aceitou o almoço todo e ainda pediu mais fruta."
         />
         {' '}e dormiu tranquilamente.
       </p>
@@ -37,15 +37,15 @@ export function ExpandableTextExamples() {
       <p style={{ fontSize: 15, color: '#8C7060', lineHeight: 1.7 }}>
         Theo{' '}
         <ExpandableText
-          texto="ficou agitado"
-          detalhe="Chorou bastante no início da manhã, mas melhorou depois do almoço."
-          autor="Profa. Bia · 09:20"
+          text="ficou agitado"
+          detail="Chorou bastante no início da manhã, mas melhorou depois do almoço."
+          author="Profa. Bia · 09:20"
         />
         {' '}mas{' '}
         <ExpandableText
-          texto="comeu bem"
-          detalhe="Aceitou todas as refeições sem resistência."
-          autor="Profa. Bia · 13:00"
+          text="comeu bem"
+          detail="Aceitou todas as refeições sem resistência."
+          author="Profa. Bia · 13:00"
         />
         .
       </p>

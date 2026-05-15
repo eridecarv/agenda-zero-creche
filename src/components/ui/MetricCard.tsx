@@ -6,15 +6,15 @@
 
 type MetricCardProps = {
   label: string
-  valor: number | string
-  cor?: string        // cor do valor em destaque
+  value: number | string
+  color?: string        // cor do valor em destaque
   onClick?: () => void
 }
 
 export function MetricCard({
   label,
-  valor,
-  cor = '#3A2E24',
+  value,
+  color = '#3A2E24',
   onClick,
 }: MetricCardProps) {
   return (
@@ -34,9 +34,9 @@ export function MetricCard({
       {/* Valor em destaque */}
       <p
         className="text-2xl font-bold"
-        style={{ color: cor, fontFamily: 'var(--font-display)' }}
+        style={{ color, fontFamily: 'var(--font-display)' }}
       >
-        {valor}
+        {value}
       </p>
     </div>
   )

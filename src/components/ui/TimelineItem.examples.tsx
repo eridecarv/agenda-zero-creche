@@ -14,52 +14,52 @@ export function TimelineItemExamples() {
 
       {/* ── Entrada ── */}
       <TimelineItem
-        icone="🚪"
-        iconeBg="#EAF3DE"
-        horario="08:00"
-        titulo="Entrada"
-        descricao="Chegou sorridente e foi direto encontrar a turma."
+        icon="🚪"
+        iconBg="#EAF3DE"
+        time="08:00"
+        title="Entrada"
+        description="Chegou sorridente e foi direto encontrar a turma."
         badge={{ label: 'Presença', color: '#EAF3DE', textColor: '#3B6D11' }}
       />
 
       {/* ── Alimentação ── */}
       <TimelineItem
-        icone="🍽"
-        iconeBg="#FAEEDA"
-        horario="12:30"
-        titulo="Almoço"
-        descricao="Boa aceitação"
+        icon="🍽"
+        iconBg="#FAEEDA"
+        time="12:30"
+        title="Almoço"
+        description="Boa aceitação"
         badge={{ label: 'Alimentação', color: '#FAEEDA', textColor: '#854F0B' }}
       />
 
       {/* ── Sono ── */}
       <TimelineItem
-        icone="🌙"
-        iconeBg="#EEEDFE"
-        horario="13:00"
-        titulo="Soninho"
-        descricao="Dormiu bem"
+        icon="🌙"
+        iconBg="#EEEDFE"
+        time="13:00"
+        title="Soninho"
+        description="Dormiu bem"
         badge={{ label: 'Sono', color: '#EEEDFE', textColor: '#534AB7' }}
       />
 
       {/* ── Higiene ── */}
       <TimelineItem
-        icone="🛁"
-        iconeBg="#E1F5EE"
-        horario="14:00"
-        titulo="Higiene"
-        descricao="Banho · Escovação"
+        icon="🛁"
+        iconBg="#E1F5EE"
+        time="14:00"
+        title="Higiene"
+        description="Banho · Escovação"
         badge={{ label: 'Higiene', color: '#E1F5EE', textColor: '#0F6E56' }}
       />
 
       {/* ── Saída com expandível ── */}
       <TimelineItem
-        icone="🏠"
-        iconeBg="#FAF7F2"
-        horario="17:24"
-        titulo="Saída"
-        descricao="Sofia saiu com seu pai"
-        expandivel
+        icon="🏠"
+        iconBg="#FAF7F2"
+        time="17:24"
+        title="Saída"
+        description="Sofia saiu com seu pai"
+        expandable
       >
         <div>
           <p style={{ margin: 0, fontSize: 13, color: '#3A2E24' }}>João Silva — pai</p>

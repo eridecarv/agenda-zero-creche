@@ -15,22 +15,22 @@ export function NarrativeCardExamples() {
 
       {/* ── Dia concluído ── */}
       <NarrativeCard
-        humor="contente"
-        diaConcluido
-        atualizadoEm="17:05"
-        metricas={[
-          { label: 'ENTRADA', valor: '07:42' },
-          { label: 'SAÍDA', valor: '17:05' },
-          { label: 'HUMOR', valor: '😊' },
+        mood="contente"
+        dayComplete
+        updatedAt="17:05"
+        metrics={[
+          { label: 'ENTRADA', value: '07:42' },
+          { label: 'SAÍDA', value: '17:05' },
+          { label: 'HUMOR', value: '😊' },
         ]}
-        onVerAgendaCompleta={() => alert('Ver agenda completa')}
-        texto={
+        onViewFullSchedule={() => alert('Ver agenda completa')}
+        text={
           <>
             Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio amoada —{' '}
             <ExpandableText
-              texto="dormiu pouco"
-              detalhe="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
-              autor="Profa. Ana · 14:05"
+              text="dormiu pouco"
+              detail="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
+              author="Profa. Ana · 14:05"
             />
             .
           </>
@@ -39,26 +39,26 @@ export function NarrativeCardExamples() {
 
       {/* ── Dia em andamento ── */}
       <NarrativeCard
-        humor="tranquilo"
-        diaConcluido={false}
-        atualizadoEm="10:15"
-        metricas={[
-          { label: 'ENTRADA', valor: '07:42' },
-          { label: 'SAÍDA', valor: '—' },
-          { label: 'HUMOR', valor: '😌' },
+        mood="tranquilo"
+        dayComplete={false}
+        updatedAt="10:15"
+        metrics={[
+          { label: 'ENTRADA', value: '07:42' },
+          { label: 'SAÍDA', value: '—' },
+          { label: 'HUMOR', value: '😌' },
         ]}
-        texto="Sofia chegou bem disposta e já tomou o café da manhã."
+        text="Sofia chegou bem disposta e já tomou o café da manhã."
       />
 
       {/* ── Sem humor ── */}
       <NarrativeCard
-        diaConcluido
-        atualizadoEm="17:00"
-        metricas={[
-          { label: 'ENTRADA', valor: '08:00' },
-          { label: 'SAÍDA', valor: '17:00' },
+        dayComplete
+        updatedAt="17:00"
+        metrics={[
+          { label: 'ENTRADA', value: '08:00' },
+          { label: 'SAÍDA', value: '17:00' },
         ]}
-        texto="Lara teve um dia tranquilo. Comeu bem e dormiu direitinho."
+        text="Lara teve um dia tranquilo. Comeu bem e dormiu direitinho."
       />
 
     </div>

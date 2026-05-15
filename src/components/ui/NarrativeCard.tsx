@@ -9,21 +9,21 @@
 
 import { Badge } from './Badge'
 
-type Metrica = {
+type Metric = {
   label: string
-  valor: string
+  value: string
 }
 
 type NarrativeCardProps = {
-  texto: React.ReactNode   // aceita ExpandableText dentro do texto
-  humor?: string
-  metricas: Metrica[]
-  atualizadoEm?: string
-  diaConcluido?: boolean
-  onVerAgendaCompleta?: () => void
+  text: React.ReactNode   // aceita ExpandableText dentro do texto
+  mood?: string
+  metrics: Metric[]
+  updatedAt?: string
+  dayComplete?: boolean
+  onViewFullSchedule?: () => void
 }
 
-const humores: Record<string, { label: string; color: string; textColor: string }> = {
+const moods: Record<string, { label: string; color: string; textColor: string }> = {
   contente:  { label: 'Contente',  color: '#EAF3DE', textColor: '#3B6D11' },
   tranquilo: { label: 'Tranquilo', color: '#EEEDFE', textColor: '#534AB7' },
   agitado:   { label: 'Agitado',   color: '#FAEEDA', textColor: '#854F0B' },
@@ -31,14 +31,14 @@ const humores: Record<string, { label: string; color: string; textColor: string 
 }
 
 export function NarrativeCard({
-  texto,
-  humor,
-  metricas,
-  atualizadoEm,
-  diaConcluido = false,
-  onVerAgendaCompleta,
+  text,
+  mood,
+  metrics,
+  updatedAt,
+  dayComplete = false,
+  onViewFullSchedule,
 }: NarrativeCardProps) {
-  const humorInfo = humor ? humores[humor] : null
+  const moodInfo = mood ? moods[mood] : null
 
   return (
     <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
@@ -46,24 +46,24 @@ export function NarrativeCard({
       {/* Resumo narrativo + humor */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <p className="text-sm text-[#8C7060] leading-relaxed flex-1">
-          {texto}
+          {text}
         </p>
-        {humorInfo && (
+        {moodInfo && (
           <div className="flex-shrink-0">
             <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide mb-1">
               HUMOR
             </p>
             <Badge
-              label={humorInfo.label}
-              color={humorInfo.color}
-              textColor={humorInfo.textColor}
+              label={moodInfo.label}
+              color={moodInfo.color}
+              textColor={moodInfo.textColor}
             />
           </div>
         )}
       </div>
 
       {/* Aviso de dia em andamento */}
-      {!diaConcluido && (
+      {!dayComplete && (
         <div className="mb-3 rounded-[10px] bg-[#FAF7F2] px-3 py-2 border-l-2 border-[#E8E0D8]">
           <p className="text-xs text-[#8C7060] leading-relaxed">
             O dia ainda está acontecendo. Mais novidades aparecerão aqui no decorrer do dia.
@@ -72,14 +72,14 @@ export function NarrativeCard({
       )}
 
       {/* Métricas rápidas */}
-      <div className="grid gap-2 mb-3" style={{ gridTemplateColumns: `repeat(${metricas.length}, 1fr)` }}>
-        {metricas.map((m) => (
+      <div className="grid gap-2 mb-3" style={{ gridTemplateColumns: `repeat(${metrics.length}, 1fr)` }}>
+        {metrics.map((m) => (
           <div key={m.label}>
             <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide">
               {m.label}
             </p>
             <p className="text-base font-bold text-[#3A2E24]" style={{ fontFamily: 'var(--font-display)' }}>
-              {m.valor}
+              {m.value}
             </p>
           </div>
         ))}
@@ -87,13 +87,13 @@ export function NarrativeCard({
 
       {/* Rodapé */}
       <div className="flex items-center justify-between pt-3 border-t border-[#F0EAE4]">
-        {atualizadoEm && (
-          <p className="text-xs text-[#C4B5A8]">Atualizado às {atualizadoEm}</p>
+        {updatedAt && (
+          <p className="text-xs text-[#C4B5A8]">Atualizado às {updatedAt}</p>
         )}
-        {onVerAgendaCompleta && (
+        {onViewFullSchedule && (
           <button
             className="text-xs font-medium text-[#FF8C66]"
-            onClick={onVerAgendaCompleta}
+            onClick={onViewFullSchedule}
           >
             Ver agenda completa →
           </button>

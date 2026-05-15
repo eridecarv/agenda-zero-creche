@@ -9,31 +9,31 @@ import { useState } from 'react'
 import { Badge } from './Badge'
 
 type TimelineItemProps = {
-  icone: string
-  iconeBg: string         // cor de fundo do ícone
-  horario: string
-  titulo: string
-  descricao?: string
+  icon: string
+  iconBg: string          // cor de fundo do ícone
+  time: string
+  title: string
+  description?: string
   badge?: {
     label: string
     color: string
     textColor: string
   }
-  expandivel?: boolean
+  expandable?: boolean
   children?: React.ReactNode
 }
 
 export function TimelineItem({
-  icone,
-  iconeBg,
-  horario,
-  titulo,
-  descricao,
+  icon,
+  iconBg,
+  time,
+  title,
+  description,
   badge,
-  expandivel = false,
+  expandable = false,
   children,
 }: TimelineItemProps) {
-  const [aberto, setAberto] = useState(false)
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
@@ -44,17 +44,17 @@ export function TimelineItem({
         {/* Ícone */}
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-base flex-shrink-0"
-          style={{ backgroundColor: iconeBg }}
+          style={{ backgroundColor: iconBg }}
         >
-          {icone}
+          {icon}
         </div>
 
         {/* Conteúdo */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs text-[#8C7060]">{horario}</p>
-              <p className="text-sm font-semibold text-[#3A2E24]">{titulo}</p>
+              <p className="text-xs text-[#8C7060]">{time}</p>
+              <p className="text-sm font-semibold text-[#3A2E24]">{title}</p>
             </div>
             {badge && (
               <Badge
@@ -65,24 +65,24 @@ export function TimelineItem({
             )}
           </div>
 
-          {descricao && (
+          {description && (
             <p className="mt-1 text-sm text-[#8C7060] leading-relaxed">
-              {descricao}
+              {description}
             </p>
           )}
         </div>
       </div>
 
       {/* Conteúdo expandível */}
-      {expandivel && children && (
+      {expandable && children && (
         <>
           <div className="mt-3 pt-3 border-t border-[#F0EAE4]">
-            {aberto ? (
+            {open ? (
               children
             ) : (
               <button
                 className="text-xs text-[#8C7060] underline decoration-dotted"
-                onClick={() => setAberto(true)}
+                onClick={() => setOpen(true)}
               >
                 ver detalhes →
               </button>
