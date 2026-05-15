@@ -2,58 +2,58 @@
  * Tipos relacionados a comunicados, cardápio e seus anexos.
  */
 
-import type { Turno } from './turma'
+import type { Shift } from './class'
 
-export type EscopoComunicado =
+export type AnnouncementScope =
   | 'turma'
   | 'turno'
   | 'escola'
 
-export type TipoAnexo =
+export type AttachmentType =
   | 'imagem'
   | 'pdf'
   | 'outro'
 
-export type Comunicado = {
+export type Announcement = {
   id: string
-  escola_id: string
-  titulo: string
-  conteudo: string
-  escopo: EscopoComunicado
-  turma_id: string | null
-  turno: Turno | null
-  publicado_por: string | null
-  criado_em: string
+  school_id: string
+  title: string
+  content: string
+  scope: AnnouncementScope
+  class_id: string | null
+  shift: Shift | null
+  published_by: string | null
+  created_at: string
 }
 
-export type ComunicadoAnexo = {
+export type AnnouncementAttachment = {
   id: string
-  comunicado_id: string
-  tipo: TipoAnexo | null
+  announcement_id: string
+  type: AttachmentType | null
   url: string
-  nome_arquivo: string | null
-  tamanho_bytes: number | null
-  ordem: number
-  criado_em: string
+  file_name: string | null
+  size_bytes: number | null
+  display_order: number
+  created_at: string
 }
 
-export type ComunicadoLeitura = {
+export type AnnouncementRead = {
   id: string
-  comunicado_id: string
-  usuario_id: string
-  lido_em: string
+  announcement_id: string
+  user_id: string
+  read_at: string
 }
 
-export type Cardapio = {
+export type Menu = {
   id: string
-  escola_id: string
-  turma_id: string | null
-  semana_inicio: string
-  segunda: string | null
-  terca: string | null
-  quarta: string | null
-  quinta: string | null
-  sexta: string | null
-  criado_por: string | null
-  criado_em: string
+  school_id: string
+  class_id: string | null
+  week_start: string
+  monday: string | null
+  tuesday: string | null
+  wednesday: string | null
+  thursday: string | null
+  friday: string | null
+  created_by: string | null
+  created_at: string
 }

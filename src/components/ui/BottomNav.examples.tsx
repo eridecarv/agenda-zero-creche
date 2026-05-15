@@ -15,8 +15,8 @@ export function BottomNavExamples() {
       {/* ── Nav do responsável ── */}
       <div style={{ position: 'relative', height: 60 }}>
         <BottomNav
-          itens={[
-            { label: 'Início', icon: '🏠', href: '/', ativo: true },
+          items={[
+            { label: 'Início', icon: '🏠', href: '/', active: true },
             { label: 'Diário', icon: '📖', href: '/diario' },
             { label: 'Avisos', icon: '💬', href: '/avisos' },
             { label: 'Perfil', icon: '👤', href: '/perfil' },
@@ -27,8 +27,8 @@ export function BottomNavExamples() {
       {/* ── Nav da adm ── */}
       <div style={{ position: 'relative', height: 60 }}>
         <BottomNav
-          itens={[
-            { label: 'Início', icon: '🏠', href: '/adm', ativo: true },
+          items={[
+            { label: 'Início', icon: '🏠', href: '/adm', active: true },
             { label: 'Turmas', icon: '👥', href: '/adm/turmas' },
             { label: 'Avisos', icon: '📢', href: '/adm/avisos' },
             { label: 'Config.', icon: '⚙️', href: '/adm/config' },

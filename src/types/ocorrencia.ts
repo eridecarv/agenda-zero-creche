@@ -2,39 +2,39 @@
  * Tipos relacionados a ocorrências e seu fluxo de validação.
  */
 
-export type StatusOcorrencia =
+export type IncidentStatus =
   | 'rascunho'
   | 'pendente'
   | 'enviado'
 
-export type Ocorrencia = {
+export type Incident = {
   id: string
-  escola_id: string
-  crianca_id: string
-  titulo: string
-  descricao: string
-  descricao_original: string | null  // preserva o texto original caso a coordenação edite
-  status: StatusOcorrencia
-  registrado_por: string | null
-  editado_por: string | null
-  enviado_por: string | null
-  enviado_em: string | null
-  criado_em: string
-  atualizado_em: string
+  school_id: string
+  child_id: string
+  title: string
+  description: string
+  original_description: string | null  // preserva o texto original caso a coordenação edite
+  status: IncidentStatus
+  recorded_by: string | null
+  edited_by: string | null
+  sent_by: string | null
+  sent_at: string | null
+  created_at: string
+  updated_at: string
 }
 
-export type OcorrenciaAnexo = {
+export type IncidentAttachment = {
   id: string
-  ocorrencia_id: string
+  incident_id: string
   url: string
-  nome_arquivo: string | null
-  tamanho_bytes: number | null
-  criado_em: string
+  file_name: string | null
+  size_bytes: number | null
+  created_at: string
 }
 
-export type OcorrenciaLeitura = {
+export type IncidentRead = {
   id: string
-  ocorrencia_id: string
-  usuario_id: string
-  lido_em: string
+  incident_id: string
+  user_id: string
+  read_at: string
 }

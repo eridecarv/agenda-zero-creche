@@ -3,76 +3,76 @@
  * Inclui presença, alimentação, higiene e resumo narrativo.
  */
 
-export type Humor =
+export type Mood =
   | 'contente'
   | 'tranquilo'
   | 'agitado'
   | 'choroso'
 
-export type Sono =
+export type Sleep =
   | 'bom'
   | 'regular'
   | 'ruim'
   | 'nao_dormiu'
 
-export type Refeicao =
+export type Meal =
   | 'cafe'
   | 'lanche_manha'
   | 'almoco'
   | 'lanche_tarde'
   | 'jantar'
 
-export type Aceitacao =
+export type Acceptance =
   | 'boa'
   | 'regular'
   | 'recusou'
 
-export type RegistroDiario = {
+export type DailyLog = {
   id: string
-  escola_id: string
-  crianca_id: string
-  data: string
-  humor: Humor | null
-  sono: Sono | null
-  observacao: string | null
-  registrado_por: string | null
-  atualizado_em: string
-  criado_em: string
+  school_id: string
+  child_id: string
+  date: string
+  mood: Mood | null
+  sleep: Sleep | null
+  notes: string | null
+  recorded_by: string | null
+  updated_at: string
+  created_at: string
 }
 
-export type RegistroPresenca = {
+export type AttendanceLog = {
   id: string
-  registro_diario_id: string
-  presente: boolean
-  entrada: string | null
-  saida: string | null
-  buscou_id: string | null
-  criado_em: string
+  daily_log_id: string
+  present: boolean
+  check_in: string | null
+  check_out: string | null
+  picked_up_by: string | null
+  created_at: string
 }
 
-export type RegistroAlimentacao = {
+export type FeedingLog = {
   id: string
-  registro_diario_id: string
-  refeicao: Refeicao
-  aceitacao: Aceitacao
-  observacao: string | null  
-  criado_em: string
+  daily_log_id: string
+  meal: Meal
+  acceptance: Acceptance
+  notes: string | null
+  created_at: string
 }
 
-export type RegistroHigiene = {
+export type HygieneLog = {
   id: string
-  registro_diario_id: string
-  banho: boolean
-  escovacao: boolean
-  evacuacao: boolean
-  observacao: string | null
-  criado_em: string
+  daily_log_id: string
+  bath: boolean
+  brushing: boolean
+  bowel_movement: boolean
+  notes: string | null
+  created_at: string
 }
 
-export type ResumoDiario = {
+export type DailyReport = {
   id: string
-  registro_diario_id: string
-  texto_gerado: string
-  gerado_em: string
-  criado_em: string
+  daily_log_id: string
+  generated_text: string
+  generated_at: string
+  created_at: string
 }

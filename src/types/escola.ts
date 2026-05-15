@@ -9,22 +9,22 @@ export type Role =
   | 'auxiliar'
   | 'responsavel'
 
-export type Escola = {
+export type School = {
   id: string
-  nome: string
-  criado_em: string
+  name: string
+  created_at: string
 }
 
-export type Usuario = {
+export type User = {
   id: string
-  escola_id: string
-  nome: string
-  apelido: string | null
-  telefone: string | null
+  school_id: string
+  name: string
+  nickname: string | null
+  phone: string | null
   cpf_hash: string | null
-  senha_hash: string | null
+  password_hash: string | null
   role: Role
-  ativo: boolean
-  criado_em: string
-  desativado_em: string | null
+  active: boolean
+  created_at: string
+  deactivated_at: string | null
 }

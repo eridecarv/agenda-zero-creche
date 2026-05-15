@@ -14,9 +14,9 @@ export function AlertItemExamples() {
 
       {/* ── Ocorrências pendentes ── */}
       <AlertItem
-        titulo="Ocorrências pendentes"
-        subtitulo="2 aguardando validação"
-        cor="#E86C88"
+        title="Ocorrências pendentes"
+        subtitle="2 aguardando validação"
+        color="#E86C88"
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -38,9 +38,9 @@ export function AlertItemExamples() {
 
       {/* ── Justificativas de falta ── */}
       <AlertItem
-        titulo="Justificativas de falta"
-        subtitulo="3 recebidas hoje"
-        cor="#F5C632"
+        title="Justificativas de falta"
+        subtitle="3 recebidas hoje"
+        color="#F5C632"
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -60,9 +60,9 @@ export function AlertItemExamples() {
 
       {/* ── Novos responsáveis ── */}
       <AlertItem
-        titulo="Novos responsáveis"
-        subtitulo="1 aguardando acesso"
-        cor="#5A8ED6"
+        title="Novos responsáveis"
+        subtitle="1 aguardando acesso"
+        color="#5A8ED6"
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12 }}>
           <div>
@@ -75,9 +75,9 @@ export function AlertItemExamples() {
 
       {/* ── Sem conteúdo expandido ── */}
       <AlertItem
-        titulo="Sem itens pendentes"
-        subtitulo="Tudo em dia ✓"
-        cor="#72AA78"
+        title="Sem itens pendentes"
+        subtitle="Tudo em dia ✓"
+        color="#72AA78"
       />
 
     </div>

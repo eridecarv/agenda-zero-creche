@@ -7,13 +7,13 @@
  * Não passa por aprovação.
  */
 
-export type Recado = {
+export type Message = {
   id: string
-  escola_id: string
-  crianca_id: string
-  enviado_por: string
-  mensagem: string
-  lido: boolean
-  lido_em: string | null
-  criado_em: string
+  school_id: string
+  child_id: string
+  sent_by: string
+  content: string
+  read: boolean
+  read_at: string | null
+  created_at: string
 }

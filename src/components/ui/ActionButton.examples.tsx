@@ -15,35 +15,35 @@ export function ActionButtonExamples() {
       {/* ── Grade 2x2 — uso típico no dashboard ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <ActionButton
-          icone="📢"
-          titulo="Comunicado"
-          subtitulo="Criar novo"
+          icon="📢"
+          title="Comunicado"
+          subtitle="Criar novo"
           onClick={() => alert('Criar comunicado')}
         />
         <ActionButton
-          icone="👶"
-          titulo="Cadastros"
-          subtitulo="Crianças · Turmas · Docentes"
+          icon="👶"
+          title="Cadastros"
+          subtitle="Crianças · Turmas · Docentes"
           onClick={() => alert('Ir para cadastros')}
         />
         <ActionButton
-          icone="🍽"
-          titulo="Cardápio"
-          subtitulo="Semana atual"
+          icon="🍽"
+          title="Cardápio"
+          subtitle="Semana atual"
           onClick={() => alert('Ver cardápio')}
         />
         <ActionButton
-          icone="📋"
-          titulo="Ocorrências"
-          subtitulo="Ver todas"
+          icon="📋"
+          title="Ocorrências"
+          subtitle="Ver todas"
           onClick={() => alert('Ver ocorrências')}
         />
       </div>
 
       {/* ── Sem subtítulo ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <ActionButton icone="📢" titulo="Comunicado" />
-        <ActionButton icone="👶" titulo="Cadastros" />
+        <ActionButton icon="📢" title="Comunicado" />
+        <ActionButton icon="👶" title="Cadastros" />
       </div>
 
     </div>

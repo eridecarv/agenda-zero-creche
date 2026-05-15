@@ -1,49 +1,49 @@
 /**
  * Ponto central de exportação de todos os tipos do projeto.
- * Importe sempre daqui: import type { Crianca, Turma } from '@/types'
+ * Importe sempre daqui: import type { Child, Class } from '@/types'
  */
 
-export type { Escola, Usuario, Role } from './escola'
+export type { School, User, Role } from './school'
 
-export type { Turma, CriancaTurma, Turno, TipoTurma } from './turma'
-
-export type {
-  Crianca,
-  Vinculo,
-  TipoVinculo,
-  RelacaoVinculo,
-} from './crianca'
+export type { Class, ChildClass, Shift, ClassType } from './class'
 
 export type {
-  RegistroDiario,
-  RegistroPresenca,
-  RegistroAlimentacao,
-  RegistroHigiene,
-  ResumoDiario,
-  Humor,
-  Sono,
-  Refeicao,
-  Aceitacao,
-} from './rotina'
+  Child,
+  Guardianship,
+  GuardianshipType,
+  GuardianRelation,
+} from './child'
 
 export type {
-  Ocorrencia,
-  OcorrenciaAnexo,
-  OcorrenciaLeitura,
-  StatusOcorrencia,
-} from './ocorrencia'
+  DailyLog,
+  AttendanceLog,
+  FeedingLog,
+  HygieneLog,
+  DailyReport,
+  Mood,
+  Sleep,
+  Meal,
+  Acceptance,
+} from './routine'
 
 export type {
-  Comunicado,
-  ComunicadoAnexo,
-  ComunicadoLeitura,
-  Cardapio,
-  EscopoComunicado,
-  TipoAnexo,
-} from './comunicado'
+  Incident,
+  IncidentAttachment,
+  IncidentRead,
+  IncidentStatus,
+} from './incident'
 
-export type { Convite } from './convite'
+export type {
+  Announcement,
+  AnnouncementAttachment,
+  AnnouncementRead,
+  Menu,
+  AnnouncementScope,
+  AttachmentType,
+} from './announcement'
 
-export type { Sessao, ResultadoAuth } from './auth'
+export type { Invite } from './invite'
 
-export type { Recado } from './recado'
+export type { Session, AuthResult } from './auth'
+
+export type { Message } from './message'

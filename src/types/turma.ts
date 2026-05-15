@@ -2,33 +2,33 @@
  * Tipos relacionados a turmas e suas classificações.
  */
 
-export type Turno =
+export type Shift =
   | 'manha'
   | 'tarde'
   | 'integral'
   | 'noite'
 
-export type TipoTurma =
+export type ClassType =
   | 'regular'
   | 'extracurricular'
 
-export type Turma = {
+export type Class = {
   id: string
-  escola_id: string
-  nome: string
-  nivel: string | null
-  turno: Turno | null
-  tipo: TipoTurma
-  ano: number
-  ativo: boolean
-  criado_em: string
-  desativado_em: string | null
+  school_id: string
+  name: string
+  level: string | null
+  shift: Shift | null
+  type: ClassType
+  year: number
+  active: boolean
+  created_at: string
+  deactivated_at: string | null
 }
 
-export type CriancaTurma = {
+export type ChildClass = {
   id: string
-  crianca_id: string
-  turma_id: string
-  data_inicio: string
-  data_fim: string | null
+  child_id: string
+  class_id: string
+  start_date: string
+  end_date: string | null
 }

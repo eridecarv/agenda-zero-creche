@@ -1,5 +1,5 @@
 /**
- * ColaboradorModal — bottom sheet para visualização e edição de colaborador.
+ * StaffModal — bottom sheet para visualização e edição de colaborador.
  *
  * Tem três modos:
  * - Visualização: exibe os dados em texto, sem campos editáveis.
@@ -12,8 +12,8 @@
  * para as famílias. Se não tiver apelido, usa o primeiro nome.
  *
  * Props:
- * - colaborador: se vier, abre em visualização. Se não, abre em criação.
- * - escolaId: obrigatório para todas as operações no banco.
+ * - staffMember: se vier, abre em visualização. Se não, abre em criação.
+ * - schoolId: obrigatório para todas as operações no banco.
  * - onClose: fecha o modal.
  * - onSaved: chamado após salvar ou desativar — página recarrega a lista.
  */
@@ -24,7 +24,7 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase'
-import type { Usuario, Role } from '@/types'
+import type { User, Role } from '@/types'
 
 // ── Roles disponíveis para colaboradores ─────────────────────
 const roleOptions: Role[] = ['coordenador', 'professor', 'auxiliar']
@@ -38,9 +38,9 @@ const roleLabels: Record<Role, string> = {
 }
 
 // ── Props ─────────────────────────────────────────────────────
-type ColaboradorModalProps = {
-  escolaId: string
-  colaborador?: Usuario
+type StaffModalProps = {
+  schoolId: string
+  staffMember?: User
   onClose: () => void
   onSaved: () => void
 }
@@ -88,7 +88,7 @@ function ChipGroup<T extends string>({
 }
 
 // ── Linha de detalhe ──────────────────────────────────────────
-function DetalheRow({ label, value }: { label: string; value: string | null }) {
+function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5 py-3 border-b border-[#F0EAE3] last:border-0">
       <span className="text-xs text-[#8C7060]">{label}</span>
@@ -98,111 +98,111 @@ function DetalheRow({ label, value }: { label: string; value: string | null }) {
 }
 
 // ── Modal ─────────────────────────────────────────────────────
-export function ColaboradorModal({
-  escolaId,
-  colaborador,
+export function StaffModal({
+  schoolId,
+  staffMember,
   onClose,
   onSaved,
-}: ColaboradorModalProps) {
+}: StaffModalProps) {
   const supabase = createClient()
 
-  const [modo, setModo] = useState<'visualizacao' | 'edicao' | 'criacao'>(
-    colaborador ? 'visualizacao' : 'criacao'
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
+    staffMember ? 'view' : 'create'
   )
 
   // Form
-  const [nome, setNome] = useState(colaborador?.nome ?? '')
-  const [apelido, setApelido] = useState(colaborador?.apelido ?? '')
+  const [name, setName] = useState(staffMember?.name ?? '')
+  const [nickname, setNickname] = useState(staffMember?.nickname ?? '')
   const [role, setRole] = useState<Role | null>(
-    colaborador?.role && roleOptions.includes(colaborador.role)
-      ? colaborador.role
+    staffMember?.role && roleOptions.includes(staffMember.role)
+      ? staffMember.role
       : null
   )
 
   // Estado
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [salvando, setSalvando] = useState(false)
-  const [desativando, setDesativando] = useState(false)
-  const [confirmarDesativar, setConfirmarDesativar] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deactivating, setDeactivating] = useState(false)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
 
   // ── Validação ──
-  function validar() {
+  function validate() {
     const e: Record<string, string> = {}
-    if (!nome.trim()) e.nome = 'Nome é obrigatório'
+    if (!name.trim()) e.name = 'Nome é obrigatório'
     if (!role) e.role = 'Selecione a função'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   // ── Salvar ──
-  async function handleSalvar() {
-    if (!validar()) return
-    setSalvando(true)
+  async function handleSave() {
+    if (!validate()) return
+    setSaving(true)
 
     const payload = {
-      escola_id: escolaId,
-      nome: nome.trim(),
-      apelido: apelido.trim() || null,
+      school_id: schoolId,
+      name: name.trim(),
+      nickname: nickname.trim() || null,
       role: role!,
-      ativo: true,
+      active: true,
     }
 
-    if (modo === 'edicao' && colaborador) {
+    if (mode === 'edit' && staffMember) {
       const { error } = await supabase
-        .from('usuarios')
+        .from('users')
         .update(payload)
-        .eq('id', colaborador.id)
-        .eq('escola_id', escolaId)
+        .eq('id', staffMember.id)
+        .eq('school_id', schoolId)
 
       if (error) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
     } else {
       const { error } = await supabase
-        .from('usuarios')
+        .from('users')
         .insert(payload)
 
       if (error) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
     }
 
-    setSalvando(false)
+    setSaving(false)
     onSaved()
     onClose()
   }
 
   // ── Desativar ──
-  async function handleDesativar() {
-    if (!colaborador) return
-    setDesativando(true)
+  async function handleDeactivate() {
+    if (!staffMember) return
+    setDeactivating(true)
 
     const { error } = await supabase
-      .from('usuarios')
+      .from('users')
       .update({
-        ativo: false,
-        desativado_em: new Date().toISOString(),
+        active: false,
+        deactivated_at: new Date().toISOString(),
       })
-      .eq('id', colaborador.id)
-      .eq('escola_id', escolaId)
+      .eq('id', staffMember.id)
+      .eq('school_id', schoolId)
 
     if (error) {
-      setErrors({ geral: 'Erro ao desativar. Tente novamente.' })
-      setDesativando(false)
+      setErrors({ general: 'Erro ao desativar. Tente novamente.' })
+      setDeactivating(false)
       return
     }
 
-    setDesativando(false)
+    setDeactivating(false)
     onSaved()
     onClose()
   }
 
   // ── Nome de exibição ──
-  const nomeExibicao = colaborador?.apelido || colaborador?.nome.split(' ')[0] || ''
+  const displayName = staffMember?.nickname || staffMember?.name.split(' ')[0] || ''
 
   return (
     <>
@@ -223,24 +223,24 @@ export function ColaboradorModal({
 
         {/* Título */}
         <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-5">
-          {modo === 'criacao' ? 'Novo colaborador' : nomeExibicao}
+          {mode === 'create' ? 'Novo colaborador' : displayName}
         </h2>
 
         {/* ── Modo visualização ── */}
-        {modo === 'visualizacao' && colaborador && (
+        {mode === 'view' && staffMember && (
           <div className="flex flex-col">
 
-            <DetalheRow label="Nome completo" value={colaborador.nome} />
-            <DetalheRow label="Apelido" value={colaborador.apelido} />
-            <DetalheRow label="Função" value={roleLabels[colaborador.role]} />
+            <DetailRow label="Nome completo" value={staffMember.name} />
+            <DetailRow label="Apelido" value={staffMember.nickname} />
+            <DetailRow label="Função" value={roleLabels[staffMember.role]} />
 
             <div className="flex flex-col gap-2 mt-5">
-              <Button variant="primary" onClick={() => setModo('edicao')}>
+              <Button variant="primary" onClick={() => setMode('edit')}>
                 Editar
               </Button>
 
-              {!confirmarDesativar ? (
-                <Button variant="ghost" onClick={() => setConfirmarDesativar(true)}>
+              {!confirmDeactivate ? (
+                <Button variant="ghost" onClick={() => setConfirmDeactivate(true)}>
                   Desativar colaborador
                 </Button>
               ) : (
@@ -252,16 +252,16 @@ export function ColaboradorModal({
                     <Button
                       variant="ghost"
                       fullWidth={false}
-                      onClick={() => setConfirmarDesativar(false)}
+                      onClick={() => setConfirmDeactivate(false)}
                     >
                       Cancelar
                     </Button>
                     <Button
                       fullWidth={false}
-                      loading={desativando}
+                      loading={deactivating}
                       customColor="#E86C88"
                       customTextColor="#fff"
-                      onClick={handleDesativar}
+                      onClick={handleDeactivate}
                     >
                       Confirmar
                     </Button>
@@ -277,22 +277,22 @@ export function ColaboradorModal({
         )}
 
         {/* ── Modo edição / criação ── */}
-        {(modo === 'edicao' || modo === 'criacao') && (
+        {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
 
             <Input
               label="Nome completo"
               placeholder="Ex: Josemar Cardoso Marques"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              error={errors.nome}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              error={errors.name}
             />
 
             <Input
               label="Apelido"
               placeholder="Ex: Tia Josi"
-              value={apelido}
-              onChange={(e) => setApelido(e.target.value)}
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
             />
             <span className="-mt-2 text-xs text-[#8C7060]">
               Como aparece para as famílias e assina os registros.
@@ -308,17 +308,17 @@ export function ColaboradorModal({
               error={errors.role}
             />
 
-            {errors.geral && (
-              <span className="text-xs text-[#E86C88]">{errors.geral}</span>
+            {errors.general && (
+              <span className="text-xs text-[#E86C88]">{errors.general}</span>
             )}
 
-            <Button variant="primary" loading={salvando} onClick={handleSalvar}>
-              {modo === 'edicao' ? 'Salvar alterações' : 'Criar colaborador'}
+            <Button variant="primary" loading={saving} onClick={handleSave}>
+              {mode === 'edit' ? 'Salvar alterações' : 'Criar colaborador'}
             </Button>
 
             <Button
               variant="ghost"
-              onClick={() => modo === 'edicao' ? setModo('visualizacao') : onClose()}
+              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
             >
               Cancelar
             </Button>

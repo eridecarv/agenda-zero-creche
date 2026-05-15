@@ -10,39 +10,39 @@ type NavItem = {
   label: string
   icon: string
   href: string
-  ativo?: boolean
+  active?: boolean
 }
 
 type BottomNavProps = {
-  itens: NavItem[]
+  items: NavItem[]
 }
 
-export function BottomNav({ itens }: BottomNavProps) {
+export function BottomNav({ items }: BottomNavProps) {
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9]"
       style={{ boxShadow: '0 -4px 16px rgba(180, 140, 120, 0.12)' }}
     >
       <div className="flex items-center justify-around px-2 py-2">
-        {itens.map((item) => (
-          <a
+        {items.map((item) => (
+          
             key={item.href}
             href={item.href}
             className={`flex flex-col items-center gap-1 px-3 py-1 transition-all duration-200 ${
-              item.ativo ? 'text-[#FF8C66]' : 'text-[#8C7060]'
+              item.active ? 'text-[#FF8C66]' : 'text-[#8C7060]'
             }`}
           >
             <span className="text-xl leading-none">{item.icon}</span>
 
             <span
               className={`text-[10px] ${
-                item.ativo ? 'font-semibold' : 'font-medium'
+                item.active ? 'font-semibold' : 'font-medium'
               }`}
             >
               {item.label}
             </span>
 
-            {item.ativo && (
+            {item.active && (
               <span className="h-1 w-1 rounded-full bg-[#FF8C66]" />
             )}
           </a>

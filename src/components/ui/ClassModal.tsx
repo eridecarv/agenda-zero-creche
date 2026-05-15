@@ -1,5 +1,5 @@
 /**
- * TurmaModal — bottom sheet para visualização e edição de turma.
+ * ClassModal — bottom sheet para visualização e edição de turma.
  *
  * Modos:
  * - Visualização: dados da turma + equipe atribuída.
@@ -14,8 +14,8 @@
  * Cada campo de pessoa é um input com busca em tempo real,
  * filtrado pelo role correspondente.
  *
- * Ao salvar, sincroniza a tabela `turma_colaborador`:
- * removidos recebem `removido_em`, novos são inseridos.
+ * Ao salvar, sincroniza a tabela `class_staff`:
+ * removidos recebem `removed_at`, novos são inseridos.
  */
 
 'use client'
@@ -24,33 +24,33 @@ import { useState, useEffect, useRef } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase'
-import type { Turma, Turno, TipoTurma, Usuario } from '@/types'
+import type { Class, Shift, ClassType, User } from '@/types'
 
 // ── Labels ────────────────────────────────────────────────────
-const turnoLabels: Record<Turno, string> = {
+const shiftLabels: Record<Shift, string> = {
   manha: 'Manhã',
   tarde: 'Tarde',
   noite: 'Noite',
   integral: 'Integral',
 }
 
-const tipoLabels: Record<TipoTurma, string> = {
+const classTypeLabels: Record<ClassType, string> = {
   regular: 'Regular',
   extracurricular: 'Extracurricular',
 }
 
 // ── Props ─────────────────────────────────────────────────────
-type TurmaModalProps = {
-  escolaId: string
-  turma?: Turma
+type ClassModalProps = {
+  schoolId: string
+  class?: Class
   onClose: () => void
   onSaved: () => void
 }
 
 // ── Tipo interno de atribuição ─────────────────────────────────
-type AtribuicaoSalva = {
-  registroId: string    // id na tabela turma_colaborador
-  usuario: Usuario
+type SavedAssignment = {
+  recordId: string    // id na tabela class_staff
+  user: User
 }
 
 // ── Chip selector ─────────────────────────────────────────────
@@ -96,7 +96,7 @@ function ChipGroup<T extends string>({
 }
 
 // ── Linha de detalhe ──────────────────────────────────────────
-function DetalheRow({ label, value }: { label: string; value: string | null }) {
+function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5 py-3 border-b border-[#F0EAE3] last:border-0">
       <span className="text-xs text-[#8C7060]">{label}</span>
@@ -106,47 +106,47 @@ function DetalheRow({ label, value }: { label: string; value: string | null }) {
 }
 
 // ── Campo de busca de pessoa ──────────────────────────────────
-function BuscaPessoa({
+function PersonSearch({
   label,
-  colaboradores,
+  staffMembers,
   value,
   onChange,
   onClear,
-  mostrarClear,
+  showClear,
 }: {
   label?: string
-  colaboradores: Usuario[]
-  value: Usuario | null
-  onChange: (u: Usuario) => void
+  staffMembers: User[]
+  value: User | null
+  onChange: (u: User) => void
   onClear?: () => void
-  mostrarClear?: boolean
+  showClear?: boolean
 }) {
-  const [busca, setBusca] = useState(
-    value?.apelido || value?.nome.split(' ')[0] || ''
+  const [search, setSearch] = useState(
+    value?.nickname || value?.name.split(' ')[0] || ''
   )
-  const [aberto, setAberto] = useState(false)
+  const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setBusca(value?.apelido || value?.nome.split(' ')[0] || '')
+    setSearch(value?.nickname || value?.name.split(' ')[0] || '')
   }, [value])
 
   useEffect(() => {
-    function handleClickFora(e: MouseEvent) {
+    function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setAberto(false)
+        setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickFora)
-    return () => document.removeEventListener('mousedown', handleClickFora)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filtrados = colaboradores.filter((c) => {
-    if (!busca.trim()) return true
-    const termo = busca.toLowerCase()
+  const filtered = staffMembers.filter((s) => {
+    if (!search.trim()) return true
+    const term = search.toLowerCase()
     return (
-      c.nome.toLowerCase().includes(termo) ||
-      (c.apelido?.toLowerCase().includes(termo) ?? false)
+      s.name.toLowerCase().includes(term) ||
+      (s.nickname?.toLowerCase().includes(term) ?? false)
     )
   })
 
@@ -159,12 +159,12 @@ function BuscaPessoa({
         <input
           type="text"
           placeholder="Buscar pelo nome..."
-          value={busca}
+          value={search}
           onChange={(e) => {
-            setBusca(e.target.value)
-            setAberto(true)
+            setSearch(e.target.value)
+            setOpen(true)
           }}
-          onFocus={() => setAberto(true)}
+          onFocus={() => setOpen(true)}
           className="
             w-full rounded-[10px] border border-[#E8E0D8] px-3 py-2.5 text-sm
             bg-[#FFFDF9] text-[#3A2E24] placeholder:text-[#C4B5A8]
@@ -173,21 +173,21 @@ function BuscaPessoa({
           "
         />
 
-        {aberto && filtrados.length > 0 && (
+        {open && filtered.length > 0 && (
           <div className="
             absolute top-full left-0 right-0 z-20 mt-1
             bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
             shadow-[0_4px_16px_rgba(180,140,120,0.16)]
             overflow-hidden
           ">
-            {filtrados.map((c) => (
+            {filtered.map((s) => (
               <button
-                key={c.id}
+                key={s.id}
                 type="button"
                 onClick={() => {
-                  onChange(c)
-                  setBusca(c.apelido || c.nome.split(' ')[0])
-                  setAberto(false)
+                  onChange(s)
+                  setSearch(s.nickname || s.name.split(' ')[0])
+                  setOpen(false)
                 }}
                 className="
                   w-full text-left px-3 py-2.5 text-sm
@@ -196,17 +196,17 @@ function BuscaPessoa({
                 "
               >
                 <span className="font-medium text-[#3A2E24]">
-                  {c.apelido || c.nome.split(' ')[0]}
+                  {s.nickname || s.name.split(' ')[0]}
                 </span>
-                {c.apelido && (
-                  <span className="text-xs text-[#8C7060] ml-1">{c.nome}</span>
+                {s.nickname && (
+                  <span className="text-xs text-[#8C7060] ml-1">{s.name}</span>
                 )}
               </button>
             ))}
           </div>
         )}
 
-        {aberto && busca.trim() && filtrados.length === 0 && (
+        {open && search.trim() && filtered.length === 0 && (
           <div className="
             absolute top-full left-0 right-0 z-20 mt-1
             bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
@@ -217,7 +217,7 @@ function BuscaPessoa({
         )}
       </div>
 
-      {mostrarClear && onClear && (
+      {showClear && onClear && (
         <button
           type="button"
           onClick={onClear}
@@ -235,211 +235,210 @@ function BuscaPessoa({
 }
 
 // ── Modal ─────────────────────────────────────────────────────
-export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProps) {
+export function ClassModal({ schoolId, class: classData, onClose, onSaved }: ClassModalProps) {
   const supabase = createClient()
 
-  const [modo, setModo] = useState<'visualizacao' | 'edicao' | 'criacao'>(
-    turma ? 'visualizacao' : 'criacao'
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
+    classData ? 'view' : 'create'
   )
 
   // Form
-  const [nome, setNome] = useState(turma?.nome ?? '')
-  const [ano, setAno] = useState(turma?.ano?.toString() ?? new Date().getFullYear().toString())
-  const [tipo, setTipo] = useState<TipoTurma>(turma?.tipo ?? 'regular')
-  const [nivel, setNivel] = useState(turma?.nivel ?? '')
-  const [turno, setTurno] = useState<Turno | null>(turma?.turno ?? null)
+  const [name, setName] = useState(classData?.name ?? '')
+  const [year, setYear] = useState(classData?.year?.toString() ?? new Date().getFullYear().toString())
+  const [type, setType] = useState<ClassType>(classData?.type ?? 'regular')
+  const [level, setLevel] = useState(classData?.level ?? '')
+  const [shift, setShift] = useState<Shift | null>(classData?.shift ?? null)
 
   // Equipe — colaboradores por role
-  const [coordenadores, setCoordenadores] = useState<Usuario[]>([])
-  const [professores, setProfessores] = useState<Usuario[]>([])
-  const [auxiliares, setAuxiliares] = useState<Usuario[]>([])
+  const [coordinators, setCoordinators] = useState<User[]>([])
+  const [teachers, setTeachers] = useState<User[]>([])
+  const [assistants, setAssistants] = useState<User[]>([])
 
   // Seleções da equipe
-  const [coordenadorSelecionado, setCoordenadorSelecionado] = useState<Usuario | null>(null)
-  const [professorSelecionado, setProfessorSelecionado] = useState<Usuario | null>(null)
-  const [assistentesSelecionados, setAssistentesSelecionados] = useState<(Usuario | null)[]>([null])
+  const [selectedCoordinator, setSelectedCoordinator] = useState<User | null>(null)
+  const [selectedTeacher, setSelectedTeacher] = useState<User | null>(null)
+  const [selectedAssistants, setSelectedAssistants] = useState<(User | null)[]>([null])
 
   // Atribuições originais do banco (para sincronização)
-  const [atribuicoesOriginais, setAtribuicoesOriginais] = useState<AtribuicaoSalva[]>([])
+  const [originalAssignments, setOriginalAssignments] = useState<SavedAssignment[]>([])
 
   // Estado
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [salvando, setSalvando] = useState(false)
-  const [desativando, setDesativando] = useState(false)
-  const [confirmarDesativar, setConfirmarDesativar] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deactivating, setDeactivating] = useState(false)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
 
   useEffect(() => {
-    if (tipo === 'extracurricular') setNivel('')
-  }, [tipo])
+    if (type === 'extracurricular') setLevel('')
+  }, [type])
 
   useEffect(() => {
-    carregarColaboradores()
-    if (turma) carregarAtribuicoes(turma.id)
+    loadStaffMembers()
+    if (classData) loadAssignments(classData.id)
   }, [])
 
   // ── Carrega colaboradores separados por role ──
-  async function carregarColaboradores() {
+  async function loadStaffMembers() {
     const { data } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
-      .eq('escola_id', escolaId)
-      .eq('ativo', true)
+      .eq('school_id', schoolId)
+      .eq('active', true)
       .in('role', ['coordenador', 'professor', 'auxiliar'])
-      .order('nome')
+      .order('name')
 
     if (data) {
-      setCoordenadores(data.filter((u: Usuario) => u.role === 'coordenador'))
-      setProfessores(data.filter((u: Usuario) => u.role === 'professor'))
-      setAuxiliares(data.filter((u: Usuario) => u.role === 'auxiliar'))
+      setCoordinators(data.filter((u: User) => u.role === 'coordenador'))
+      setTeachers(data.filter((u: User) => u.role === 'professor'))
+      setAssistants(data.filter((u: User) => u.role === 'auxiliar'))
     }
   }
 
   // ── Carrega atribuições atuais da turma ──
-  async function carregarAtribuicoes(turmaId: string) {
+  async function loadAssignments(classId: string) {
     const { data } = await supabase
-      .from('turma_colaborador')
-      .select('id, usuario_id, usuarios(*)')
-      .eq('turma_id', turmaId)
-      .is('removido_em', null)
+      .from('class_staff')
+      .select('id, user_id, users(*)')
+      .eq('class_id', classId)
+      .is('removed_at', null)
 
     if (!data) return
 
-    const originais: AtribuicaoSalva[] = data.map((a: any) => ({
-      registroId: a.id,
-      usuario: a.usuarios,
+    const originals: SavedAssignment[] = data.map((a: any) => ({
+      recordId: a.id,
+      user: a.users,
     }))
-    setAtribuicoesOriginais(originais)
+    setOriginalAssignments(originals)
 
     // Preenche os campos da equipe
-    const coord = originais.find((a) => a.usuario.role === 'coordenador')
-    const prof = originais.find((a) => a.usuario.role === 'professor')
-    const assists = originais.filter((a) => a.usuario.role === 'auxiliar')
+    const coord = originals.find((a) => a.user.role === 'coordenador')
+    const teacher = originals.find((a) => a.user.role === 'professor')
+    const assists = originals.filter((a) => a.user.role === 'auxiliar')
 
-    if (coord) setCoordenadorSelecionado(coord.usuario)
-    if (prof) setProfessorSelecionado(prof.usuario)
+    if (coord) setSelectedCoordinator(coord.user)
+    if (teacher) setSelectedTeacher(teacher.user)
     if (assists.length > 0) {
-      setAssistentesSelecionados(assists.map((a) => a.usuario))
+      setSelectedAssistants(assists.map((a) => a.user))
     }
   }
 
   // ── Validação ──
-  function validar() {
+  function validate() {
     const e: Record<string, string> = {}
-    if (!nome.trim()) e.nome = 'Nome é obrigatório'
-    if (!ano || isNaN(Number(ano)) || Number(ano) < 2020 || Number(ano) > 2099)
-      e.ano = 'Ano inválido'
-    if (!turno) e.turno = 'Selecione o turno'
+    if (!name.trim()) e.name = 'Nome é obrigatório'
+    if (!year || isNaN(Number(year)) || Number(year) < 2020 || Number(year) > 2099)
+      e.year = 'Ano inválido'
+    if (!shift) e.shift = 'Selecione o turno'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   // ── Sincroniza equipe no banco ──
-  async function sincronizarEquipe(turmaId: string) {
-    // Monta lista atual de usuarios selecionados
-    const usuariosAtuais: Usuario[] = [
-      ...(coordenadorSelecionado ? [coordenadorSelecionado] : []),
-      ...(professorSelecionado ? [professorSelecionado] : []),
-      ...assistentesSelecionados.filter(Boolean) as Usuario[],
+  async function syncStaff(classId: string) {
+    const currentUsers: User[] = [
+      ...(selectedCoordinator ? [selectedCoordinator] : []),
+      ...(selectedTeacher ? [selectedTeacher] : []),
+      ...selectedAssistants.filter(Boolean) as User[],
     ]
 
-    const idsOriginais = atribuicoesOriginais.map((a) => a.usuario.id)
-    const idsAtuais = usuariosAtuais.map((u) => u.id)
+    const originalIds = originalAssignments.map((a) => a.user.id)
+    const currentIds = currentUsers.map((u) => u.id)
 
-    // Removidos — preenche removido_em
-    const removidos = atribuicoesOriginais.filter(
-      (a) => !idsAtuais.includes(a.usuario.id)
+    // Removidos — preenche removed_at
+    const removed = originalAssignments.filter(
+      (a) => !currentIds.includes(a.user.id)
     )
-    for (const r of removidos) {
+    for (const r of removed) {
       await supabase
-        .from('turma_colaborador')
-        .update({ removido_em: new Date().toISOString() })
-        .eq('id', r.registroId)
+        .from('class_staff')
+        .update({ removed_at: new Date().toISOString() })
+        .eq('id', r.recordId)
     }
 
     // Novos — insere
-    const novos = usuariosAtuais.filter((u) => !idsOriginais.includes(u.id))
-    for (const u of novos) {
-      await supabase.from('turma_colaborador').insert({
-        escola_id: escolaId,
-        turma_id: turmaId,
-        usuario_id: u.id,
+    const newMembers = currentUsers.filter((u) => !originalIds.includes(u.id))
+    for (const u of newMembers) {
+      await supabase.from('class_staff').insert({
+        school_id: schoolId,
+        class_id: classId,
+        user_id: u.id,
       })
     }
   }
 
   // ── Salvar ──
-  async function handleSalvar() {
-    if (!validar()) return
-    setSalvando(true)
+  async function handleSave() {
+    if (!validate()) return
+    setSaving(true)
 
     const payload = {
-      escola_id: escolaId,
-      nome: nome.trim(),
-      ano: Number(ano),
-      tipo,
-      nivel: nivel.trim() || null,
-      turno,
+      school_id: schoolId,
+      name: name.trim(),
+      year: Number(year),
+      type,
+      level: level.trim() || null,
+      shift,
     }
 
-    if (modo === 'edicao' && turma) {
+    if (mode === 'edit' && classData) {
       const { error } = await supabase
-        .from('turmas')
+        .from('classes')
         .update(payload)
-        .eq('id', turma.id)
-        .eq('escola_id', escolaId)
+        .eq('id', classData.id)
+        .eq('school_id', schoolId)
 
       if (error) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
-      await sincronizarEquipe(turma.id)
+      await syncStaff(classData.id)
 
     } else {
-      const { data: novaTurma, error } = await supabase
-        .from('turmas')
-        .insert({ ...payload, ativo: true })
+      const { data: newClass, error } = await supabase
+        .from('classes')
+        .insert({ ...payload, active: true })
         .select('id')
         .single()
 
-      if (error || !novaTurma) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+      if (error || !newClass) {
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
-      await sincronizarEquipe(novaTurma.id)
+      await syncStaff(newClass.id)
     }
 
-    setSalvando(false)
+    setSaving(false)
     onSaved()
     onClose()
   }
 
   // ── Desativar ──
-  async function handleDesativar() {
-    if (!turma) return
-    setDesativando(true)
+  async function handleDeactivate() {
+    if (!classData) return
+    setDeactivating(true)
 
     const { error } = await supabase
-      .from('turmas')
-      .update({ ativo: false, desativado_em: new Date().toISOString() })
-      .eq('id', turma.id)
-      .eq('escola_id', escolaId)
+      .from('classes')
+      .update({ active: false, deactivated_at: new Date().toISOString() })
+      .eq('id', classData.id)
+      .eq('school_id', schoolId)
 
     if (error) {
-      setErrors({ geral: 'Erro ao desativar. Tente novamente.' })
-      setDesativando(false)
+      setErrors({ general: 'Erro ao desativar. Tente novamente.' })
+      setDeactivating(false)
       return
     }
 
-    setDesativando(false)
+    setDeactivating(false)
     onSaved()
     onClose()
   }
 
   // ── Nome de exibição ──
-  const nomeExibicao = (u: Usuario | null) =>
-    u ? (u.apelido || u.nome.split(' ')[0]) : '—'
+  const displayName = (u: User | null) =>
+    u ? (u.nickname || u.name.split(' ')[0]) : '—'
 
   return (
     <>
@@ -456,33 +455,33 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
         <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
         <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-5">
-          {modo === 'criacao' ? 'Nova turma' : turma?.nome}
+          {mode === 'create' ? 'Nova turma' : classData?.name}
         </h2>
 
         {/* ── Visualização ── */}
-        {modo === 'visualizacao' && turma && (
+        {mode === 'view' && classData && (
           <div className="flex flex-col">
-            <DetalheRow label="Nome" value={turma.nome} />
-            <DetalheRow label="Ano letivo" value={turma.ano.toString()} />
-            <DetalheRow label="Tipo" value={tipoLabels[turma.tipo]} />
-            <DetalheRow label="Nível" value={turma.nivel} />
-            <DetalheRow label="Turno" value={turma.turno ? turnoLabels[turma.turno] : null} />
+            <DetailRow label="Nome" value={classData.name} />
+            <DetailRow label="Ano letivo" value={classData.year.toString()} />
+            <DetailRow label="Tipo" value={classTypeLabels[classData.type]} />
+            <DetailRow label="Nível" value={classData.level} />
+            <DetailRow label="Turno" value={classData.shift ? shiftLabels[classData.shift] : null} />
 
             <div className="mt-2">
               <span className="text-xs text-[#8C7060]">Equipe</span>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Coordenação</span>
-                <span className="text-sm font-medium text-[#3A2E24]">{nomeExibicao(coordenadorSelecionado)}</span>
+                <span className="text-sm font-medium text-[#3A2E24]">{displayName(selectedCoordinator)}</span>
               </div>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Professora</span>
-                <span className="text-sm font-medium text-[#3A2E24]">{nomeExibicao(professorSelecionado)}</span>
+                <span className="text-sm font-medium text-[#3A2E24]">{displayName(selectedTeacher)}</span>
               </div>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Assistentes</span>
                 <span className="text-sm font-medium text-[#3A2E24]">
-                  {assistentesSelecionados.filter(Boolean).length > 0
-                    ? assistentesSelecionados.filter(Boolean).map((u) => nomeExibicao(u)).join(', ')
+                  {selectedAssistants.filter(Boolean).length > 0
+                    ? selectedAssistants.filter(Boolean).map((u) => displayName(u)).join(', ')
                     : '—'
                   }
                 </span>
@@ -490,10 +489,10 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
             </div>
 
             <div className="flex flex-col gap-2 mt-5">
-              <Button variant="primary" onClick={() => setModo('edicao')}>Editar</Button>
+              <Button variant="primary" onClick={() => setMode('edit')}>Editar</Button>
 
-              {!confirmarDesativar ? (
-                <Button variant="ghost" onClick={() => setConfirmarDesativar(true)}>
+              {!confirmDeactivate ? (
+                <Button variant="ghost" onClick={() => setConfirmDeactivate(true)}>
                   Desativar turma
                 </Button>
               ) : (
@@ -502,10 +501,10 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
                     Tem certeza? A turma ficará inativa mas os dados serão preservados.
                   </p>
                   <div className="flex gap-2">
-                    <Button variant="ghost" fullWidth={false} onClick={() => setConfirmarDesativar(false)}>
+                    <Button variant="ghost" fullWidth={false} onClick={() => setConfirmDeactivate(false)}>
                       Cancelar
                     </Button>
-                    <Button fullWidth={false} loading={desativando} customColor="#E86C88" customTextColor="#fff" onClick={handleDesativar}>
+                    <Button fullWidth={false} loading={deactivating} customColor="#E86C88" customTextColor="#fff" onClick={handleDeactivate}>
                       Confirmar
                     </Button>
                   </div>
@@ -518,50 +517,50 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
         )}
 
         {/* ── Edição / Criação ── */}
-        {(modo === 'edicao' || modo === 'criacao') && (
+        {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
 
             <Input
               label="Nome da turma"
               placeholder="Ex: Maternal 1 A"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              error={errors.nome}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              error={errors.name}
             />
 
             <Input
               label="Ano letivo"
               type="number"
               placeholder={new Date().getFullYear().toString()}
-              value={ano}
-              onChange={(e) => setAno(e.target.value)}
-              error={errors.ano}
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              error={errors.year}
             />
 
             <ChipGroup
               label="Tipo"
-              options={['regular', 'extracurricular'] as TipoTurma[]}
-              labels={tipoLabels}
-              value={tipo}
-              onChange={setTipo}
+              options={['regular', 'extracurricular'] as ClassType[]}
+              labels={classTypeLabels}
+              value={type}
+              onChange={setType}
             />
 
-            {tipo === 'regular' && (
+            {type === 'regular' && (
               <Input
                 label="Nível"
                 placeholder="Ex: Berçário 1, Maternal A..."
-                value={nivel}
-                onChange={(e) => setNivel(e.target.value)}
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
               />
             )}
 
             <ChipGroup
               label="Turno"
-              options={['manha', 'tarde', 'noite', 'integral'] as Turno[]}
-              labels={turnoLabels}
-              value={turno}
-              onChange={setTurno}
-              error={errors.turno}
+              options={['manha', 'tarde', 'noite', 'integral'] as Shift[]}
+              labels={shiftLabels}
+              value={shift}
+              onChange={setShift}
+              error={errors.shift}
             />
 
             {/* ── Equipe ── */}
@@ -571,44 +570,44 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
               {/* Coordenação */}
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-[#8C7060]">Coordenação</span>
-                <BuscaPessoa
-                  colaboradores={coordenadores}
-                  value={coordenadorSelecionado}
-                  onChange={setCoordenadorSelecionado}
-                  mostrarClear={!!coordenadorSelecionado}
-                  onClear={() => setCoordenadorSelecionado(null)}
+                <PersonSearch
+                  staffMembers={coordinators}
+                  value={selectedCoordinator}
+                  onChange={setSelectedCoordinator}
+                  showClear={!!selectedCoordinator}
+                  onClear={() => setSelectedCoordinator(null)}
                 />
               </div>
 
               {/* Professora */}
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-[#8C7060]">Professora</span>
-                <BuscaPessoa
-                  colaboradores={professores}
-                  value={professorSelecionado}
-                  onChange={setProfessorSelecionado}
-                  mostrarClear={!!professorSelecionado}
-                  onClear={() => setProfessorSelecionado(null)}
+                <PersonSearch
+                  staffMembers={teachers}
+                  value={selectedTeacher}
+                  onChange={setSelectedTeacher}
+                  showClear={!!selectedTeacher}
+                  onClear={() => setSelectedTeacher(null)}
                 />
               </div>
 
               {/* Assistentes */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-[#8C7060]">Assistentes</span>
-                {assistentesSelecionados.map((assistente, index) => (
-                  <BuscaPessoa
+                {selectedAssistants.map((assistant, index) => (
+                  <PersonSearch
                     key={index}
-                    colaboradores={auxiliares}
-                    value={assistente}
+                    staffMembers={assistants}
+                    value={assistant}
                     onChange={(u) => {
-                      const nova = [...assistentesSelecionados]
-                      nova[index] = u
-                      setAssistentesSelecionados(nova)
+                      const updated = [...selectedAssistants]
+                      updated[index] = u
+                      setSelectedAssistants(updated)
                     }}
-                    mostrarClear={assistentesSelecionados.length > 1}
+                    showClear={selectedAssistants.length > 1}
                     onClear={() => {
-                      setAssistentesSelecionados(
-                        assistentesSelecionados.filter((_, i) => i !== index)
+                      setSelectedAssistants(
+                        selectedAssistants.filter((_, i) => i !== index)
                       )
                     }}
                   />
@@ -616,7 +615,7 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
 
                 <button
                   type="button"
-                  onClick={() => setAssistentesSelecionados([...assistentesSelecionados, null])}
+                  onClick={() => setSelectedAssistants([...selectedAssistants, null])}
                   className="flex items-center gap-1 text-sm font-medium text-[#FF8C66] hover:text-[#e87a54] transition-colors w-fit"
                 >
                   <span className="text-lg leading-none">+</span>
@@ -625,17 +624,17 @@ export function TurmaModal({ escolaId, turma, onClose, onSaved }: TurmaModalProp
               </div>
             </div>
 
-            {errors.geral && (
-              <span className="text-xs text-[#E86C88]">{errors.geral}</span>
+            {errors.general && (
+              <span className="text-xs text-[#E86C88]">{errors.general}</span>
             )}
 
-            <Button variant="primary" loading={salvando} onClick={handleSalvar}>
-              {modo === 'edicao' ? 'Salvar alterações' : 'Criar turma'}
+            <Button variant="primary" loading={saving} onClick={handleSave}>
+              {mode === 'edit' ? 'Salvar alterações' : 'Criar turma'}
             </Button>
 
             <Button
               variant="ghost"
-              onClick={() => modo === 'edicao' ? setModo('visualizacao') : onClose()}
+              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
             >
               Cancelar
             </Button>

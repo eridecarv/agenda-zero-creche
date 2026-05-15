@@ -2,20 +2,20 @@
  * Tipos relacionados a crianças e seus vínculos com responsáveis.
  */
 
-export type Crianca = {
+export type Child = {
   id: string
-  escola_id: string
-  nome: string
-  data_nascimento: string | null
-  observacoes: string | null
-  ativo: boolean
-  criado_em: string
-  desativado_em: string | null
+  school_id: string
+  name: string
+  birth_date: string | null
+  notes: string | null
+  active: boolean
+  created_at: string
+  deactivated_at: string | null
 }
 
-export type TipoVinculo = 'principal' | 'secundario'
+export type GuardianshipType = 'principal' | 'secundario'
 
-export type RelacaoVinculo =
+export type GuardianRelation =
   | 'mae'
   | 'pai'
   | 'avo'
@@ -24,26 +24,26 @@ export type RelacaoVinculo =
   | 'tia'
   | 'outro'
 
-export type Vinculo = {
+export type Guardianship = {
   id: string
-  escola_id: string
-  crianca_id: string
-  usuario_id: string
-  tipo: TipoVinculo
-  relacao: RelacaoVinculo | null
-  apelido: string | null
-  ativo: boolean
-  data_inicio: string
-  data_fim: string | null
-  adicionado_por: string | null
-  criado_em: string
+  school_id: string
+  child_id: string
+  user_id: string
+  type: GuardianshipType
+  relation: GuardianRelation | null
+  nickname: string | null
+  active: boolean
+  start_date: string
+  end_date: string | null
+  added_by: string | null
+  created_at: string
 }
 
-export type CriancaTurma = {
+export type ChildClass = {
   id: string
-  escola_id: string
-  crianca_id: string
-  turma_id: string
-  data_inicio: string
-  data_fim: string | null
+  school_id: string
+  child_id: string
+  class_id: string
+  start_date: string
+  end_date: string | null
 }

@@ -1,5 +1,5 @@
 /**
- * AtribuicaoLista — lista dinâmica de atribuições com busca por nome.
+ * AssignmentList — lista dinâmica de atribuições com busca por nome.
  *
  * Usado para atribuir colaboradores a turmas, responsáveis a crianças,
  * ou qualquer relação onde o usuário escolhe um cargo e uma pessoa.
@@ -9,91 +9,91 @@
  * - Campo de busca por nome — filtra em tempo real os colaboradores do cargo
  * - Botão de remover (x)
  *
- * O componente é controlado — recebe a lista atual via `atribuicoes`
+ * O componente é controlado — recebe a lista atual via `assignments`
  * e notifica mudanças via `onChange`. Não faz queries no banco —
- * recebe os colaboradores já carregados via `colaboradores`.
+ * recebe os colaboradores já carregados via `staffMembers`.
  *
  * Uso:
- *   <AtribuicaoLista
- *     colaboradores={colaboradores}
- *     atribuicoes={atribuicoes}
- *     onChange={setAtribuicoes}
+ *   <AssignmentList
+ *     staffMembers={staffMembers}
+ *     assignments={assignments}
+ *     onChange={setAssignments}
  *   />
  */
 
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { Usuario, Role } from '@/types'
+import type { User, Role } from '@/types'
 
 // ── Tipos ─────────────────────────────────────────────────────
-export type Atribuicao = {
+export type Assignment = {
   id: string
-  cargo: Role | null
-  usuario: Usuario | null
+  role: Role | null
+  user: User | null
 }
 
-type AtribuicaoListaProps = {
-  colaboradores: Usuario[]
-  atribuicoes: Atribuicao[]
-  onChange: (atribuicoes: Atribuicao[]) => void
+type AssignmentListProps = {
+  staffMembers: User[]
+  assignments: Assignment[]
+  onChange: (assignments: Assignment[]) => void
 }
 
 // ── Cargos disponíveis ────────────────────────────────────────
-const cargoOptions: Role[] = ['coordenador', 'professor', 'auxiliar']
+const roleOptions: Role[] = ['coordenador', 'professor', 'auxiliar']
 
-const cargoLabels: Record<string, string> = {
+const roleLabels: Record<string, string> = {
   coordenador: 'Coordenação',
   professor: 'Professora',
   auxiliar: 'Assistente',
 }
 
 // ── Linha de atribuição ───────────────────────────────────────
-function AtribuicaoLinha({
-  atribuicao,
-  colaboradores,
-  onChangeCargo,
-  onChangeUsuario,
-  onRemover,
+function AssignmentRow({
+  assignment,
+  staffMembers,
+  onChangeRole,
+  onChangeUser,
+  onRemove,
 }: {
-  atribuicao: Atribuicao
-  colaboradores: Usuario[]
-  onChangeCargo: (cargo: Role) => void
-  onChangeUsuario: (usuario: Usuario) => void
-  onRemover: () => void
+  assignment: Assignment
+  staffMembers: User[]
+  onChangeRole: (role: Role) => void
+  onChangeUser: (user: User) => void
+  onRemove: () => void
 }) {
-  const [busca, setBusca] = useState(
-    atribuicao.usuario?.apelido || atribuicao.usuario?.nome.split(' ')[0] || ''
+  const [search, setSearch] = useState(
+    assignment.user?.nickname || assignment.user?.name.split(' ')[0] || ''
   )
-  const [aberto, setAberto] = useState(false)
+  const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   // Fecha o dropdown ao clicar fora
   useEffect(() => {
-    function handleClickFora(e: MouseEvent) {
+    function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setAberto(false)
+        setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickFora)
-    return () => document.removeEventListener('mousedown', handleClickFora)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   // Filtra colaboradores pelo cargo e pelo texto de busca
-  const colaboradoresFiltrados = colaboradores.filter((c) => {
-    if (atribuicao.cargo && c.role !== atribuicao.cargo) return false
-    if (!busca.trim()) return true
-    const termo = busca.toLowerCase()
+  const filteredStaff = staffMembers.filter((s) => {
+    if (assignment.role && s.role !== assignment.role) return false
+    if (!search.trim()) return true
+    const term = search.toLowerCase()
     return (
-      c.nome.toLowerCase().includes(termo) ||
-      (c.apelido?.toLowerCase().includes(termo) ?? false)
+      s.name.toLowerCase().includes(term) ||
+      (s.nickname?.toLowerCase().includes(term) ?? false)
     )
   })
 
-  function selecionarUsuario(usuario: Usuario) {
-    onChangeUsuario(usuario)
-    setBusca(usuario.apelido || usuario.nome.split(' ')[0])
-    setAberto(false)
+  function selectUser(user: User) {
+    onChangeUser(user)
+    setSearch(user.nickname || user.name.split(' ')[0])
+    setOpen(false)
   }
 
   return (
@@ -102,24 +102,24 @@ function AtribuicaoLinha({
       {/* Chips de cargo + botão remover */}
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {cargoOptions.map((cargo) => (
+          {roleOptions.map((role) => (
             <button
-              key={cargo}
+              key={role}
               type="button"
               onClick={() => {
-                onChangeCargo(cargo)
-                setBusca('')
-                onChangeUsuario(null as any)
+                onChangeRole(role)
+                setSearch('')
+                onChangeUser(null as any)
               }}
               className={`
                 px-3 py-1 rounded-full text-xs font-medium transition-all duration-150
-                ${atribuicao.cargo === cargo
+                ${assignment.role === role
                   ? 'bg-[#FF8C66] text-white'
                   : 'bg-white text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
                 }
               `}
             >
-              {cargoLabels[cargo]}
+              {roleLabels[role]}
             </button>
           ))}
         </div>
@@ -127,7 +127,7 @@ function AtribuicaoLinha({
         {/* Botão remover */}
         <button
           type="button"
-          onClick={onRemover}
+          onClick={onRemove}
           className="
             w-7 h-7 shrink-0 flex items-center justify-center
             rounded-full text-[#B0A090] hover:text-[#E86C88] hover:bg-white
@@ -139,17 +139,17 @@ function AtribuicaoLinha({
       </div>
 
       {/* Campo de busca — só aparece quando cargo está selecionado */}
-      {atribuicao.cargo && (
+      {assignment.role && (
         <div className="relative" ref={ref}>
           <input
             type="text"
             placeholder="Buscar pelo nome..."
-            value={busca}
+            value={search}
             onChange={(e) => {
-              setBusca(e.target.value)
-              setAberto(true)
+              setSearch(e.target.value)
+              setOpen(true)
             }}
-            onFocus={() => setAberto(true)}
+            onFocus={() => setOpen(true)}
             className="
               w-full rounded-[10px] border border-[#E8E0D8] px-3 py-2 text-sm
               bg-white text-[#3A2E24] placeholder:text-[#C4B5A8]
@@ -159,18 +159,18 @@ function AtribuicaoLinha({
           />
 
           {/* Dropdown de resultados */}
-          {aberto && colaboradoresFiltrados.length > 0 && (
+          {open && filteredStaff.length > 0 && (
             <div className="
               absolute top-full left-0 right-0 z-10 mt-1
               bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
               shadow-[0_4px_16px_rgba(180,140,120,0.16)]
               overflow-hidden
             ">
-              {colaboradoresFiltrados.map((c) => (
+              {filteredStaff.map((s) => (
                 <button
-                  key={c.id}
+                  key={s.id}
                   type="button"
-                  onClick={() => selecionarUsuario(c)}
+                  onClick={() => selectUser(s)}
                   className="
                     w-full text-left px-3 py-2.5 text-sm
                     hover:bg-[#FAF7F2] transition-colors
@@ -178,10 +178,10 @@ function AtribuicaoLinha({
                   "
                 >
                   <span className="font-medium text-[#3A2E24]">
-                    {c.apelido || c.nome.split(' ')[0]}
+                    {s.nickname || s.name.split(' ')[0]}
                   </span>
-                  {c.apelido && (
-                    <span className="text-xs text-[#8C7060] ml-1">({c.nome})</span>
+                  {s.nickname && (
+                    <span className="text-xs text-[#8C7060] ml-1">({s.name})</span>
                   )}
                 </button>
               ))}
@@ -189,7 +189,7 @@ function AtribuicaoLinha({
           )}
 
           {/* Nenhum resultado */}
-          {aberto && busca.trim() && colaboradoresFiltrados.length === 0 && (
+          {open && search.trim() && filteredStaff.length === 0 && (
             <div className="
               absolute top-full left-0 right-0 z-10 mt-1
               bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
@@ -206,52 +206,52 @@ function AtribuicaoLinha({
 }
 
 // ── Componente principal ──────────────────────────────────────
-export function AtribuicaoLista({
-  colaboradores,
-  atribuicoes,
+export function AssignmentList({
+  staffMembers,
+  assignments,
   onChange,
-}: AtribuicaoListaProps) {
+}: AssignmentListProps) {
 
-  function adicionarLinha() {
+  function addRow() {
     onChange([
-      ...atribuicoes,
-      { id: crypto.randomUUID(), cargo: null, usuario: null },
+      ...assignments,
+      { id: crypto.randomUUID(), role: null, user: null },
     ])
   }
 
-  function removerLinha(id: string) {
-    onChange(atribuicoes.filter((a) => a.id !== id))
+  function removeRow(id: string) {
+    onChange(assignments.filter((a) => a.id !== id))
   }
 
-  function atualizarCargo(id: string, cargo: Role) {
-    onChange(atribuicoes.map((a) => a.id === id ? { ...a, cargo, usuario: null } : a))
+  function updateRole(id: string, role: Role) {
+    onChange(assignments.map((a) => a.id === id ? { ...a, role, user: null } : a))
   }
 
-  function atualizarUsuario(id: string, usuario: Usuario) {
-    onChange(atribuicoes.map((a) => a.id === id ? { ...a, usuario } : a))
+  function updateUser(id: string, user: User) {
+    onChange(assignments.map((a) => a.id === id ? { ...a, user } : a))
   }
 
   return (
     <div className="flex flex-col gap-2">
 
-      {atribuicoes.length === 0 && (
+      {assignments.length === 0 && (
         <p className="text-xs text-[#B0A090]">Nenhum colaborador atribuído ainda.</p>
       )}
 
-      {atribuicoes.map((atribuicao) => (
-        <AtribuicaoLinha
-          key={atribuicao.id}
-          atribuicao={atribuicao}
-          colaboradores={colaboradores}
-          onChangeCargo={(cargo) => atualizarCargo(atribuicao.id, cargo)}
-          onChangeUsuario={(usuario) => atualizarUsuario(atribuicao.id, usuario)}
-          onRemover={() => removerLinha(atribuicao.id)}
+      {assignments.map((assignment) => (
+        <AssignmentRow
+          key={assignment.id}
+          assignment={assignment}
+          staffMembers={staffMembers}
+          onChangeRole={(role) => updateRole(assignment.id, role)}
+          onChangeUser={(user) => updateUser(assignment.id, user)}
+          onRemove={() => removeRow(assignment.id)}
         />
       ))}
 
       <button
         type="button"
-        onClick={adicionarLinha}
+        onClick={addRow}
         className="
           flex items-center gap-1.5 text-sm font-medium text-[#FF8C66]
           hover:text-[#e87a54] transition-colors w-fit mt-1

@@ -1,5 +1,5 @@
 /**
- * CriancaModal — bottom sheet para visualização e edição de criança.
+ * ChildModal — bottom sheet para visualização e edição de criança.
  *
  * Modos:
  * - Visualização: dados da criança + responsável principal + botões separados
@@ -8,11 +8,11 @@
  *
  * Botões no modo visualização:
  * - "Editar criança" → modo edição (só dados da criança)
- * - "Editar responsáveis" → abre ResponsavelModal por cima
+ * - "Editar responsáveis" → abre GuardianModal por cima
  * - "Desativar criança"
  *
  * Responsável principal:
- * - Buscado via vinculos onde tipo = 'principal' e data_fim is null
+ * - Buscado via guardianships onde type = 'principal' e end_date is null
  * - Mostra nome, relação e status do acesso
  */
 
@@ -21,18 +21,18 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { ResponsavelModal } from '@/components/ui/ResponsavelModal'
+import { GuardianModal } from '@/components/ui/GuardianModal'
 import { createClient } from '@/lib/supabase'
-import type { Crianca, Turma, Turno, RelacaoVinculo } from '@/types'
+import type { Child, Class, Shift, GuardianRelation } from '@/types'
 
-const turnoLabels: Record<Turno, string> = {
+const shiftLabels: Record<Shift, string> = {
   manha: 'Manhã',
   tarde: 'Tarde',
   noite: 'Noite',
   integral: 'Integral',
 }
 
-const relacaoLabels: Record<RelacaoVinculo, string> = {
+const relationLabels: Record<GuardianRelation, string> = {
   mae: 'Mãe',
   pai: 'Pai',
   avo: 'Avô',
@@ -43,26 +43,26 @@ const relacaoLabels: Record<RelacaoVinculo, string> = {
 }
 
 // ── Tipo local de responsável principal ───────────────────────
-type ResponsavelPrincipal = {
-  vinculoId: string
-  usuarioId: string
-  nome: string
-  relacao: RelacaoVinculo | null
-  temAcessoAtivo: boolean
-  temConvitePendente: boolean
+type PrimaryGuardian = {
+  guardianshipId: string
+  userId: string
+  name: string
+  relation: GuardianRelation | null
+  hasActiveAccess: boolean
+  hasPendingInvite: boolean
 }
 
 // ── Props ─────────────────────────────────────────────────────
-type CriancaModalProps = {
-  escolaId: string
-  usuarioId: string
-  crianca?: Crianca
+type ChildModalProps = {
+  schoolId: string
+  userId: string
+  child?: Child
   onClose: () => void
   onSaved: () => void
 }
 
 // ── Linha de detalhe ──────────────────────────────────────────
-function DetalheRow({ label, value }: { label: string; value: string | null }) {
+function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5 py-3 border-b border-[#F0EAE3] last:border-0">
       <span className="text-xs text-[#8C7060]">{label}</span>
@@ -72,9 +72,9 @@ function DetalheRow({ label, value }: { label: string; value: string | null }) {
 }
 
 // ── Calcula idade ─────────────────────────────────────────────
-function calcularIdade(dataNasc: string | null): string {
-  if (!dataNasc) return ''
-  const nasc = new Date(dataNasc)
+function calcularIdade(birthDate: string | null): string {
+  if (!birthDate) return ''
+  const nasc = new Date(birthDate)
   const hoje = new Date()
   const meses =
     (hoje.getFullYear() - nasc.getFullYear()) * 12 +
@@ -88,205 +88,205 @@ function calcularIdade(dataNasc: string | null): string {
 }
 
 // ── Modal ─────────────────────────────────────────────────────
-export function CriancaModal({
-  escolaId,
-  usuarioId,
-  crianca,
+export function ChildModal({
+  schoolId,
+  userId,
+  child,
   onClose,
   onSaved,
-}: CriancaModalProps) {
+}: ChildModalProps) {
   const supabase = createClient()
 
-  const [modo, setModo] = useState<'visualizacao' | 'edicao' | 'criacao'>(
-    crianca ? 'visualizacao' : 'criacao'
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
+    child ? 'view' : 'create'
   )
 
   // Form
-  const [nome, setNome] = useState(crianca?.nome ?? '')
-  const [dataNascimento, setDataNascimento] = useState(crianca?.data_nascimento ?? '')
-  const [observacoes, setObservacoes] = useState(crianca?.observacoes ?? '')
-  const [turmaId, setTurmaId] = useState<string | null>(null)
-  const [turmaAtualId, setTurmaAtualId] = useState<string | null>(null)
+  const [name, setName] = useState(child?.name ?? '')
+  const [birthDate, setBirthDate] = useState(child?.birth_date ?? '')
+  const [notes, setNotes] = useState(child?.notes ?? '')
+  const [classId, setClassId] = useState<string | null>(null)
+  const [currentClassId, setCurrentClassId] = useState<string | null>(null)
 
   // Dados
-  const [turmas, setTurmas] = useState<Turma[]>([])
-  const [turmaAtual, setTurmaAtual] = useState<Turma | null>(null)
-  const [responsavelPrincipal, setResponsavelPrincipal] = useState<ResponsavelPrincipal | null>(null)
+  const [classes, setClasses] = useState<Class[]>([])
+  const [currentClass, setCurrentClass] = useState<Class | null>(null)
+  const [primaryGuardian, setPrimaryGuardian] = useState<PrimaryGuardian | null>(null)
 
-  // Controle do ResponsavelModal
-  const [responsavelModalAberto, setResponsavelModalAberto] = useState(false)
+  // Controle do GuardianModal
+  const [guardianModalOpen, setGuardianModalOpen] = useState(false)
 
   // Estado
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [salvando, setSalvando] = useState(false)
-  const [desativando, setDesativando] = useState(false)
-  const [confirmarDesativar, setConfirmarDesativar] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deactivating, setDeactivating] = useState(false)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
 
   useEffect(() => {
-    carregarTurmas()
-    if (crianca) {
-      carregarTurmaAtual(crianca.id)
-      carregarResponsavelPrincipal(crianca.id)
+    loadClasses()
+    if (child) {
+      loadCurrentClass(child.id)
+      loadPrimaryGuardian(child.id)
     }
   }, [])
 
-  async function carregarTurmas() {
+  async function loadClasses() {
     const { data } = await supabase
-      .from('turmas')
+      .from('classes')
       .select('*')
-      .eq('escola_id', escolaId)
-      .eq('ativo', true)
-      .eq('tipo', 'regular')
-      .order('nome')
-    if (data) setTurmas(data)
+      .eq('school_id', schoolId)
+      .eq('active', true)
+      .eq('type', 'regular')
+      .order('name')
+    if (data) setClasses(data)
   }
 
-  async function carregarTurmaAtual(criancaId: string) {
+  async function loadCurrentClass(childId: string) {
     const { data } = await supabase
-      .from('crianca_turma')
-      .select('turma_id, turmas(*)')
-      .eq('crianca_id', criancaId)
-      .is('data_fim', null)
+      .from('child_class')
+      .select('class_id, classes(*)')
+      .eq('child_id', childId)
+      .is('end_date', null)
       .single()
 
     if (data) {
-      const turma = data.turmas as unknown as Turma
-      setTurmaAtual(turma)
-      setTurmaAtualId(data.turma_id)
-      setTurmaId(data.turma_id)
+      const cls = data.classes as unknown as Class
+      setCurrentClass(cls)
+      setCurrentClassId(data.class_id)
+      setClassId(data.class_id)
     }
   }
 
-  async function carregarResponsavelPrincipal(criancaId: string) {
+  async function loadPrimaryGuardian(childId: string) {
     // Query 1: busca o vínculo e o usuário
     const { data } = await supabase
-      .from('vinculos')
-      .select('id, usuario_id, relacao, usuarios(id, nome)')
-      .eq('crianca_id', criancaId)
-      .eq('tipo', 'principal')
-      .eq('ativo', true)
-      .is('data_fim', null)
+      .from('guardianships')
+      .select('id, user_id, relation, users(id, name)')
+      .eq('child_id', childId)
+      .eq('type', 'principal')
+      .eq('active', true)
+      .is('end_date', null)
       .single()
 
     if (!data) return
 
-    const usuario = data.usuarios as any
+    const user = data.users as any
 
     // Query 2: busca o convite do responsável
-    const { data: convites } = await supabase
-      .from('convites')
-      .select('usado_em, expira_em')
-      .eq('usuario_id', data.usuario_id)
+    const { data: invites } = await supabase
+      .from('invites')
+      .select('used_at, expires_at')
+      .eq('user_id', data.user_id)
 
-    const temAcessoAtivo = convites?.some((c: any) => !!c.usado_em) ?? false
-    const temConvitePendente = convites?.some(
-      (c: any) => !c.usado_em && new Date(c.expira_em) > new Date()
+    const hasActiveAccess = invites?.some((i: any) => !!i.used_at) ?? false
+    const hasPendingInvite = invites?.some(
+      (i: any) => !i.used_at && new Date(i.expires_at) > new Date()
     ) ?? false
 
-    setResponsavelPrincipal({
-      vinculoId: data.id,
-      usuarioId: data.usuario_id,
-      nome: usuario?.nome ?? '—',
-      relacao: data.relacao as RelacaoVinculo | null,
-      temAcessoAtivo,
-      temConvitePendente,
+    setPrimaryGuardian({
+      guardianshipId: data.id,
+      userId: data.user_id,
+      name: user?.name ?? '—',
+      relation: data.relation as GuardianRelation | null,
+      hasActiveAccess,
+      hasPendingInvite,
     })
   }
 
-  function validar() {
+  function validate() {
     const e: Record<string, string> = {}
-    if (!nome.trim()) e.nome = 'Nome é obrigatório'
-    if (!dataNascimento) e.dataNascimento = 'Data de nascimento é obrigatória'
+    if (!name.trim()) e.name = 'Nome é obrigatório'
+    if (!birthDate) e.birthDate = 'Data de nascimento é obrigatória'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
-  async function handleSalvar() {
-    if (!validar()) return
-    setSalvando(true)
+  async function handleSave() {
+    if (!validate()) return
+    setSaving(true)
 
     const payload = {
-      escola_id: escolaId,
-      nome: nome.trim(),
-      data_nascimento: dataNascimento || null,
-      observacoes: observacoes.trim() || null,
+      school_id: schoolId,
+      name: name.trim(),
+      birth_date: birthDate || null,
+      notes: notes.trim() || null,
     }
 
-    if (modo === 'edicao' && crianca) {
+    if (mode === 'edit' && child) {
       const { error } = await supabase
-        .from('criancas')
+        .from('children')
         .update(payload)
-        .eq('id', crianca.id)
-        .eq('escola_id', escolaId)
+        .eq('id', child.id)
+        .eq('school_id', schoolId)
 
       if (error) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
 
-      if (turmaId !== turmaAtualId) {
-        if (turmaAtualId) {
+      if (classId !== currentClassId) {
+        if (currentClassId) {
           await supabase
-            .from('crianca_turma')
-            .update({ data_fim: new Date().toISOString().split('T')[0] })
-            .eq('crianca_id', crianca.id)
-            .is('data_fim', null)
+            .from('child_class')
+            .update({ end_date: new Date().toISOString().split('T')[0] })
+            .eq('child_id', child.id)
+            .is('end_date', null)
         }
-        if (turmaId) {
-          await supabase.from('crianca_turma').insert({
-            escola_id: escolaId,
-            crianca_id: crianca.id,
-            turma_id: turmaId,
-            data_inicio: new Date().toISOString().split('T')[0],
+        if (classId) {
+          await supabase.from('child_class').insert({
+            school_id: schoolId,
+            child_id: child.id,
+            class_id: classId,
+            start_date: new Date().toISOString().split('T')[0],
           })
         }
       }
     } else {
-      const { data: novaCrianca, error } = await supabase
-        .from('criancas')
-        .insert({ ...payload, ativo: true })
+      const { data: newChild, error } = await supabase
+        .from('children')
+        .insert({ ...payload, active: true })
         .select('id')
         .single()
 
-      if (error || !novaCrianca) {
-        setErrors({ geral: 'Erro ao salvar. Tente novamente.' })
-        setSalvando(false)
+      if (error || !newChild) {
+        setErrors({ general: 'Erro ao salvar. Tente novamente.' })
+        setSaving(false)
         return
       }
 
-      if (turmaId) {
-        await supabase.from('crianca_turma').insert({
-          escola_id: escolaId,
-          crianca_id: novaCrianca.id,
-          turma_id: turmaId,
-          data_inicio: new Date().toISOString().split('T')[0],
+      if (classId) {
+        await supabase.from('child_class').insert({
+          school_id: schoolId,
+          child_id: newChild.id,
+          class_id: classId,
+          start_date: new Date().toISOString().split('T')[0],
         })
       }
     }
 
-    setSalvando(false)
+    setSaving(false)
     onSaved()
     onClose()
   }
 
-  async function handleDesativar() {
-    if (!crianca) return
-    setDesativando(true)
+  async function handleDeactivate() {
+    if (!child) return
+    setDeactivating(true)
 
     const { error } = await supabase
-      .from('criancas')
-      .update({ ativo: false, desativado_em: new Date().toISOString() })
-      .eq('id', crianca.id)
-      .eq('escola_id', escolaId)
+      .from('children')
+      .update({ active: false, deactivated_at: new Date().toISOString() })
+      .eq('id', child.id)
+      .eq('school_id', schoolId)
 
     if (error) {
-      setErrors({ geral: 'Erro ao desativar. Tente novamente.' })
-      setDesativando(false)
+      setErrors({ general: 'Erro ao desativar. Tente novamente.' })
+      setDeactivating(false)
       return
     }
 
-    setDesativando(false)
+    setDeactivating(false)
     onSaved()
     onClose()
   }
@@ -306,36 +306,36 @@ export function CriancaModal({
         <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
         <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-5">
-          {modo === 'criacao' ? 'Nova criança' : crianca?.nome.split(' ')[0]}
+          {mode === 'create' ? 'Nova criança' : child?.name.split(' ')[0]}
         </h2>
 
         {/* ── Visualização ── */}
-        {modo === 'visualizacao' && crianca && (
+        {mode === 'view' && child && (
           <div className="flex flex-col">
 
-            <DetalheRow label="Nome completo" value={crianca.nome} />
-            <DetalheRow
+            <DetailRow label="Nome completo" value={child.name} />
+            <DetailRow
               label="Idade"
-              value={calcularIdade(crianca.data_nascimento)}
+              value={calcularIdade(child.birth_date)}
             />
-            <DetalheRow
+            <DetailRow
               label="Data de nascimento"
-              value={crianca.data_nascimento
-                ? new Date(crianca.data_nascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+              value={child.birth_date
+                ? new Date(child.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
                 : null
               }
             />
-            <DetalheRow
+            <DetailRow
               label="Turma"
-              value={turmaAtual
-                ? `${turmaAtual.nome}${turmaAtual.turno ? ` · ${turnoLabels[turmaAtual.turno]}` : ''}`
+              value={currentClass
+                ? `${currentClass.name}${currentClass.shift ? ` · ${shiftLabels[currentClass.shift]}` : ''}`
                 : null
               }
             />
-            {crianca.observacoes && (
+            {child.notes && (
               <div className="flex flex-col gap-0.5 py-3 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Observações</span>
-                <span className="text-sm text-[#E86C88] font-medium">⚠ {crianca.observacoes}</span>
+                <span className="text-sm text-[#E86C88] font-medium">⚠ {child.notes}</span>
               </div>
             )}
 
@@ -343,19 +343,19 @@ export function CriancaModal({
             <div className="py-3 border-b border-[#F0EAE3]">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-[#8C7060]">Responsável principal</span>
-                {responsavelPrincipal && (
+                {primaryGuardian && (
                   <span className={`
                     text-xs font-medium px-2 py-0.5 rounded-full
-                    ${responsavelPrincipal.temAcessoAtivo
+                    ${primaryGuardian.hasActiveAccess
                       ? 'bg-[#EDF7ED] text-[#72AA78]'
-                      : responsavelPrincipal.temConvitePendente
+                      : primaryGuardian.hasPendingInvite
                         ? 'bg-[#FFF9E6] text-[#C49A00]'
                         : 'bg-[#F5F5F5] text-[#B0A090]'
                     }
                   `}>
-                    {responsavelPrincipal.temAcessoAtivo
+                    {primaryGuardian.hasActiveAccess
                       ? '✓ Acesso ativo'
-                      : responsavelPrincipal.temConvitePendente
+                      : primaryGuardian.hasPendingInvite
                         ? '⏳ Convite pendente'
                         : 'Sem acesso'
                     }
@@ -363,14 +363,14 @@ export function CriancaModal({
                 )}
               </div>
 
-              {responsavelPrincipal ? (
+              {primaryGuardian ? (
                 <div>
                   <span className="text-sm font-semibold text-[#3A2E24]">
-                    {responsavelPrincipal.nome}
+                    {primaryGuardian.name}
                   </span>
-                  {responsavelPrincipal.relacao && (
+                  {primaryGuardian.relation && (
                     <span className="text-xs text-[#8C7060] ml-2">
-                      {relacaoLabels[responsavelPrincipal.relacao]}
+                      {relationLabels[primaryGuardian.relation]}
                     </span>
                   )}
                 </div>
@@ -381,19 +381,19 @@ export function CriancaModal({
 
             {/* Botões */}
             <div className="flex flex-col gap-2 mt-5">
-              <Button variant="primary" onClick={() => setModo('edicao')}>
+              <Button variant="primary" onClick={() => setMode('edit')}>
                 Editar criança
               </Button>
 
               <Button
                 variant="secondary"
-                onClick={() => setResponsavelModalAberto(true)}
+                onClick={() => setGuardianModalOpen(true)}
               >
                 Editar responsáveis
               </Button>
 
-              {!confirmarDesativar ? (
-                <Button variant="ghost" onClick={() => setConfirmarDesativar(true)}>
+              {!confirmDeactivate ? (
+                <Button variant="ghost" onClick={() => setConfirmDeactivate(true)}>
                   Desativar criança
                 </Button>
               ) : (
@@ -405,16 +405,16 @@ export function CriancaModal({
                     <Button
                       variant="ghost"
                       fullWidth={false}
-                      onClick={() => setConfirmarDesativar(false)}
+                      onClick={() => setConfirmDeactivate(false)}
                     >
                       Cancelar
                     </Button>
                     <Button
                       fullWidth={false}
-                      loading={desativando}
+                      loading={deactivating}
                       customColor="#E86C88"
                       customTextColor="#fff"
-                      onClick={handleDesativar}
+                      onClick={handleDeactivate}
                     >
                       Confirmar
                     </Button>
@@ -428,37 +428,37 @@ export function CriancaModal({
         )}
 
         {/* ── Edição / Criação ── */}
-        {(modo === 'edicao' || modo === 'criacao') && (
+        {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
 
             <Input
               label="Nome completo"
               placeholder="Nome da criança"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              error={errors.nome}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              error={errors.name}
             />
 
             <Input
               label="Data de nascimento"
               type="date"
-              value={dataNascimento}
-              onChange={(e) => setDataNascimento(e.target.value)}
-              error={errors.dataNascimento}
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              error={errors.birthDate}
             />
 
             <div className="flex flex-col gap-2">
               <span className="text-sm font-medium text-[#3A2E24]">Turma</span>
-              {turmas.length === 0 ? (
+              {classes.length === 0 ? (
                 <p className="text-xs text-[#B0A090]">Nenhuma turma ativa cadastrada.</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   <button
                     type="button"
-                    onClick={() => setTurmaId(null)}
+                    onClick={() => setClassId(null)}
                     className={`
                       w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
-                      ${turmaId === null
+                      ${classId === null
                         ? 'border-[#FF8C66] bg-[#FFF5F0] text-[#FF8C66] font-medium'
                         : 'border-[#E8E0D8] text-[#8C7060] hover:border-[#FF8C66]'
                       }
@@ -466,23 +466,23 @@ export function CriancaModal({
                   >
                     Sem turma por enquanto
                   </button>
-                  {turmas.map((t) => (
+                  {classes.map((c) => (
                     <button
-                      key={t.id}
+                      key={c.id}
                       type="button"
-                      onClick={() => setTurmaId(t.id)}
+                      onClick={() => setClassId(c.id)}
                       className={`
                         w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
-                        ${turmaId === t.id
+                        ${classId === c.id
                           ? 'border-[#FF8C66] bg-[#FFF5F0] font-medium text-[#3A2E24]'
                           : 'border-[#E8E0D8] text-[#3A2E24] hover:border-[#FF8C66]'
                         }
                       `}
                     >
-                      <span className="font-medium">{t.nome}</span>
-                      {(t.nivel || t.turno) && (
+                      <span className="font-medium">{c.name}</span>
+                      {(c.level || c.shift) && (
                         <span className="text-xs text-[#8C7060] ml-2">
-                          {[t.nivel, t.turno ? turnoLabels[t.turno] : null].filter(Boolean).join(' · ')}
+                          {[c.level, c.shift ? shiftLabels[c.shift] : null].filter(Boolean).join(' · ')}
                         </span>
                       )}
                     </button>
@@ -505,22 +505,22 @@ export function CriancaModal({
                 "
                 rows={3}
                 placeholder="Ex: Alergia a amendoim. Usa fralda tamanho G."
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               />
             </div>
 
-            {errors.geral && (
-              <span className="text-xs text-[#E86C88]">{errors.geral}</span>
+            {errors.general && (
+              <span className="text-xs text-[#E86C88]">{errors.general}</span>
             )}
 
-            <Button variant="primary" loading={salvando} onClick={handleSalvar}>
-              {modo === 'edicao' ? 'Salvar alterações' : 'Cadastrar criança'}
+            <Button variant="primary" loading={saving} onClick={handleSave}>
+              {mode === 'edit' ? 'Salvar alterações' : 'Cadastrar criança'}
             </Button>
 
             <Button
               variant="ghost"
-              onClick={() => modo === 'edicao' ? setModo('visualizacao') : onClose()}
+              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
             >
               Cancelar
             </Button>
@@ -530,15 +530,15 @@ export function CriancaModal({
 
       </div>
 
-      {/* ResponsavelModal abre por cima */}
-      {responsavelModalAberto && crianca && (
-        <ResponsavelModal
-          escolaId={escolaId}
-          usuarioId={usuarioId}
-          criancaId={crianca.id}
-          onClose={() => setResponsavelModalAberto(false)}
+      {/* GuardianModal abre por cima */}
+      {guardianModalOpen && child && (
+        <GuardianModal
+          schoolId={schoolId}
+          userId={userId}
+          childId={child.id}
+          onClose={() => setGuardianModalOpen(false)}
           onSaved={() => {
-            carregarResponsavelPrincipal(crianca.id)
+            loadPrimaryGuardian(child.id)
             onSaved()
           }}
         />

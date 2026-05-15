@@ -9,19 +9,19 @@
 import { useState } from 'react'
 
 type AlertItemProps = {
-  titulo: string
-  subtitulo: string
-  cor?: string
+  title: string
+  subtitle: string
+  color?: string
   children?: React.ReactNode
 }
 
 export function AlertItem({
-  titulo,
-  subtitulo,
-  cor = '#E86C88',
+  title,
+  subtitle,
+  color = '#E86C88',
   children,
 }: AlertItemProps) {
-  const [aberto, setAberto] = useState(false)
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="rounded-[14px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] overflow-hidden">
@@ -29,26 +29,26 @@ export function AlertItem({
       {/* Cabeçalho clicável */}
       <button
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
-        onClick={() => setAberto(!aberto)}
+        onClick={() => setOpen(!open)}
       >
         <span
           className="h-2 w-2 rounded-full flex-shrink-0"
-          style={{ backgroundColor: cor }}
+          style={{ backgroundColor: color }}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-[#3A2E24]">{titulo}</p>
-          <p className="text-xs text-[#8C7060]">{subtitulo}</p>
+          <p className="text-sm font-medium text-[#3A2E24]">{title}</p>
+          <p className="text-xs text-[#8C7060]">{subtitle}</p>
         </div>
         <span
           className="text-xs text-[#8C7060] transition-transform duration-200"
-          style={{ transform: aberto ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
         >
           ▼
         </span>
       </button>
 
       {/* Conteúdo expandido */}
-      {aberto && children && (
+      {open && children && (
         <div className="px-4 pb-3 border-t border-[#F0EAE4]">
           {children}
         </div>
