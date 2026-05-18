@@ -5,9 +5,9 @@
  * - Protege todas as rotas — redireciona para /login se não houver sessão.
  * - Redireciona / para /adm quando o usuário está logado.
  *   (no futuro, esse redirecionamento pode verificar o role e
- *    enviar professor para /professor, responsavel para /responsavel, etc.)
+ *    enviar professor para /professor, responsavel para /guardian, etc.)
  *
- * Rotas públicas: /login, /convite/[token]
+ * Rotas públicas: /login, /invite/[token]
  */
 
 import { createServerClient } from '@supabase/ssr'
@@ -45,25 +45,26 @@ export async function proxy(request: NextRequest) {
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/convite')
+    !request.nextUrl.pathname.startsWith('/invite')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-// Logado na raiz — redireciona conforme o role
-if (user && request.nextUrl.pathname === '/') {
-  const { data: usuario } = await supabase
-    .from('usuarios')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Logado na raiz — redireciona conforme o role
+  if (user && request.nextUrl.pathname === '/') {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
 
-  const url = request.nextUrl.clone()
-  url.pathname = usuario?.role === 'responsavel' ? '/responsavel' : '/adm'
-  return NextResponse.redirect(url)
-}
+    const url = request.nextUrl.clone()
+    url.pathname = userData?.role === 'responsavel' ? '/guardian' : '/adm'
+    return NextResponse.redirect(url)
+  }
+
   return supabaseResponse
 }
 
@@ -71,4 +72,4 @@ export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-} 
+}
