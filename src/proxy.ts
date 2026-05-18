@@ -61,7 +61,7 @@ export async function proxy(request: NextRequest) {
       .single()
 
     const url = request.nextUrl.clone()
-    url.pathname = userData?.role === 'responsavel' ? '/guardian' : '/adm'
+    url.pathname = userData?.role === 'guardian' ? '/guardian' : '/adm'
     return NextResponse.redirect(url)
   }
 
