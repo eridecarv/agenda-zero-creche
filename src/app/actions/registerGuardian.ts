@@ -58,7 +58,7 @@ export async function registerGuardian(
         name: input.name.trim(),
         phone: input.phone.replace(/\D/g, '') || null,
         cpf_hash: cpfHash,
-        role: 'responsavel',
+        role: 'guardian',
         active: true,
       })
       .select('id')

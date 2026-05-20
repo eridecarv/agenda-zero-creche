@@ -27,14 +27,14 @@ import { createClient } from '@/lib/supabase'
 import type { User, Role } from '@/types'
 
 // ── Roles disponíveis para colaboradores ─────────────────────
-const roleOptions: Role[] = ['coordenador', 'professor', 'auxiliar']
+const roleOptions: Role[] = ['coordinator', 'teacher', 'assistant']
 
 const roleLabels: Record<Role, string> = {
-  adm: 'Administrador',
-  coordenador: 'Coordenador(a)',
-  professor: 'Professor(a)',
-  auxiliar: 'Assistente',
-  responsavel: 'Responsável',
+  admin: 'Administrador',
+  coordinator: 'Coordenador(a)',
+  teacher: 'Professor(a)',
+  assistant: 'Assistente',
+  guardian: 'Responsável',
 }
 
 // ── Props ─────────────────────────────────────────────────────

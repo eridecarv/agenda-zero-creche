@@ -34,7 +34,7 @@ export async function verifyCpf(
       .from('users')
       .select('id, name, cpf_hash')
       .eq('school_id', input.schoolId)
-      .eq('role', 'responsavel')
+      .eq('role', 'guardian')
       .eq('active', true)
       .not('cpf_hash', 'is', null)
 

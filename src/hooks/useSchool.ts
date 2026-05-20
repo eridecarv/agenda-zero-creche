@@ -21,6 +21,7 @@ type UseSchoolResult = {
   schoolId: string | null
   userId: string | null
   loading: boolean
+  role: string | null
 }
 
 export function useSchool(): UseSchoolResult {
@@ -29,6 +30,7 @@ export function useSchool(): UseSchoolResult {
 
   const [schoolId, setSchoolId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [role, setRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -38,18 +40,21 @@ export function useSchool(): UseSchoolResult {
 
       const { data: userData, error } = await supabase
         .from('users')
-        .select('id, school_id')
+        .select('id, school_id, role')
         .eq('id', user.id)
         .single()
 
       if (error || !userData) { router.push('/login'); return }
 
+
+      if (userData.role === 'guardian') { router.push('/guardian'); return }
       setUserId(userData.id)
       setSchoolId(userData.school_id)
+      setRole(userData.role)
       setLoading(false)
     }
     init()
   }, [])
 
-  return { schoolId, userId, loading }
+  return { schoolId, userId,  loading, role }
 }

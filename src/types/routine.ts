@@ -4,28 +4,28 @@
  */
 
 export type Mood =
-  | 'contente'
-  | 'tranquilo'
-  | 'agitado'
-  | 'choroso'
+  | 'happy'
+  | 'calm'
+  | 'restless'
+  | 'tearful'
 
 export type Sleep =
-  | 'bom'
-  | 'regular'
-  | 'ruim'
-  | 'nao_dormiu'
+  | 'good'
+  | 'fair'
+  | 'poor'
+  | 'did_not_sleep'
 
 export type Meal =
-  | 'cafe'
-  | 'lanche_manha'
-  | 'almoco'
-  | 'lanche_tarde'
-  | 'jantar'
+  | 'breakfast'
+  | 'morning_snack'
+  | 'lunch'
+  | 'afternoon_snack'
+  | 'dinner'
 
 export type Acceptance =
-  | 'boa'
-  | 'regular'
-  | 'recusou'
+  | 'good'
+  | 'fair'
+  | 'refused'
 
 export type DailyLog = {
   id: string

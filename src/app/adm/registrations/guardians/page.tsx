@@ -53,7 +53,7 @@ export default function GuardiansPage() {
         )
       `)
       .eq('school_id', sid)
-      .eq('role', 'responsavel')
+      .eq('role', 'guardian')
       .eq('active', true)
       .order('name')
 

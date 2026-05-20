@@ -284,13 +284,13 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
       .select('*')
       .eq('school_id', schoolId)
       .eq('active', true)
-      .in('role', ['coordenador', 'professor', 'auxiliar'])
+      .in('role', ['coordinator', 'teacher', 'assistant'])
       .order('name')
 
     if (data) {
-      setCoordinators(data.filter((u: User) => u.role === 'coordenador'))
-      setTeachers(data.filter((u: User) => u.role === 'professor'))
-      setAssistants(data.filter((u: User) => u.role === 'auxiliar'))
+	setCoordinators(data.filter((u: User) => u.role === 'coordinator'))
+	setTeachers(data.filter((u: User) => u.role === 'teacher'))
+	setAssistants(data.filter((u: User) => u.role === 'assistant'))
     }
   }
 
@@ -311,9 +311,9 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
     setOriginalAssignments(originals)
 
     // Preenche os campos da equipe
-    const coord = originals.find((a) => a.user.role === 'coordenador')
-    const teacher = originals.find((a) => a.user.role === 'professor')
-    const assists = originals.filter((a) => a.user.role === 'auxiliar')
+	const coord = originals.find((a) => a.user.role === 'coordinator')
+	const teacher = originals.find((a) => a.user.role === 'teacher')
+	const assists = originals.filter((a) => a.user.role === 'assistant')
 
     if (coord) setSelectedCoordinator(coord.user)
     if (teacher) setSelectedTeacher(teacher.user)

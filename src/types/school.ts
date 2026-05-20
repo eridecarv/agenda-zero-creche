@@ -3,11 +3,11 @@
  */
 
 export type Role =
-  | 'adm'
-  | 'coordenador'
-  | 'professor'
-  | 'auxiliar'
-  | 'responsavel'
+  | 'admin'
+  | 'coordinator'
+  | 'teacher'
+  | 'assistant'
+  | 'guardian'
 
 export type School = {
   id: string

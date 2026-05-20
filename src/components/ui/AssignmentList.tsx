@@ -40,12 +40,12 @@ type AssignmentListProps = {
 }
 
 // ── Cargos disponíveis ────────────────────────────────────────
-const roleOptions: Role[] = ['coordenador', 'professor', 'auxiliar']
+const roleOptions: Role[] = ['coordinator', 'teacher', 'assistant']
 
 const roleLabels: Record<string, string> = {
-  coordenador: 'Coordenação',
-  professor: 'Professora',
-  auxiliar: 'Assistente',
+  coordinator: 'Coordenador(a)',
+  teacher: 'Professor(a)',
+  assistant: 'Assistente',
 }
 
 // ── Linha de atribuição ───────────────────────────────────────

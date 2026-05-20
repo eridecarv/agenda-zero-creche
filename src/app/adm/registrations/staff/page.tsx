@@ -22,11 +22,11 @@ import { useSchool } from '@/hooks/useSchool'
 import type { User, Role } from '@/types'
 
 const roleLabels: Record<Role, string> = {
-  adm: 'Administrador',
-  coordenador: 'Coordenador(a)',
-  professor: 'Professor(a)',
-  auxiliar: 'Assistente',
-  responsavel: 'Responsável',
+  admin: 'Administrador',
+  coordinator: 'Coordenador(a)',
+  teacher: 'Professor(a)',
+  assistant: 'Assistente',
+  guardian: 'Responsável',
 }
 
 export default function StaffPage() {
@@ -48,7 +48,7 @@ export default function StaffPage() {
       .select('*')
       .eq('school_id', sid)
       .eq('active', true)
-      .in('role', ['coordenador', 'professor', 'auxiliar'])
+      .in('role', ['coordinator', 'teacher', 'assistant'])
       .order('name')
 
     if (data) setStaffMembers(data)

@@ -8,40 +8,40 @@ import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Card } from '@/components/ui/Card'
 import type { Mood, Sleep, Meal, Acceptance } from '@/types'
 
-// ── Templates (mesmos da home) ────────────────────────────
+// ── Templates ────────────────────────────────────────────
 
 const MOOD_TEMPLATES: Record<Mood, string[]> = {
-  contente: ['ficou contente o dia todo', 'estava bem-humorada'],
-  tranquilo: ['passou o dia tranquila', 'ficou calma e serena'],
-  agitado: ['ficou um pouco agitada hoje', 'teve um dia mais agitado'],
-  choroso: ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
+  happy:    ['ficou contente o dia todo', 'estava bem-humorada'],
+  calm:     ['passou o dia tranquila', 'ficou calma e serena'],
+  restless: ['ficou um pouco agitada hoje', 'teve um dia mais agitado'],
+  tearful:  ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
 }
 
 const SLEEP_TEMPLATES: Record<Sleep, string[]> = {
-  bom: ['descansou bem no horário', 'dormiu direitinho'],
-  regular: ['dormiu um pouco', 'o soninho foi tranquilo'],
-  ruim: ['teve dificuldade para dormir', 'dormiu mal hoje'],
-  nao_dormiu: ['não conseguiu dormir hoje', 'ficou sem dormir'],
+  good:          ['descansou bem no horário', 'dormiu direitinho'],
+  fair:          ['dormiu um pouco', 'o soninho foi tranquilo'],
+  poor:          ['teve dificuldade para dormir', 'dormiu mal hoje'],
+  did_not_sleep: ['não conseguiu dormir hoje', 'ficou sem dormir'],
 }
 
 const ACCEPTANCE_TEMPLATES: Record<Acceptance, string[]> = {
-  boa: ['comeu bem', 'aceitou bem as refeições'],
-  regular: ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
-  recusou: ['não quis comer muito hoje', 'teve pouco apetite'],
+  good:    ['comeu bem', 'aceitou bem as refeições'],
+  fair:    ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
+  refused: ['não quis comer muito hoje', 'teve pouco apetite'],
 }
 
 const MEAL_LABEL: Record<Meal, string> = {
-  cafe: 'Café da manhã',
-  lanche_manha: 'Lanche da manhã',
-  almoco: 'Almoço',
-  lanche_tarde: 'Lanche da tarde',
-  jantar: 'Jantar',
+  breakfast:       'Café da manhã',
+  morning_snack:   'Lanche da manhã',
+  lunch:           'Almoço',
+  afternoon_snack: 'Lanche da tarde',
+  dinner:          'Jantar',
 }
 
 const ACCEPTANCE_STYLE: Record<Acceptance, { bg: string; text: string; label: string }> = {
-  boa:     { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
-  regular: { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
-  recusou: { bg: '#FDE8EC', text: '#A03050', label: 'Recusou' },
+  good:    { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
+  fair:    { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
+  refused: { bg: '#FDE8EC', text: '#A03050', label: 'Recusou' },
 }
 
 function pickRandom<T>(arr: T[]): T {
@@ -124,7 +124,7 @@ export default function DailyLogDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
-  const date = params.date as string  // 'YYYY-MM-DD'
+  const date = params.date as string
   const supabase = createClient()
 
   const [childName, setChildName] = useState('')
@@ -210,7 +210,7 @@ export default function DailyLogDetailPage() {
       )
     }
 
-    const lunch = dayLog.feeding.find(f => f.meal === 'almoco')
+    const lunch = dayLog.feeding.find(f => f.meal === 'lunch')
     const mainMeal = lunch ?? dayLog.feeding[0]
     if (mainMeal) {
       const template = pickRandom(ACCEPTANCE_TEMPLATES[mainMeal.acceptance])
@@ -257,14 +257,16 @@ export default function DailyLogDetailPage() {
 
     if (dayLog.sleep) {
       const sleepLabel: Record<Sleep, string> = {
-        bom: 'Dormiu bem', regular: 'Dormiu um pouco',
-        ruim: 'Dormiu mal', nao_dormiu: 'Não dormiu',
+        good:          'Dormiu bem',
+        fair:          'Dormiu um pouco',
+        poor:          'Dormiu mal',
+        did_not_sleep: 'Não dormiu',
       }
       const sleepColor: Record<Sleep, { bg: string; text: string }> = {
-        bom:        { bg: '#EEF0FE', text: '#4A4AAA' },
-        regular:    { bg: '#FEF6E4', text: '#9A6F2A' },
-        ruim:       { bg: '#FDE8EC', text: '#A03050' },
-        nao_dormiu: { bg: '#F5EFE8', text: '#8C7060' },
+        good:          { bg: '#EEF0FE', text: '#4A4AAA' },
+        fair:          { bg: '#FEF6E4', text: '#9A6F2A' },
+        poor:          { bg: '#FDE8EC', text: '#A03050' },
+        did_not_sleep: { bg: '#F5EFE8', text: '#8C7060' },
       }
       chips.push({ label: sleepLabel[dayLog.sleep], ...sleepColor[dayLog.sleep] })
     }
@@ -288,7 +290,6 @@ export default function DailyLogDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-8">
-      {/* Header com botão voltar */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.06)]">
         <button
           onClick={() => router.back()}
@@ -308,7 +309,6 @@ export default function DailyLogDetailPage() {
 
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
 
-        {/* Sem registro */}
         {notFound && (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
@@ -323,12 +323,10 @@ export default function DailyLogDetailPage() {
           </Card>
         )}
 
-        {/* Narrativa + chips */}
         {dayLog && (
           <Card padding="lg">
             <PrimaryText className="mb-4">{buildNarrative()}</PrimaryText>
 
-            {/* Saída — sempre encerrado no histórico */}
             {dayLog.check_out && (
               <div
                 className="flex items-center gap-2 rounded-[12px] px-3 py-2 mb-4"
@@ -353,7 +351,6 @@ export default function DailyLogDetailPage() {
           </Card>
         )}
 
-        {/* Alimentação */}
         {dayLog && dayLog.feeding.length > 0 && (
           <Card padding="lg">
             <SectionTitle>O que comeu</SectionTitle>
@@ -380,7 +377,6 @@ export default function DailyLogDetailPage() {
           </Card>
         )}
 
-        {/* Higiene */}
         {dayLog?.hygiene && (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
           <Card padding="lg">
             <SectionTitle>Cuidados do dia</SectionTitle>
