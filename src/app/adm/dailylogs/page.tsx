@@ -11,7 +11,10 @@ import { createClient } from '@/lib/supabase'
 import type { Class } from '@/types'
 
 const SHIFT_LABEL: Record<string, string> = {
-  manha: 'Manhã', tarde: 'Tarde', integral: 'Integral', noite: 'Noite',
+  morning: 'Manhã',
+  afternoon: 'Tarde',
+  full_day: 'Integral',
+  night: 'Noite',
 }
 
 export default function DailyLogsPage() {
