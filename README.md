@@ -63,9 +63,21 @@ Abrir [http://localhost:3000](http://localhost:3000).
 
 ---
 
+
 ## Status
 
-Projeto em desenvolvimento ativo. MVP com cadastros e diário funcional. Em construção: configurações, fechamento do dia, comunicados, ocorrências e refinamento de UI.
+Projeto em desenvolvimento ativo. MVP com cadastros e diário funcional.
+Em construção: configurações, fechamento do dia, comunicados, ocorrências e refinamento de UI.
+
+### Demo
+
+Acesse o app em produção: [agenda-zero-creche.vercel.app](https://agenda-zero-creche.vercel.app)
+
+**Conta demo — responsável:**
+- Telefone: `(11) 99999-0001`
+- Senha: `demo1234`
+
+A conta está vinculada a duas crianças com uma semana de registros diários preenchidos.
 
 ---
 
