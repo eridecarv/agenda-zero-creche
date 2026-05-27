@@ -4,26 +4,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import type { Child, Announcement } from '@/types'
 
-type LinkedChild = {
-  id: string;
-  name: string;
-  birth_date: string | null;
-};
+type AnnouncementPreview = Pick<Announcement, 'id' | 'title' | 'content' | 'created_at'>
 
-type Announcement = {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-};
 
 export default function GuardianPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [children, setChildren] = useState<LinkedChild[]>([]);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementPreview[]>([]);
   const [guardianName, setGuardianName] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -260,3 +251,4 @@ export default function GuardianPage() {
     </div>
   );
 }
+

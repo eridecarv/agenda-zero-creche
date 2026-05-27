@@ -9,7 +9,7 @@ export type Child = {
   birth_date: string | null
   notes: string | null
   active: boolean
-  created_at: string
+  created_at: string 
   deactivated_at: string | null
 }
 
