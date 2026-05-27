@@ -16,12 +16,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import type { Role } from '@/types'
 
 type UseSchoolResult = {
   schoolId: string | null
   userId: string | null
   loading: boolean
-  role: string | null
+  role: Role | null
 }
 
 export function useSchool(): UseSchoolResult {
@@ -30,7 +31,7 @@ export function useSchool(): UseSchoolResult {
 
   const [schoolId, setSchoolId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  const [role, setRole] = useState<string | null>(null)
+  const [role, setRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
