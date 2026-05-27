@@ -5,10 +5,11 @@
 
 export type { School, User, Role } from './school'
 
-export type { Class, ChildClass, Shift, ClassType } from './class'
+export type { Class, Shift, ClassType } from './class'
 
 export type {
   Child,
+  ChildClass,
   Guardianship,
   GuardianshipType,
   GuardianRelation,

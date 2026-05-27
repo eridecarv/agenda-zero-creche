@@ -25,10 +25,3 @@ export type Class = {
   deactivated_at: string | null
 }
 
-export type ChildClass = {
-  id: string
-  child_id: string
-  class_id: string
-  start_date: string
-  end_date: string | null
-}
