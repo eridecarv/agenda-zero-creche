@@ -3,9 +3,9 @@
  */
 
 export type IncidentStatus =
-  | 'rascunho'
-  | 'pendente'
-  | 'enviado'
+  | 'draft'
+  | 'pending'
+  | 'sent'
 
 export type Incident = {
   id: string

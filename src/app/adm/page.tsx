@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
     descricao: "Registre e acompanhe ocorrências das crianças",
     emoji: "📝",
     href: "/adm/incidents",
-    available: false,
+    available: true,
   },
   {
     label: "Comunicados",
