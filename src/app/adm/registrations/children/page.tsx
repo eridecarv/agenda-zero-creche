@@ -20,25 +20,14 @@ import { ChildModal } from '@/components/ui/ChildModal'
 import { createClient } from '@/lib/supabase'
 import { useSchool } from '@/hooks/useSchool'
 import type { Child } from '@/types'
+import { calculateAge } from '@/lib/calculateAge'
 
 // ── Tipo local com turma atual ────────────────────────────────
 type ChildWithClass = Child & {
   class_name: string | null
 }
 
-// ── Calcula idade ─────────────────────────────────────────────
-function calculateAge(birthDate: string | null): string {
-  if (!birthDate) return ''
-  const nasc = new Date(birthDate)
-  const hoje = new Date()
-  const meses =
-    (hoje.getFullYear() - nasc.getFullYear()) * 12 +
-    (hoje.getMonth() - nasc.getMonth())
-  if (meses < 12) return `${meses}m`
-  const anos = Math.floor(meses / 12)
-  const mesesRest = meses % 12
-  return mesesRest > 0 ? `${anos}a ${mesesRest}m` : `${anos}a`
-}
+
 
 export default function ChildrenPage() {
   const router = useRouter()
