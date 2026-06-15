@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { Mood, Sleep, Meal, Acceptance } from "@/types";
+import { guardianDisplayName } from "@/lib/guardianDisplayName";
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -200,16 +201,6 @@ const initialFeeding: FeedingState = {
 };
 
 
-const RELATION_LABEL: Record<string, string> = {
-  mae: "Mãe",
-  pai: "Pai",
-  avo: "Avô",
-  ava: "Avó",
-  tio: "Tio",
-  tia: "Tia",
-  outro: "Responsável",
-};
-
 // ── Componente principal ──────────────────────────────────
 
 export function DailyLogForm({
@@ -375,11 +366,6 @@ export function DailyLogForm({
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function guardianDisplayName(g: Guardian): string {
-    if (g.nickname) return g.nickname;
-    const relLabel = RELATION_LABEL[g.relation] ?? "Responsável";
-    return `${relLabel} — ${g.name.split(" ")[0]}`;
-  }
 
   async function save() {
     setSaving(true);
