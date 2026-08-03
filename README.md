@@ -1,6 +1,6 @@
 # Agenda Zero — Diário Digital para Creches
 
-Agenda Zero é um sistema de comunicação diária entre creches e as famílias de crianças de 0 a 3 anos. A escola registra a rotina do dia como sono, alimentação, higiene, humor, ocorrências, e os responsáveis acompanham a rotina diária e outras informações pelo celular.
+Agenda Zero é um sistema de comunicação diária entre creches e as famílias de crianças de 0 a 4 anos. A escola registra a rotina do dia como sono, alimentação, higiene, humor, ocorrências, e os responsáveis acompanham a rotina diária e outras informações pelo celular.
 
 O projeto nasceu de uma observação simples: pais e responsáveis de bebês em creche têm uma ansiedade específica. Enquanto os pais no ensino fundamental acompanham seus filhos na escola preocupados com provas, notas, atividade, eventos, na creche a questão diária é "como ele esteve enquanto eu não estava perto?". Não se trata de um projeto disruptivo, definitivamente não almeja mudar o mundo, mas sim analisar e aprender aproveitando uma UX construída e evoluída por décadas, validada por milhões de usuários (sim, estou falando da agenda de papel, física, para creche, berçario e maternal) e pensar em uma adaptação para o digital, sob a regra máxima de facilitar seu uso para todos usuários envolvidos.   
 
