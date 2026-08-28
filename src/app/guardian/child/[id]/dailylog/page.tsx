@@ -7,17 +7,17 @@ import { createClient } from '@/lib/supabase'
 import { Card } from '@/components/ui/Card'
 
 type DaySummary = {
-  date: string         // 'YYYY-MM-DD'
+  date: string // 'YYYY-MM-DD'
   mood: string | null
   present: boolean | null
-  complete: boolean    // tem check_out preenchido
+  complete: boolean // tem check_out preenchido
 }
 
 const MOOD_EMOJI: Record<string, string> = {
-  contente:  '😄',
+  contente: '😄',
   tranquilo: '😌',
-  agitado:   '😤',
-  choroso:   '😢',
+  agitado: '😤',
+  choroso: '😢',
 }
 
 function formatDate(dateStr: string): string {
@@ -50,11 +50,15 @@ export default function DailyLogHistoryPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
-      const { data: child } = await supabase
-        .from('children').select('name').eq('id', id).single()
+      const { data: child } = await supabase.from('children').select('name').eq('id', id).single()
       if (child) setChildName(child.name.split(' ')[0])
 
       // Busca registros diários excluindo hoje, ordenado do mais recente
@@ -66,7 +70,10 @@ export default function DailyLogHistoryPage() {
         .order('date', { ascending: false })
         .limit(60) // últimos ~2 meses
 
-      if (!dls || dls.length === 0) { setLoading(false); return }
+      if (!dls || dls.length === 0) {
+        setLoading(false)
+        return
+      }
 
       // Busca presença e saída de todos esses registros
       const dlIds = dls.map((d: any) => d.id)
@@ -75,7 +82,8 @@ export default function DailyLogHistoryPage() {
         .select('daily_log_id, present, check_out')
         .in('daily_log_id', dlIds)
 
-      const attendanceMap: Record<string, { present: boolean | null; check_out: string | null }> = {}
+      const attendanceMap: Record<string, { present: boolean | null; check_out: string | null }> =
+        {}
       attendanceLogs?.forEach((a: any) => {
         attendanceMap[a.daily_log_id] = { present: a.present, check_out: a.check_out }
       })
@@ -97,7 +105,9 @@ export default function DailyLogHistoryPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
-        <span style={{ color: '#C4A882' }} className="text-sm">Carregando...</span>
+        <span style={{ color: '#C4A882' }} className="text-sm">
+          Carregando...
+        </span>
       </div>
     )
   }
@@ -106,7 +116,9 @@ export default function DailyLogHistoryPage() {
     <div className="min-h-screen bg-[#FAF7F2] pb-8">
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.06)]">
-        <p style={{ color: '#C4A882' }} className="text-xs mb-1">Histórico</p>
+        <p style={{ color: '#C4A882' }} className="text-xs mb-1">
+          Histórico
+        </p>
         <h1 style={{ color: '#A08060' }} className="font-display text-2xl font-bold">
           Dias anteriores
         </h1>
@@ -116,7 +128,9 @@ export default function DailyLogHistoryPage() {
         {days.length === 0 ? (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#FEF0E8] flex items-center justify-center text-3xl">📖</div>
+              <div className="w-16 h-16 rounded-full bg-[#FEF0E8] flex items-center justify-center text-3xl">
+                📖
+              </div>
               <p style={{ color: '#A08060' }} className="text-base font-semibold">
                 Ainda sem histórico
               </p>
@@ -126,7 +140,7 @@ export default function DailyLogHistoryPage() {
             </div>
           </Card>
         ) : (
-          days.map(day => (
+          days.map((day) => (
             <button
               key={day.date}
               onClick={() => router.push(`/guardian/child/${id}/dailylog/${day.date}`)}
@@ -167,10 +181,10 @@ export default function DailyLogHistoryPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {day.mood && (
-                      <span className="text-2xl">{MOOD_EMOJI[day.mood] ?? '😊'}</span>
-                    )}
-                    <span style={{ color: '#C4A882' }} className="text-sm">›</span>
+                    {day.mood && <span className="text-2xl">{MOOD_EMOJI[day.mood] ?? '😊'}</span>}
+                    <span style={{ color: '#C4A882' }} className="text-sm">
+                      ›
+                    </span>
                   </div>
                 </div>
               </Card>

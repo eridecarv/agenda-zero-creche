@@ -74,22 +74,26 @@ export function BottomNav({ items }: BottomNavProps) {
           >
             <span style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
 
-            <span style={{
-              fontSize: 11,
-              lineHeight: 1,
-              fontWeight: item.active ? 700 : 500,
-              fontFamily: 'var(--font-body)',
-            }}>
+            <span
+              style={{
+                fontSize: 11,
+                lineHeight: 1,
+                fontWeight: item.active ? 700 : 500,
+                fontFamily: 'var(--font-body)',
+              }}
+            >
               {item.label}
             </span>
 
             {item.active && (
-              <span style={{
-                width: 4,
-                height: 4,
-                borderRadius: '50%',
-                backgroundColor: '#FF8C66',
-              }} />
+              <span
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: '50%',
+                  backgroundColor: '#FF8C66',
+                }}
+              />
             )}
           </Link>
         ))}

@@ -11,7 +11,6 @@ import { MetricCard } from './MetricCard'
 export function MetricCardExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
-
       {/* ── Uso típico — grade de 3 colunas ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
         <MetricCard label="Presentes" value={34} color="#72AA78" />
@@ -39,14 +38,8 @@ export function MetricCardExamples() {
           color="#E86C88"
           onClick={() => alert('Ver lista de ausentes')}
         />
-        <MetricCard
-          label="Turmas"
-          value={5}
-          color="#3A2E24"
-          onClick={() => alert('Ver turmas')}
-        />
+        <MetricCard label="Turmas" value={5} color="#3A2E24" onClick={() => alert('Ver turmas')} />
       </div>
-
     </div>
   )
 }

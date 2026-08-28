@@ -5,9 +5,9 @@
  */
 
 type AvatarProps = {
-  name: string        // usado para acessibilidade e inicial
-  photo?: string      // URL da foto real (opcional)
-  emoji?: string      // emoji placeholder (opcional)
+  name: string // usado para acessibilidade e inicial
+  photo?: string // URL da foto real (opcional)
+  emoji?: string // emoji placeholder (opcional)
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -17,12 +17,7 @@ const sizes = {
   lg: 'w-16 h-16 text-3xl',
 }
 
-export function Avatar({
-  name,
-  photo,
-  emoji = '👶',
-  size = 'md',
-}: AvatarProps) {
+export function Avatar({ name, photo, emoji = '👶', size = 'md' }: AvatarProps) {
   return (
     <div
       className={`
@@ -31,19 +26,13 @@ export function Avatar({
         flex-shrink-0 overflow-hidden
       `}
       style={{
-        background: photo
-          ? undefined
-          : 'linear-gradient(135deg, #FFD4C2 0%, #FFBCA0 100%)',
+        background: photo ? undefined : 'linear-gradient(135deg, #FFD4C2 0%, #FFBCA0 100%)',
         boxShadow: '0 2px 8px rgba(180, 140, 120, 0.2)',
       }}
       aria-label={name}
     >
       {photo ? (
-        <img
-          src={photo}
-          alt={name}
-          className="w-full h-full object-cover"
-        />
+        <img src={photo} alt={name} className="w-full h-full object-cover" />
       ) : (
         <span role="img" aria-hidden="true">
           {emoji}

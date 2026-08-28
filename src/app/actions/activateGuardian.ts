@@ -23,9 +23,7 @@ type ActivateGuardianInput = {
   password: string
 }
 
-type ActivateGuardianResult =
-  | { ok: true }
-  | { ok: false; error: string }
+type ActivateGuardianResult = { ok: true } | { ok: false; error: string }
 
 export async function activateGuardian(
   input: ActivateGuardianInput
@@ -41,7 +39,8 @@ export async function activateGuardian(
 
   if (!invite) return { ok: false, error: 'Link inválido. Peça um novo à escola.' }
   if (invite.used_at) return { ok: false, error: 'Esse link já foi usado.' }
-  if (new Date(invite.expires_at) < new Date()) return { ok: false, error: 'Link expirado. Peça um novo à escola.' }
+  if (new Date(invite.expires_at) < new Date())
+    return { ok: false, error: 'Link expirado. Peça um novo à escola.' }
 
   // ── 2. Busca o responsável ──
   const { data: user } = await supabase
@@ -64,7 +63,7 @@ export async function activateGuardian(
   const fictionalEmail = `${user.phone}@agendazero.internal`
 
   const { error: authError } = await supabase.auth.admin.createUser({
-    id: user.id,         // usa o mesmo UUID já existente na tabela
+    id: user.id, // usa o mesmo UUID já existente na tabela
     email: fictionalEmail,
     password: input.password,
     email_confirm: true,
@@ -76,10 +75,7 @@ export async function activateGuardian(
   }
 
   // ── 5. Marca o convite como usado ──
-  await supabase
-    .from('invites')
-    .update({ used_at: new Date().toISOString() })
-    .eq('id', invite.id)
+  await supabase.from('invites').update({ used_at: new Date().toISOString() }).eq('id', invite.id)
 
   return { ok: true }
 }

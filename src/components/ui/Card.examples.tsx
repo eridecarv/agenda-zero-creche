@@ -14,7 +14,6 @@ import { MetricCard } from './MetricCard'
 export function CardExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }}>
-
       {/* ── Card simples com texto ── */}
       <Card>
         <p style={{ margin: 0 }}>Conteúdo simples dentro de um card.</p>
@@ -41,9 +40,7 @@ export function CardExamples() {
           <Avatar name="Lara" emoji="👧" />
           <div>
             <p style={{ margin: 0, fontWeight: 500 }}>Lara Mendes</p>
-            <p style={{ margin: 0, fontSize: 12, color: '#8C7060' }}>
-              1 ano e 2 meses
-            </p>
+            <p style={{ margin: 0, fontSize: 12, color: '#8C7060' }}>1 ano e 2 meses</p>
           </div>
           <Badge label="Presente" color="#EAF3DE" textColor="#3B6D11" />
         </div>
@@ -57,7 +54,6 @@ export function CardExamples() {
           <MetricCard label="Turmas" value={5} color="#3A2E24" />
         </div>
       </Card>
-
     </div>
   )
 }

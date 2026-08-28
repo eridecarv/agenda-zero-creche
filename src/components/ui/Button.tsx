@@ -14,8 +14,8 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean
   variant?: ButtonVariant
   fullWidth?: boolean
-  customColor?: string      // cor de fundo customizada
-  customTextColor?: string  // cor de texto customizada
+  customColor?: string // cor de fundo customizada
+  customTextColor?: string // cor de texto customizada
   customBorderColor?: string // cor de borda customizada (para ghost)
 }
 
@@ -30,7 +30,6 @@ export function Button({
   style,
   ...props
 }: ButtonProps) {
-
   // ── Estilos fixos — nunca mudam independente da variante ──
   const base = `
     px-4 py-3 text-sm font-medium

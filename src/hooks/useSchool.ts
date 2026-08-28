@@ -36,8 +36,14 @@ export function useSchool(): UseSchoolResult {
 
   useEffect(() => {
     async function init() {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
       const { data: userData, error } = await supabase
         .from('users')
@@ -45,10 +51,15 @@ export function useSchool(): UseSchoolResult {
         .eq('id', user.id)
         .single()
 
-      if (error || !userData) { router.push('/login'); return }
+      if (error || !userData) {
+        router.push('/login')
+        return
+      }
 
-
-      if (userData.role === 'guardian') { router.push('/guardian'); return }
+      if (userData.role === 'guardian') {
+        router.push('/guardian')
+        return
+      }
       setUserId(userData.id)
       setSchoolId(userData.school_id)
       setRole(userData.role)
@@ -57,5 +68,5 @@ export function useSchool(): UseSchoolResult {
     init()
   }, [])
 
-  return { schoolId, userId,  loading, role }
+  return { schoolId, userId, loading, role }
 }

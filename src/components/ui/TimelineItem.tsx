@@ -10,7 +10,7 @@ import { Badge } from './Badge'
 
 type TimelineItemProps = {
   icon: string
-  iconBg: string          // cor de fundo do ícone
+  iconBg: string // cor de fundo do ícone
   time: string
   title: string
   description?: string
@@ -37,10 +37,8 @@ export function TimelineItem({
 
   return (
     <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
-
       {/* Cabeçalho */}
       <div className="flex items-start gap-3">
-
         {/* Ícone */}
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-base flex-shrink-0"
@@ -56,19 +54,11 @@ export function TimelineItem({
               <p className="text-xs text-[#8C7060]">{time}</p>
               <p className="text-sm font-semibold text-[#3A2E24]">{title}</p>
             </div>
-            {badge && (
-              <Badge
-                label={badge.label}
-                color={badge.color}
-                textColor={badge.textColor}
-              />
-            )}
+            {badge && <Badge label={badge.label} color={badge.color} textColor={badge.textColor} />}
           </div>
 
           {description && (
-            <p className="mt-1 text-sm text-[#8C7060] leading-relaxed">
-              {description}
-            </p>
+            <p className="mt-1 text-sm text-[#8C7060] leading-relaxed">{description}</p>
           )}
         </div>
       </div>
@@ -90,7 +80,6 @@ export function TimelineItem({
           </div>
         </>
       )}
-
     </div>
   )
 }

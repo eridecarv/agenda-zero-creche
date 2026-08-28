@@ -3,29 +3,13 @@
  * Inclui presença, alimentação, higiene e resumo narrativo.
  */
 
-export type Mood =
-  | 'happy'
-  | 'calm'
-  | 'restless'
-  | 'tearful'
+export type Mood = 'happy' | 'calm' | 'restless' | 'tearful'
 
-export type Sleep =
-  | 'good'
-  | 'fair'
-  | 'poor'
-  | 'did_not_sleep'
+export type Sleep = 'good' | 'fair' | 'poor' | 'did_not_sleep'
 
-export type Meal =
-  | 'breakfast'
-  | 'morning_snack'
-  | 'lunch'
-  | 'afternoon_snack'
-  | 'dinner'
+export type Meal = 'breakfast' | 'morning_snack' | 'lunch' | 'afternoon_snack' | 'dinner'
 
-export type Acceptance =
-  | 'good'
-  | 'fair'
-  | 'refused'
+export type Acceptance = 'good' | 'fair' | 'refused'
 
 export type DailyLog = {
   id: string

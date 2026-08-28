@@ -15,7 +15,7 @@ type Metric = {
 }
 
 type NarrativeCardProps = {
-  text: React.ReactNode   // aceita ExpandableText dentro do texto
+  text: React.ReactNode // aceita ExpandableText dentro do texto
   mood?: string
   metrics: Metric[]
   updatedAt?: string
@@ -24,10 +24,10 @@ type NarrativeCardProps = {
 }
 
 const moods: Record<string, { label: string; color: string; textColor: string }> = {
-  contente:  { label: 'Contente',  color: '#EAF3DE', textColor: '#3B6D11' },
+  contente: { label: 'Contente', color: '#EAF3DE', textColor: '#3B6D11' },
   tranquilo: { label: 'Tranquilo', color: '#EEEDFE', textColor: '#534AB7' },
-  agitado:   { label: 'Agitado',   color: '#FAEEDA', textColor: '#854F0B' },
-  choroso:   { label: 'Choroso',   color: '#FCEBEB', textColor: '#A32D2D' },
+  agitado: { label: 'Agitado', color: '#FAEEDA', textColor: '#854F0B' },
+  choroso: { label: 'Choroso', color: '#FCEBEB', textColor: '#A32D2D' },
 }
 
 export function NarrativeCard({
@@ -42,22 +42,15 @@ export function NarrativeCard({
 
   return (
     <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
-
       {/* Resumo narrativo + humor */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-sm text-[#8C7060] leading-relaxed flex-1">
-          {text}
-        </p>
+        <p className="text-sm text-[#8C7060] leading-relaxed flex-1">{text}</p>
         {moodInfo && (
           <div className="flex-shrink-0">
             <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide mb-1">
               HUMOR
             </p>
-            <Badge
-              label={moodInfo.label}
-              color={moodInfo.color}
-              textColor={moodInfo.textColor}
-            />
+            <Badge label={moodInfo.label} color={moodInfo.color} textColor={moodInfo.textColor} />
           </div>
         )}
       </div>
@@ -72,13 +65,19 @@ export function NarrativeCard({
       )}
 
       {/* Métricas rápidas */}
-      <div className="grid gap-2 mb-3" style={{ gridTemplateColumns: `repeat(${metrics.length}, 1fr)` }}>
+      <div
+        className="grid gap-2 mb-3"
+        style={{ gridTemplateColumns: `repeat(${metrics.length}, 1fr)` }}
+      >
         {metrics.map((m) => (
           <div key={m.label}>
             <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide">
               {m.label}
             </p>
-            <p className="text-base font-bold text-[#3A2E24]" style={{ fontFamily: 'var(--font-display)' }}>
+            <p
+              className="text-base font-bold text-[#3A2E24]"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
               {m.value}
             </p>
           </div>
@@ -87,19 +86,13 @@ export function NarrativeCard({
 
       {/* Rodapé */}
       <div className="flex items-center justify-between pt-3 border-t border-[#F0EAE4]">
-        {updatedAt && (
-          <p className="text-xs text-[#C4B5A8]">Atualizado às {updatedAt}</p>
-        )}
+        {updatedAt && <p className="text-xs text-[#C4B5A8]">Atualizado às {updatedAt}</p>}
         {onViewFullSchedule && (
-          <button
-            className="text-xs font-medium text-[#FF8C66]"
-            onClick={onViewFullSchedule}
-          >
+          <button className="text-xs font-medium text-[#FF8C66]" onClick={onViewFullSchedule}>
             Ver agenda completa →
           </button>
         )}
       </div>
-
     </div>
   )
 }

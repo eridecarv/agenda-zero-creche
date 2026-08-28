@@ -76,9 +76,7 @@ function calcularIdade(birthDate: string | null): string {
   if (!birthDate) return ''
   const nasc = new Date(birthDate)
   const hoje = new Date()
-  const meses =
-    (hoje.getFullYear() - nasc.getFullYear()) * 12 +
-    (hoje.getMonth() - nasc.getMonth())
+  const meses = (hoje.getFullYear() - nasc.getFullYear()) * 12 + (hoje.getMonth() - nasc.getMonth())
   if (meses < 12) return `${meses} ${meses === 1 ? 'mês' : 'meses'}`
   const anos = Math.floor(meses / 12)
   const mesesRest = meses % 12
@@ -88,18 +86,10 @@ function calcularIdade(birthDate: string | null): string {
 }
 
 // ── Modal ─────────────────────────────────────────────────────
-export function ChildModal({
-  schoolId,
-  userId,
-  child,
-  onClose,
-  onSaved,
-}: ChildModalProps) {
+export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildModalProps) {
   const supabase = createClient()
 
-  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
-    child ? 'view' : 'create'
-  )
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(child ? 'view' : 'create')
 
   // Form
   const [name, setName] = useState(child?.name ?? '')
@@ -179,9 +169,8 @@ export function ChildModal({
       .eq('user_id', data.user_id)
 
     const hasActiveAccess = invites?.some((i: any) => !!i.used_at) ?? false
-    const hasPendingInvite = invites?.some(
-      (i: any) => !i.used_at && new Date(i.expires_at) > new Date()
-    ) ?? false
+    const hasPendingInvite =
+      invites?.some((i: any) => !i.used_at && new Date(i.expires_at) > new Date()) ?? false
 
     setPrimaryGuardian({
       guardianshipId: data.id,
@@ -295,14 +284,16 @@ export function ChildModal({
     <>
       <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
 
-      <div className="
+      <div
+        className="
         fixed bottom-0 left-0 right-0 z-50
         bg-[#FFFDF9] rounded-t-[28px]
         shadow-[0_-4px_24px_rgba(180,140,120,0.18)]
         px-5 pt-5 pb-10
         max-w-lg mx-auto
         max-h-[90vh] overflow-y-auto
-      ">
+      "
+      >
         <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
         <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-5">
@@ -312,24 +303,22 @@ export function ChildModal({
         {/* ── Visualização ── */}
         {mode === 'view' && child && (
           <div className="flex flex-col">
-
             <DetailRow label="Nome completo" value={child.name} />
-            <DetailRow
-              label="Idade"
-              value={calcularIdade(child.birth_date)}
-            />
+            <DetailRow label="Idade" value={calcularIdade(child.birth_date)} />
             <DetailRow
               label="Data de nascimento"
-              value={child.birth_date
-                ? new Date(child.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-                : null
+              value={
+                child.birth_date
+                  ? new Date(child.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+                  : null
               }
             />
             <DetailRow
               label="Turma"
-              value={currentClass
-                ? `${currentClass.name}${currentClass.shift ? ` · ${shiftLabels[currentClass.shift]}` : ''}`
-                : null
+              value={
+                currentClass
+                  ? `${currentClass.name}${currentClass.shift ? ` · ${shiftLabels[currentClass.shift]}` : ''}`
+                  : null
               }
             />
             {child.notes && (
@@ -344,21 +333,23 @@ export function ChildModal({
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-[#8C7060]">Responsável principal</span>
                 {primaryGuardian && (
-                  <span className={`
+                  <span
+                    className={`
                     text-xs font-medium px-2 py-0.5 rounded-full
-                    ${primaryGuardian.hasActiveAccess
-                      ? 'bg-[#EDF7ED] text-[#72AA78]'
-                      : primaryGuardian.hasPendingInvite
-                        ? 'bg-[#FFF9E6] text-[#C49A00]'
-                        : 'bg-[#F5F5F5] text-[#B0A090]'
+                    ${
+                      primaryGuardian.hasActiveAccess
+                        ? 'bg-[#EDF7ED] text-[#72AA78]'
+                        : primaryGuardian.hasPendingInvite
+                          ? 'bg-[#FFF9E6] text-[#C49A00]'
+                          : 'bg-[#F5F5F5] text-[#B0A090]'
                     }
-                  `}>
+                  `}
+                  >
                     {primaryGuardian.hasActiveAccess
                       ? '✓ Acesso ativo'
                       : primaryGuardian.hasPendingInvite
                         ? '⏳ Convite pendente'
-                        : 'Sem acesso'
-                    }
+                        : 'Sem acesso'}
                   </span>
                 )}
               </div>
@@ -385,10 +376,7 @@ export function ChildModal({
                 Editar criança
               </Button>
 
-              <Button
-                variant="secondary"
-                onClick={() => setGuardianModalOpen(true)}
-              >
+              <Button variant="secondary" onClick={() => setGuardianModalOpen(true)}>
                 Editar responsáveis
               </Button>
 
@@ -422,7 +410,9 @@ export function ChildModal({
                 </div>
               )}
 
-              <Button variant="ghost" onClick={onClose}>Fechar</Button>
+              <Button variant="ghost" onClick={onClose}>
+                Fechar
+              </Button>
             </div>
           </div>
         )}
@@ -430,7 +420,6 @@ export function ChildModal({
         {/* ── Edição / Criação ── */}
         {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
-
             <Input
               label="Nome completo"
               placeholder="Nome da criança"
@@ -458,9 +447,10 @@ export function ChildModal({
                     onClick={() => setClassId(null)}
                     className={`
                       w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
-                      ${classId === null
-                        ? 'border-[#FF8C66] bg-[#FFF5F0] text-[#FF8C66] font-medium'
-                        : 'border-[#E8E0D8] text-[#8C7060] hover:border-[#FF8C66]'
+                      ${
+                        classId === null
+                          ? 'border-[#FF8C66] bg-[#FFF5F0] text-[#FF8C66] font-medium'
+                          : 'border-[#E8E0D8] text-[#8C7060] hover:border-[#FF8C66]'
                       }
                     `}
                   >
@@ -473,16 +463,19 @@ export function ChildModal({
                       onClick={() => setClassId(c.id)}
                       className={`
                         w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
-                        ${classId === c.id
-                          ? 'border-[#FF8C66] bg-[#FFF5F0] font-medium text-[#3A2E24]'
-                          : 'border-[#E8E0D8] text-[#3A2E24] hover:border-[#FF8C66]'
+                        ${
+                          classId === c.id
+                            ? 'border-[#FF8C66] bg-[#FFF5F0] font-medium text-[#3A2E24]'
+                            : 'border-[#E8E0D8] text-[#3A2E24] hover:border-[#FF8C66]'
                         }
                       `}
                     >
                       <span className="font-medium">{c.name}</span>
                       {(c.level || c.shift) && (
                         <span className="text-xs text-[#8C7060] ml-2">
-                          {[c.level, c.shift ? shiftLabels[c.shift] : null].filter(Boolean).join(' · ')}
+                          {[c.level, c.shift ? shiftLabels[c.shift] : null]
+                            .filter(Boolean)
+                            .join(' · ')}
                         </span>
                       )}
                     </button>
@@ -510,24 +503,17 @@ export function ChildModal({
               />
             </div>
 
-            {errors.general && (
-              <span className="text-xs text-[#E86C88]">{errors.general}</span>
-            )}
+            {errors.general && <span className="text-xs text-[#E86C88]">{errors.general}</span>}
 
             <Button variant="primary" loading={saving} onClick={handleSave}>
               {mode === 'edit' ? 'Salvar alterações' : 'Cadastrar criança'}
             </Button>
 
-            <Button
-              variant="ghost"
-              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
-            >
+            <Button variant="ghost" onClick={() => (mode === 'edit' ? setMode('view') : onClose())}>
               Cancelar
             </Button>
-
           </div>
         )}
-
       </div>
 
       {/* GuardianModal abre por cima */}

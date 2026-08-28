@@ -13,21 +13,28 @@ import { Button } from './Button'
 export function ButtonExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }}>
-
       {/* ── Variantes pré-definidas ── */}
       <Button variant="primary">Registrar</Button>
       <Button variant="secondary">Adicionar</Button>
       <Button variant="ghost">Cancelar</Button>
-      <Button variant="pill" fullWidth={false}>+ Foto</Button>
+      <Button variant="pill" fullWidth={false}>
+        + Foto
+      </Button>
 
       {/* ── Estado de carregamento ── */}
-      <Button variant="primary" loading={true}>Registrar</Button>
+      <Button variant="primary" loading={true}>
+        Registrar
+      </Button>
 
       {/* ── Estado desabilitado ── */}
-      <Button variant="primary" disabled>Salvar</Button>
+      <Button variant="primary" disabled>
+        Salvar
+      </Button>
 
       {/* ── Tamanho automático ── */}
-      <Button variant="primary" fullWidth={false}>Ação</Button>
+      <Button variant="primary" fullWidth={false}>
+        Ação
+      </Button>
 
       {/* ── Cores customizadas (mantém radius e tipografia) ── */}
       <Button customColor="#9E78D8" customTextColor="white">
@@ -47,7 +54,6 @@ export function ButtonExamples() {
       <Button variant="pill" fullWidth={false} customColor="#72AA78">
         + Adicionar
       </Button>
-
     </div>
   )
 }

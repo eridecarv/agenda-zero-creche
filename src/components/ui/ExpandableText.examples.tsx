@@ -11,10 +11,10 @@ import { ExpandableText } from './ExpandableText'
 export function ExpandableTextExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
-
       {/* ── Uso típico — dentro de um parágrafo narrativo ── */}
       <p style={{ fontSize: 15, color: '#8C7060', lineHeight: 1.7 }}>
-        Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio amoada —{' '}
+        Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio
+        amoada —{' '}
         <ExpandableText
           text="dormiu pouco"
           detail="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
@@ -26,11 +26,8 @@ export function ExpandableTextExamples() {
       {/* ── Sem autor ── */}
       <p style={{ fontSize: 15, color: '#8C7060', lineHeight: 1.7 }}>
         Lara{' '}
-        <ExpandableText
-          text="comeu bem"
-          detail="Aceitou o almoço todo e ainda pediu mais fruta."
-        />
-        {' '}e dormiu tranquilamente.
+        <ExpandableText text="comeu bem" detail="Aceitou o almoço todo e ainda pediu mais fruta." />{' '}
+        e dormiu tranquilamente.
       </p>
 
       {/* ── Múltiplos expandíveis no mesmo parágrafo ── */}
@@ -40,8 +37,8 @@ export function ExpandableTextExamples() {
           text="ficou agitado"
           detail="Chorou bastante no início da manhã, mas melhorou depois do almoço."
           author="Profa. Bia · 09:20"
-        />
-        {' '}mas{' '}
+        />{' '}
+        mas{' '}
         <ExpandableText
           text="comeu bem"
           detail="Aceitou todas as refeições sem resistência."
@@ -49,7 +46,6 @@ export function ExpandableTextExamples() {
         />
         .
       </p>
-
     </div>
   )
 }
