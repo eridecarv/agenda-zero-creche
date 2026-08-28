@@ -9,20 +9,13 @@ export type Child = {
   birth_date: string | null
   notes: string | null
   active: boolean
-  created_at: string 
+  created_at: string
   deactivated_at: string | null
 }
 
 export type GuardianshipType = 'principal' | 'secundario'
 
-export type GuardianRelation =
-  | 'mae'
-  | 'pai'
-  | 'avo'
-  | 'ava'
-  | 'tio'
-  | 'tia'
-  | 'outro'
+export type GuardianRelation = 'mae' | 'pai' | 'avo' | 'ava' | 'tio' | 'tia' | 'outro'
 
 export type Guardianship = {
   id: string

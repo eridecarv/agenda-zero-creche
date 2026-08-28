@@ -7,16 +7,11 @@
 type MetricCardProps = {
   label: string
   value: number | string
-  color?: string        // cor do valor em destaque
+  color?: string // cor do valor em destaque
   onClick?: () => void
 }
 
-export function MetricCard({
-  label,
-  value,
-  color = '#3A2E24',
-  onClick,
-}: MetricCardProps) {
+export function MetricCard({ label, value, color = '#3A2E24', onClick }: MetricCardProps) {
   return (
     <div
       className={`
@@ -27,15 +22,10 @@ export function MetricCard({
       onClick={onClick}
     >
       {/* Label */}
-      <p className="text-[10px] font-medium uppercase tracking-wide text-[#8C7060]">
-        {label}
-      </p>
+      <p className="text-[10px] font-medium uppercase tracking-wide text-[#8C7060]">{label}</p>
 
       {/* Valor em destaque */}
-      <p
-        className="text-2xl font-bold"
-        style={{ color, fontFamily: 'var(--font-display)' }}
-      >
+      <p className="text-2xl font-bold" style={{ color, fontFamily: 'var(--font-display)' }}>
         {value}
       </p>
     </div>

@@ -21,7 +21,7 @@ type GuardianWithChildren = {
   id: string
   name: string
   phone: string | null
-  children: string[]    // nomes das crianças vinculadas
+  children: string[] // nomes das crianças vinculadas
   hasPendingInvite: boolean
 }
 
@@ -40,7 +40,8 @@ export default function GuardiansPage() {
   async function loadGuardians(sid: string) {
     const { data } = await supabase
       .from('users')
-      .select(`
+      .select(
+        `
         id, name, phone,
         guardianships (
           child_id,
@@ -51,7 +52,8 @@ export default function GuardiansPage() {
           used_at,
           expires_at
         )
-      `)
+      `
+      )
       .eq('school_id', sid)
       .eq('role', 'guardian')
       .eq('active', true)
@@ -59,14 +61,14 @@ export default function GuardiansPage() {
 
     if (data) {
       const formatted: GuardianWithChildren[] = data.map((g: any) => {
-        const children = g.guardianships
-          ?.filter((gs: any) => gs.end_date === null)
-          .map((gs: any) => gs.children?.name)
-          .filter(Boolean) ?? []
+        const children =
+          g.guardianships
+            ?.filter((gs: any) => gs.end_date === null)
+            .map((gs: any) => gs.children?.name)
+            .filter(Boolean) ?? []
 
-        const hasPendingInvite = g.invites?.some(
-          (i: any) => !i.used_at && new Date(i.expires_at) > new Date()
-        ) ?? false
+        const hasPendingInvite =
+          g.invites?.some((i: any) => !i.used_at && new Date(i.expires_at) > new Date()) ?? false
 
         return {
           id: g.id,
@@ -90,7 +92,6 @@ export default function GuardiansPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-24">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-5 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -103,7 +104,8 @@ export default function GuardiansPage() {
           <div>
             <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Responsáveis</h1>
             <p className="text-sm text-[#8C7060] mt-0.5">
-              {guardians.length} {guardians.length === 1 ? 'responsável ativo' : 'responsáveis ativos'}
+              {guardians.length}{' '}
+              {guardians.length === 1 ? 'responsável ativo' : 'responsáveis ativos'}
             </p>
           </div>
           <Button variant="pill" fullWidth={false} onClick={() => setModalOpen(true)}>
@@ -113,7 +115,6 @@ export default function GuardiansPage() {
       </div>
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
-
         {guardians.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhum responsável cadastrado ainda.</p>
@@ -131,8 +132,7 @@ export default function GuardiansPage() {
                 <span className="text-xs text-[#8C7060]">
                   {guardian.children.length > 0
                     ? guardian.children.join(', ')
-                    : 'Sem criança vinculada'
-                  }
+                    : 'Sem criança vinculada'}
                 </span>
                 {guardian.hasPendingInvite && (
                   <span className="text-xs text-[#F5C632] mt-0.5">⏳ Convite pendente</span>
@@ -141,7 +141,6 @@ export default function GuardiansPage() {
             </div>
           </Card>
         ))}
-
       </div>
 
       {modalOpen && schoolId && userId && (
@@ -152,7 +151,6 @@ export default function GuardiansPage() {
           onSaved={() => loadGuardians(schoolId)}
         />
       )}
-
     </div>
   )
 }

@@ -11,7 +11,6 @@ import { Avatar } from './Avatar'
 export function AvatarExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
-
       {/* ── Tamanhos ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <Avatar name="Lara" size="sm" />
@@ -29,11 +28,7 @@ export function AvatarExamples() {
 
       {/* ── Com foto real ── */}
       <div style={{ display: 'flex', gap: 12 }}>
-        <Avatar
-          name="Sofia"
-          photo="https://i.pravatar.cc/150?img=47"
-          size="lg"
-        />
+        <Avatar name="Sofia" photo="https://i.pravatar.cc/150?img=47" size="lg" />
       </div>
 
       {/* ── Uso típico: junto com nome ── */}
@@ -44,7 +39,6 @@ export function AvatarExamples() {
           <p style={{ margin: 0, fontSize: 12, color: '#8C7060' }}>1 ano e 2 meses</p>
         </div>
       </div>
-
     </div>
   )
 }

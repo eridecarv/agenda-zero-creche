@@ -19,21 +19,17 @@ const paddings = {
   lg: 'p-5',
 }
 
-export function Card({
-  children,
-  onClick,
-  padding = 'md',
-  className = '',
-}: CardProps) {
+export function Card({ children, onClick, padding = 'md', className = '' }: CardProps) {
   return (
     <div
       className={`
         rounded-[20px] bg-[#FFFDF9]
         shadow-[0_2px_8px_rgba(180,140,120,0.12)]
         ${paddings[padding]}
-        ${onClick
-          ? 'cursor-pointer active:scale-[0.97] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)]'
-          : ''
+        ${
+          onClick
+            ? 'cursor-pointer active:scale-[0.97] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)]'
+            : ''
         }
         ${className}
       `}

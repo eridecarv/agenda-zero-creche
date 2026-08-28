@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ─────────────────────────────────────────
    AGENDA ZERO — Design System v1.0
@@ -6,44 +6,43 @@
    ───────────────────────────────────────── */
 
 @theme inline {
-
   /* ── Cores principais ── */
-  --color-primary:       #FF8C66;  /* Peach Rose · ações */
-  --color-success:       #72AA78;  /* Sage Green · sucesso */
-  --color-warning:       #F5C632;  /* Butter Yellow · destaque */
-  --color-info:          #5A8ED6;  /* Sky Blue · informativo */
-  --color-lavender:      #9E78D8;  /* Lavender · saúde */
-  --color-danger:        #E86C88;  /* Rose Talc · alertas */
+  --color-primary: #ff8c66; /* Peach Rose · ações */
+  --color-success: #72aa78; /* Sage Green · sucesso */
+  --color-warning: #f5c632; /* Butter Yellow · destaque */
+  --color-info: #5a8ed6; /* Sky Blue · informativo */
+  --color-lavender: #9e78d8; /* Lavender · saúde */
+  --color-danger: #e86c88; /* Rose Talc · alertas */
 
   /* ── Fundo e superfície ── */
-  --color-bg:            #FAF7F2;  /* Fundo padrão das telas */
-  --color-surface:       #FFFDF9;  /* Cards, sheets */
+  --color-bg: #faf7f2; /* Fundo padrão das telas */
+  --color-surface: #fffdf9; /* Cards, sheets */
 
   /* ── Texto ── */
-  --color-fg1:           #3A2E24;  /* Texto primário */
-  --color-fg2:           #8C7060;  /* Texto secundário */
+  --color-fg1: #3a2e24; /* Texto primário */
+  --color-fg2: #8c7060; /* Texto secundário */
 
   /* ── Border radius ── */
-  --radius-xs:           6px;      /* badge, micro-element */
-  --radius-sm:           10px;     /* tag */
-  --radius-md:           14px;     /* botão */
-  --radius-lg:           20px;     /* card */
-  --radius-xl:           28px;     /* modal, sheet */
-  --radius-pill:         999px;    /* chip */
+  --radius-xs: 6px; /* badge, micro-element */
+  --radius-sm: 10px; /* tag */
+  --radius-md: 14px; /* botão */
+  --radius-lg: 20px; /* card */
+  --radius-xl: 28px; /* modal, sheet */
+  --radius-pill: 999px; /* chip */
 
   /* ── Sombras (sempre warm, nunca preto) ── */
-  --shadow-sm:  0 2px 8px rgba(180, 140, 120, 0.12);
-  --shadow-md:  0 4px 16px rgba(180, 140, 120, 0.16);
-  --shadow-lg:  0 8px 24px rgba(180, 140, 120, 0.20);
-  --shadow-xl:  0 16px 40px rgba(180, 140, 120, 0.24);
+  --shadow-sm: 0 2px 8px rgba(180, 140, 120, 0.12);
+  --shadow-md: 0 4px 16px rgba(180, 140, 120, 0.16);
+  --shadow-lg: 0 8px 24px rgba(180, 140, 120, 0.2);
+  --shadow-xl: 0 16px 40px rgba(180, 140, 120, 0.24);
 
-/* ── Tipografia ── */
-  --font-display: var(--font-display);   /* headings */
-  --font-body:    var(--font-body);      /* UI e corpo */
+  /* ── Tipografia ── */
+  --font-display: var(--font-display); /* headings */
+  --font-body: var(--font-body); /* UI e corpo */
 
   /* ── Transições ── */
-  --transition-fast:    all 0.2s ease-out;  /* microinterações */
-  --transition-normal:  all 0.28s ease-out; /* transições de tela */
+  --transition-fast: all 0.2s ease-out; /* microinterações */
+  --transition-normal: all 0.28s ease-out; /* transições de tela */
 }
 
 /* ── Estilos globais ── */
@@ -54,10 +53,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display), 'Nunito', sans-serif;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
 }

@@ -14,9 +14,7 @@ type MarkIncidentReadInput = {
   userId: string
 }
 
-type MarkIncidentReadResult =
-  | { ok: true }
-  | { ok: false; error: string }
+type MarkIncidentReadResult = { ok: true } | { ok: false; error: string }
 
 export async function markIncidentRead(
   input: MarkIncidentReadInput
@@ -35,13 +33,11 @@ export async function markIncidentRead(
     if (existing) return { ok: true } // já lido, idempotente
 
     // ── Registra leitura ──
-    const { error } = await supabase
-      .from('incident_reads')
-      .insert({
-        incident_id: input.incidentId,
-        user_id: input.userId,
-        read_at: new Date().toISOString(),
-      })
+    const { error } = await supabase.from('incident_reads').insert({
+      incident_id: input.incidentId,
+      user_id: input.userId,
+      read_at: new Date().toISOString(),
+    })
 
     if (error) {
       console.error('[markIncidentRead] erro ao registrar leitura:', error)
@@ -49,7 +45,6 @@ export async function markIncidentRead(
     }
 
     return { ok: true }
-
   } catch (error) {
     console.error('[markIncidentRead]', error)
     return { ok: false, error: 'Erro interno. Tente novamente.' }

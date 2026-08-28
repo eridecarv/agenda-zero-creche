@@ -13,12 +13,8 @@ import { Input } from './Input'
 export function InputExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }}>
-
       {/* ── Estado padrão ── */}
-      <Input
-        label="Nome da criança"
-        placeholder="Lara Mendes"
-      />
+      <Input label="Nome da criança" placeholder="Lara Mendes" />
 
       {/* ── Com valor preenchido ── */}
       <Input
@@ -29,11 +25,7 @@ export function InputExamples() {
       />
 
       {/* ── Senha ── */}
-      <Input
-        label="Senha"
-        type="password"
-        placeholder="••••••••"
-      />
+      <Input label="Senha" type="password" placeholder="••••••••" />
 
       {/* ── Estado de erro ── */}
       <Input
@@ -45,18 +37,10 @@ export function InputExamples() {
       />
 
       {/* ── Desabilitado ── */}
-      <Input
-        label="Matrícula"
-        placeholder="Gerado automaticamente"
-        disabled
-      />
+      <Input label="Matrícula" placeholder="Gerado automaticamente" disabled />
 
       {/* ── Textarea — observações ── */}
-      <Input
-        label="Observação"
-        placeholder="Dormiu bem e comeu tudinho ☀️"
-      />
-
+      <Input label="Observação" placeholder="Dormiu bem e comeu tudinho ☀️" />
     </div>
   )
 }

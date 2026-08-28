@@ -28,9 +28,7 @@ type CreateAnnouncementInput = {
   } | null
 }
 
-type CreateAnnouncementResult =
-  | { ok: true; announcementId: string }
-  | { ok: false; error: string }
+type CreateAnnouncementResult = { ok: true; announcementId: string } | { ok: false; error: string }
 
 export async function createAnnouncement(
   input: CreateAnnouncementInput
@@ -84,20 +82,16 @@ export async function createAnnouncement(
         return { ok: true, announcementId: announcement.id }
       }
 
-      const { data: urlData } = supabase.storage
-        .from('comunicado-anexo')
-        .getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage.from('comunicado-anexo').getPublicUrl(fileName)
 
-      const { error: attachmentError } = await supabase
-        .from('announcement_attachments')
-        .insert({
-          announcement_id: announcement.id,
-          type: type.startsWith('image/') ? 'imagem' : 'pdf',
-          url: urlData.publicUrl,
-          file_name: name,
-          size_bytes: bytes.length,
-          display_order: 1,
-        })
+      const { error: attachmentError } = await supabase.from('announcement_attachments').insert({
+        announcement_id: announcement.id,
+        type: type.startsWith('image/') ? 'imagem' : 'pdf',
+        url: urlData.publicUrl,
+        file_name: name,
+        size_bytes: bytes.length,
+        display_order: 1,
+      })
 
       if (attachmentError) {
         console.error('[createAnnouncement] erro ao salvar anexo:', attachmentError)
@@ -105,7 +99,6 @@ export async function createAnnouncement(
     }
 
     return { ok: true, announcementId: announcement.id }
-
   } catch (error) {
     console.error('[createAnnouncement]', error)
     return { ok: false, error: 'Erro interno. Tente novamente.' }

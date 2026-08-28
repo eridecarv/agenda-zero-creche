@@ -11,7 +11,6 @@ import { TimelineItem } from './TimelineItem'
 export function TimelineItemExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 24 }}>
-
       {/* ── Entrada ── */}
       <TimelineItem
         icon="🚪"
@@ -66,7 +65,6 @@ export function TimelineItemExamples() {
           <p style={{ margin: 0, fontSize: 11, color: '#8C7060' }}>Registrado pela Profa. Ana</p>
         </div>
       </TimelineItem>
-
     </div>
   )
 }

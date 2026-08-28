@@ -8,9 +8,9 @@
 
 type BadgeProps = {
   label: string
-  color?: string      // cor de fundo
-  textColor?: string  // cor do texto
-  dot?: boolean       // mostra um ponto colorido antes do label
+  color?: string // cor de fundo
+  textColor?: string // cor do texto
+  dot?: boolean // mostra um ponto colorido antes do label
 }
 
 export function Badge({
@@ -24,12 +24,7 @@ export function Badge({
       className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
       style={{ backgroundColor: color, color: textColor }}
     >
-      {dot && (
-        <span
-          className="h-1.5 w-1.5 rounded-full"
-          style={{ backgroundColor: textColor }}
-        />
-      )}
+      {dot && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: textColor }} />}
       {label}
     </span>
   )

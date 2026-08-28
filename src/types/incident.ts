@@ -2,10 +2,7 @@
  * Tipos relacionados a ocorrências e seu fluxo de validação.
  */
 
-export type IncidentStatus =
-  | 'draft'
-  | 'pending'
-  | 'sent'
+export type IncidentStatus = 'draft' | 'pending' | 'sent'
 
 export type Incident = {
   id: string
@@ -13,7 +10,7 @@ export type Incident = {
   child_id: string
   title: string
   description: string
-  original_description: string | null  // preserva o texto original caso a coordenação edite
+  original_description: string | null // preserva o texto original caso a coordenação edite
   status: IncidentStatus
   recorded_by: string | null
   edited_by: string | null

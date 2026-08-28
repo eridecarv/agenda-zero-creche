@@ -22,8 +22,13 @@ type StaffMember = {
 }
 
 const RELATION_LABEL: Record<string, string> = {
-  mae: 'Mãe', pai: 'Pai', avo: 'Avô', ava: 'Avó',
-  tio: 'Tio', tia: 'Tia', outro: 'Responsável',
+  mae: 'Mãe',
+  pai: 'Pai',
+  avo: 'Avô',
+  ava: 'Avó',
+  tio: 'Tio',
+  tia: 'Tia',
+  outro: 'Responsável',
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -39,21 +44,24 @@ const ROLE_EMOJI: Record<string, string> = {
 }
 
 const LEVEL_LABEL: Record<string, string> = {
-  bercario_1: 'Berçário I', bercario_2: 'Berçário II',
-  maternal_1: 'Maternal I', maternal_2: 'Maternal II',
+  bercario_1: 'Berçário I',
+  bercario_2: 'Berçário II',
+  maternal_1: 'Maternal I',
+  maternal_2: 'Maternal II',
 }
 
 const SHIFT_LABEL: Record<string, string> = {
-  manha: 'Manhã', tarde: 'Tarde', integral: 'Integral', noite: 'Noite',
+  manha: 'Manhã',
+  tarde: 'Tarde',
+  integral: 'Integral',
+  noite: 'Noite',
 }
 
 function calculateAge(birthDate: string | null): string {
   if (!birthDate) return ''
   const nasc = new Date(birthDate)
   const hoje = new Date()
-  const meses =
-    (hoje.getFullYear() - nasc.getFullYear()) * 12 +
-    (hoje.getMonth() - nasc.getMonth())
+  const meses = (hoje.getFullYear() - nasc.getFullYear()) * 12 + (hoje.getMonth() - nasc.getMonth())
   if (meses < 12) return `${meses} ${meses === 1 ? 'mês' : 'meses'}`
   const anos = Math.floor(meses / 12)
   const mesesRest = meses % 12
@@ -77,9 +85,7 @@ function InfoRow({ emoji, label, value }: InfoRowProps) {
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#B0A090] mb-0.5">
           {label}
         </p>
-        <p className="text-sm font-medium text-[#3A2E24] leading-snug">
-          {value}
-        </p>
+        <p className="text-sm font-medium text-[#3A2E24] leading-snug">{value}</p>
       </div>
     </div>
   )
@@ -99,17 +105,21 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
       // Criança
-      const { data: childData } = await supabase
-        .from('children')
-        .select('*')
-        .eq('id', id)
-        .single()
+      const { data: childData } = await supabase.from('children').select('*').eq('id', id).single()
 
-      if (!childData) { router.push('/guardian'); return }
+      if (!childData) {
+        router.push('/guardian')
+        return
+      }
       setChild(childData)
 
       // Turma atual
@@ -120,7 +130,7 @@ export default function ProfilePage() {
         .is('end_date', null)
         .single()
 
-      const cls = cc ? (cc as any).classes as Class : null
+      const cls = cc ? ((cc as any).classes as Class) : null
       if (cls) setCurrentClass(cls)
 
       // Responsáveis — busca separada para evitar bloqueio de RLS no join
@@ -133,20 +143,19 @@ export default function ProfilePage() {
 
       if (guardianships && guardianships.length > 0) {
         const ids = guardianships.map((g: any) => g.user_id)
-        const { data: users } = await supabase
-          .from('users')
-          .select('id, name')
-          .in('id', ids)
+        const { data: users } = await supabase.from('users').select('id, name').in('id', ids)
 
         if (users) {
-          setGuardians(guardianships.map((g: any) => {
-            const u = users.find((u: any) => u.id === g.user_id)
-            return {
-              name: u?.name ?? '—',
-              relation: g.relation ?? 'outro',
-              type: g.type,
-            }
-          }))
+          setGuardians(
+            guardianships.map((g: any) => {
+              const u = users.find((u: any) => u.id === g.user_id)
+              return {
+                name: u?.name ?? '—',
+                relation: g.relation ?? 'outro',
+                type: g.type,
+              }
+            })
+          )
         }
       }
 
@@ -159,10 +168,12 @@ export default function ProfilePage() {
           .is('removed_at', null)
 
         if (staff) {
-          setStaffMembers(staff.map((s: any) => ({
-            name: s.users?.name ?? '—',
-            role: s.users?.role ?? '',
-          })))
+          setStaffMembers(
+            staff.map((s: any) => ({
+              name: s.users?.name ?? '—',
+              role: s.users?.role ?? '',
+            }))
+          )
         }
       }
 
@@ -182,27 +193,26 @@ export default function ProfilePage() {
   if (!child) return null
 
   const classDescription = currentClass
-    ? [currentClass.name, currentClass.level ? LEVEL_LABEL[currentClass.level] ?? currentClass.level : null]
-        .filter(Boolean).join(' · ')
+    ? [
+        currentClass.name,
+        currentClass.level ? (LEVEL_LABEL[currentClass.level] ?? currentClass.level) : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
     : 'Sem turma'
 
   const shiftDescription = currentClass?.shift ? SHIFT_LABEL[currentClass.shift] : '—'
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-8">
-
       {/* Header */}
       <div className="px-5 pt-12 pb-8 bg-gradient-to-br from-[#FFF0E8] to-[#EAF3DE]">
         <div className="flex flex-col items-center gap-3 max-w-lg mx-auto">
           <Avatar name={child.name} size="lg" />
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold text-[#3A2E24]">
-              {child.name}
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-[#3A2E24]">{child.name}</h1>
             {child.birth_date && (
-              <p className="text-sm text-[#8C7060] mt-0.5">
-                {calculateAge(child.birth_date)}
-              </p>
+              <p className="text-sm text-[#8C7060] mt-0.5">{calculateAge(child.birth_date)}</p>
             )}
           </div>
           <div className="flex gap-2 flex-wrap justify-center">
@@ -222,7 +232,6 @@ export default function ProfilePage() {
 
       {/* Conteúdo */}
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
-
         {/* Turma */}
         <Card padding="lg">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#B0A090] mb-1">
@@ -279,7 +288,6 @@ export default function ProfilePage() {
             value={child.notes || 'Nenhuma restrição registrada'}
           />
         </Card>
-
       </div>
     </div>
   )

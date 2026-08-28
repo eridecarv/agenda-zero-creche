@@ -8,7 +8,7 @@ export type Invite = {
   user_id: string
   token: string
   expires_at: string
-  used_at: string | null  // null = convite ainda não utilizado
+  used_at: string | null // null = convite ainda não utilizado
   created_by: string | null
   created_at: string
 }

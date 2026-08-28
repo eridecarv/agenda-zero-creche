@@ -72,9 +72,10 @@ function ChipGroup<T extends string>({
             onClick={() => onChange(opt)}
             className={`
               px-4 py-2 rounded-full text-sm font-medium transition-all duration-150
-              ${value === opt
-                ? 'bg-[#FF8C66] text-white shadow-[0_2px_8px_rgba(180,140,120,0.25)]'
-                : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
+              ${
+                value === opt
+                  ? 'bg-[#FF8C66] text-white shadow-[0_2px_8px_rgba(180,140,120,0.25)]'
+                  : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
               }
             `}
           >
@@ -98,25 +99,16 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
 }
 
 // ── Modal ─────────────────────────────────────────────────────
-export function StaffModal({
-  schoolId,
-  staffMember,
-  onClose,
-  onSaved,
-}: StaffModalProps) {
+export function StaffModal({ schoolId, staffMember, onClose, onSaved }: StaffModalProps) {
   const supabase = createClient()
 
-  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
-    staffMember ? 'view' : 'create'
-  )
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(staffMember ? 'view' : 'create')
 
   // Form
   const [name, setName] = useState(staffMember?.name ?? '')
   const [nickname, setNickname] = useState(staffMember?.nickname ?? '')
   const [role, setRole] = useState<Role | null>(
-    staffMember?.role && roleOptions.includes(staffMember.role)
-      ? staffMember.role
-      : null
+    staffMember?.role && roleOptions.includes(staffMember.role) ? staffMember.role : null
   )
 
   // Estado
@@ -160,9 +152,7 @@ export function StaffModal({
         return
       }
     } else {
-      const { error } = await supabase
-        .from('users')
-        .insert(payload)
+      const { error } = await supabase.from('users').insert(payload)
 
       if (error) {
         setErrors({ general: 'Erro ao salvar. Tente novamente.' })
@@ -210,14 +200,15 @@ export function StaffModal({
       <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
 
       {/* Modal — bottom sheet */}
-      <div className="
+      <div
+        className="
         fixed bottom-0 left-0 right-0 z-50
         bg-[#FFFDF9] rounded-t-[28px]
         shadow-[0_-4px_24px_rgba(180,140,120,0.18)]
         px-5 pt-5 pb-10
         max-w-lg mx-auto
-      ">
-
+      "
+      >
         {/* Alça visual */}
         <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
@@ -229,7 +220,6 @@ export function StaffModal({
         {/* ── Modo visualização ── */}
         {mode === 'view' && staffMember && (
           <div className="flex flex-col">
-
             <DetailRow label="Nome completo" value={staffMember.name} />
             <DetailRow label="Apelido" value={staffMember.nickname} />
             <DetailRow label="Função" value={roleLabels[staffMember.role]} />
@@ -279,7 +269,6 @@ export function StaffModal({
         {/* ── Modo edição / criação ── */}
         {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
-
             <Input
               label="Nome completo"
               placeholder="Ex: Josemar Cardoso Marques"
@@ -295,8 +284,8 @@ export function StaffModal({
               onChange={(e) => setNickname(e.target.value)}
             />
             <span className="-mt-2 text-xs text-[#8C7060]">
-              Como aparece para as famílias e assina os registros.
-              Se não preenchido, usa o primeiro nome.
+              Como aparece para as famílias e assina os registros. Se não preenchido, usa o primeiro
+              nome.
             </span>
 
             <ChipGroup
@@ -308,24 +297,17 @@ export function StaffModal({
               error={errors.role}
             />
 
-            {errors.general && (
-              <span className="text-xs text-[#E86C88]">{errors.general}</span>
-            )}
+            {errors.general && <span className="text-xs text-[#E86C88]">{errors.general}</span>}
 
             <Button variant="primary" loading={saving} onClick={handleSave}>
               {mode === 'edit' ? 'Salvar alterações' : 'Criar colaborador'}
             </Button>
 
-            <Button
-              variant="ghost"
-              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
-            >
+            <Button variant="ghost" onClick={() => (mode === 'edit' ? setMode('view') : onClose())}>
               Cancelar
             </Button>
-
           </div>
         )}
-
       </div>
     </>
   )

@@ -53,7 +53,6 @@ export default function LoginPage() {
       style={{ background: 'linear-gradient(160deg, #FFF0E8 0%, #FAF7F2 100%)' }}
     >
       <div className="w-full max-w-sm">
-
         {/* Logo */}
         <div className="mb-10 text-center">
           <h1
@@ -62,9 +61,7 @@ export default function LoginPage() {
           >
             Agenda Zero
           </h1>
-          <p className="mt-1 text-sm text-[#8C7060]">
-            Diário da Creche ☀️
-          </p>
+          <p className="mt-1 text-sm text-[#8C7060]">Diário da Creche ☀️</p>
         </div>
 
         {/* Formulário */}
@@ -89,9 +86,7 @@ export default function LoginPage() {
             required
           />
 
-          {error && (
-            <p className="text-center text-xs text-[#E86C88]">{error}</p>
-          )}
+          {error && <p className="text-center text-xs text-[#E86C88]">{error}</p>}
 
           <div className="mt-2">
             <Button type="submit" loading={loading}>
@@ -99,7 +94,6 @@ export default function LoginPage() {
             </Button>
           </div>
         </form>
-
       </div>
     </main>
   )

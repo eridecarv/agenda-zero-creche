@@ -17,13 +17,9 @@ type UpdateIncidentInput = {
   description: string
 }
 
-type UpdateIncidentResult =
-  | { ok: true }
-  | { ok: false; error: string }
+type UpdateIncidentResult = { ok: true } | { ok: false; error: string }
 
-export async function updateIncident(
-  input: UpdateIncidentInput
-): Promise<UpdateIncidentResult> {
+export async function updateIncident(input: UpdateIncidentInput): Promise<UpdateIncidentResult> {
   try {
     const supabase = createAdminClient()
 
@@ -64,7 +60,6 @@ export async function updateIncident(
     }
 
     return { ok: true }
-
   } catch (error) {
     console.error('[updateIncident]', error)
     return { ok: false, error: 'Erro interno. Tente novamente.' }
