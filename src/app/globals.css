@@ -2,67 +2,50 @@
 
 /* ─────────────────────────────────────────
    AGENDA ZERO — Design System v1.0
-   Tokens de design baseados no guia visual
+   Design tokens based on Design Guidelines v1.0
+   Issue #20 — colors, radius, shadows
+   (typography lands in #21, which depends on this)
    ───────────────────────────────────────── */
 
-@theme inline {
-  /* ── Cores principais ── */
-  --color-primary: #ff8c66; /* Peach Rose · ações */
-  --color-success: #72aa78; /* Sage Green · sucesso */
-  --color-warning: #f5c632; /* Butter Yellow · destaque */
-  --color-info: #5a8ed6; /* Sky Blue · informativo */
-  --color-lavender: #9e78d8; /* Lavender · saúde */
-  --color-danger: #e86c88; /* Rose Talc · alertas */
+@theme {
+  /* ── Semantic colors ── */
+  --color-primary: #ff8c66; /* Peach Rose · primary actions, links */
+  --color-success: #72aa78; /* Sage Green · confirmations */
+  --color-warning: #f5c632; /* Butter Yellow · attention */
+  --color-info: #5a8ed6; /* Sky Blue · informational */
+  --color-danger: #e86c88; /* Rose Talc · errors, alerts */
+  --color-health: #9e78d8; /* Lavender · health highlights */
 
-  /* ── Fundo e superfície ── */
-  --color-bg: #faf7f2; /* Fundo padrão das telas */
-  --color-surface: #fffdf9; /* Cards, sheets */
+  /* ── Background and surface ── */
+  --color-bg: #faf7f2; /* default screen background */
+  --color-surface: #fffdf9; /* cards, sheets, elevated surfaces */
 
-  /* ── Texto ── */
-  --color-fg1: #3a2e24; /* Texto primário */
-  --color-fg2: #8c7060; /* Texto secundário */
+  /* ── Text ── */
+  --color-fg1: #3a2e24; /* primary text */
+  --color-fg2: #8c7060; /* secondary text, subtitles */
 
   /* ── Border radius ── */
   --radius-xs: 6px; /* badge, micro-element */
   --radius-sm: 10px; /* tag */
-  --radius-md: 14px; /* botão */
+  --radius-md: 14px; /* button */
   --radius-lg: 20px; /* card */
   --radius-xl: 28px; /* modal, sheet */
   --radius-pill: 999px; /* chip */
+  --radius-circle: 50%; /* avatar */
 
-  /* ── Sombras (sempre warm, nunca preto) ── */
-  --shadow-sm: 0 2px 8px rgba(180, 140, 120, 0.12);
-  --shadow-md: 0 4px 16px rgba(180, 140, 120, 0.16);
-  --shadow-lg: 0 8px 24px rgba(180, 140, 120, 0.2);
-  --shadow-xl: 0 16px 40px rgba(180, 140, 120, 0.24);
+  /* ── Shadows — always rgba(180,140,120,…), never rgba(0,0,0,…) ── */
+  --shadow-sm: 0 2px 8px rgba(180, 140, 120, 0.12); /* resting cards */
+  --shadow-md: 0 4px 16px rgba(180, 140, 120, 0.16); /* bottom nav */
+  --shadow-lg: 0 8px 24px rgba(180, 140, 120, 0.2); /* modals, sheets */
+  --shadow-xl: 0 16px 40px rgba(180, 140, 120, 0.24); /* overlays */
 
-  /* ── Tipografia ── */
-  --font-display: var(--font-display); /* headings */
-  --font-body: var(--font-body); /* UI e corpo */
-
-  /* ── Transições ── */
-  --transition-fast: all 0.2s ease-out; /* microinterações */
-  --transition-normal: all 0.28s ease-out; /* transições de tela */
+  /* ── Transitions ── */
+  --transition-fast: all 0.2s ease-out; /* microinteractions: hover, focus, chip select */
+  --transition-normal: all 0.28s ease-out; /* screen transitions */
 }
 
-/* ── Estilos globais ── */
 body {
   background-color: var(--color-bg);
   color: var(--color-fg1);
-  font-family: var(--font-body), 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display), 'Nunito', sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
 }
