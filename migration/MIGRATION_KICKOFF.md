@@ -230,6 +230,13 @@ When migrating a module, do not port these patterns. Replace them.
 | Page does data-fetch + state + business logic + JSX | Page orchestrates; logic in hooks/services/components |
 | Commit straight to `main` | `feature/name` → `dev` → `main` |
 
+## TODO comments
+
+Format: `// TODO(#N): short description` when a tracking issue exists — the
+number lets anyone jump from the code straight to the issue's full context.
+`// TODO: short description` (no number) when there isn't one yet. Either way,
+greppable (`grep -rn "TODO"`) so nothing adiado fica esquecido no meio do código.
+
 ---
 
 ## 8. Things Already True in This Repo
