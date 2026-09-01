@@ -3,8 +3,7 @@
 /* ─────────────────────────────────────────
    AGENDA ZERO — Design System v1.0
    Design tokens based on Design Guidelines v1.0
-   Issue #20 — colors, radius, shadows
-   (typography lands in #21, which depends on this)
+   Issues #20 (colors, radius, shadows) and #21 (type scale, fonts)
    ───────────────────────────────────────── */
 
 @theme {
@@ -42,6 +41,25 @@
   /* ── Transitions ── */
   --transition-fast: all 0.2s ease-out; /* microinteractions: hover, focus, chip select */
   --transition-normal: all 0.28s ease-out; /* screen transitions */
+
+  /* ── Type scale — Design Guidelines v1.0 cheat sheet, gaps filled ── */
+  --text-display: 3rem; /* 48px · Nunito 800 · hero/greeting */
+  --text-h1: 1.75rem; /* 28px · Nunito 700 · screen title */
+  --text-h2: 1.375rem; /* 22px · Nunito 700 · subtitle */
+  --text-h3: 1.125rem; /* 18px · Nunito 600 · section label */
+  --text-body: 1rem; /* 16px · DM Sans 400 · body/UI */
+  --text-label: 0.8125rem; /* 13px · DM Sans 500 · labels, small buttons (estimated) */
+  --text-caption: 0.75rem; /* 12px · DM Sans 400 · timestamps, captions (estimated) */
+}
+
+/* Font mappings — separate block using "inline": next/font already defines --font-display
+   and --font-body dynamically on <html> (see layout.tsx). Without "inline", Tailwind
+   would create its own copy of these variables in :root and the reference would break. */
+@theme inline {
+  --font-sans: var(
+    --font-body
+  ); /* DM Sans becomes the default via Preflight — no body{} rule needed */
+  --font-display: var(--font-display); /* Nunito, available via the font-display utility */
 }
 
 body {
