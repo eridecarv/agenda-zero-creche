@@ -57,6 +57,7 @@ Branch `chore/npm-scripts` → PR #31 → merge em `dev`.
 - **BOM invisível quebra scripts.** Ao criar arquivos de configuração lidos por shell ou parser JSON no PowerShell, preferir `[System.IO.File]::WriteAllText(...)` a `Out-File -Encoding utf8`.
 - **Legado não é corrigido em tasks de infraestrutura.** Ligar uma ferramenta (ESLint, tipos, etc.) e corrigir o que ela encontra no código existente são tarefas diferentes — a segunda foi deliberadamente adiada para a Fase 2, quando os arquivos afetados serão reescritos de qualquer forma.
 - **Branch criada antes do bloco anterior fechar pode ficar desatualizada.** Se uma branch (`feature/x`) for criada com antecedência e ficar parada enquanto outras PRs mergeiam em `dev`, ela pode conter conteúdo obsoleto (um rascunho antigo do mesmo arquivo, por exemplo) e gerar conflito na hora de trazer trabalho novo pra ela. Rodar `git log --oneline <branch>..origin/dev` antes de abrir o PR mostra se ela está atrasada.
+- **Convenção de TODO comments** formalizada no `MIGRATION_KICKOFF.md` (seção "TODO comments"): `// TODO(#N): descrição` quando existe issue de rastreio, `// TODO: descrição` quando não existe ainda. Buscável via `grep -rn "TODO"`.
 
 ## 5. Estado atual
 
@@ -78,9 +79,23 @@ Branch `feature/design-tokens` (criada antes do bloco de infraestrutura terminar
 - **Aprendizado técnico — VSCode acusa `Unknown at rule @theme`.** A extensão Tailwind CSS IntelliSense dá autocomplete mas não desliga o validador nativo de CSS do editor. Resolvido com `.vscode/settings.json` → `"css.lint.unknownAtRules": "ignore"` (versionado no repo, não config pessoal).
 - **Aprendizado técnico — commit caiu na branch errada.** Um commit dos tokens foi feito por engano em cima de `chore/npm-scripts` (já mergeada) em vez de `feature/design-tokens`. Resolvido com `git reset HEAD~1` (desfaz o commit, mantém as mudanças) → `git stash push -u` → `git checkout feature/design-tokens` → `git stash pop`. Como a branch de destino já tinha um commit de rascunho antigo do mesmo arquivo, isso gerou conflito, resolvido substituindo o conteúdo manualmente pela versão corrigida. O mesmo tipo de conflito se repetiu no `git rebase origin/dev` antes do PR (branch desatualizada, ver aprendizado da seção 4). Nenhum dado foi perdido nos dois casos.
 
+### #21 — Tipografia (Nunito + DM Sans) (concluída)
+Branch `feature/typography` → PR → merge em `dev`.
+- `layout.tsx` **não precisou de nenhuma mudança** — já carregava Nunito (600/700/800) e DM Sans (400/500/600) via `next/font/google` com os pesos certos, confirmando que a escala do cheat sheet (não a da página 03) era a pretendida desde o início.
+- **O guia tinha duas escalas tipográficas conflitantes** entre páginas diferentes (página "03 — Tipografia", em pt; cheat sheet final, em px) — não eram a mesma escala em unidades diferentes, eram dois rascunhos distintos de momentos diferentes do design. Decisão: seguir o cheat sheet (px, nativo da web), preenchendo duas lacunas que ele não cobria (`--text-label`, `--text-caption`) com valores estimados.
+- **Aprendizado técnico — `@theme` vs `@theme inline`, o inverso do caso da #20.** Como `--font-display`/`--font-body` já são variáveis dinâmicas definidas pelo `next/font` no `<html>`, declará-las num `@theme{}` normal faria o Tailwind criar sua própria cópia no `:root` e quebrar a referência. Corrigido usando um bloco `@theme inline{}` separado, só para o mapeamento de fontes — os dois tipos de bloco (`@theme` e `@theme inline`) coexistem no mesmo arquivo, cada um usado onde é apropriado.
+- Peso de fonte não precisou de token (`font-semibold`/`font-bold`/`font-extrabold` do Tailwind já cobrem 600/700/800) — mesmo padrão de "o Tailwind já faz de graça" da escala de espaçamento na #20.
+
+### #22 — Helper `requireAuthContext()` (concluída)
+Branch `feature/auth-context` → PR (inclui também a correção pontual do README, ver abaixo).
+- **Mudança de escopo real durante a implementação:** o snippet de referência do `MIGRATION_KICKOFF.md` (seção 5.3) consultava a tabela `users` de verdade. Decisão tomada em conversa: a modelagem do banco está sendo redesenhada do zero (distinta da migração de nomenclatura pt→en, que já está feita), então `schoolId`/`role` ficam **mockados** (`auth-context.mock.ts`) até o redesenho acontecer. A validação de sessão (`supabase.auth.getUser()`) continua real — não depende da modelagem, é mecanismo padrão do Supabase Auth.
+- Critério de aceite da issue **editado** (`gh issue edit 22`) para refletir essa decisão antes da implementação — inclusive removendo a cláusula "retorna null se usuário não encontrado", que não se aplica mais sem consulta à tabela.
+- **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` confirmado como nome real** da variável (via `.env.local`) — o `README.md` ainda cita a antiga `ANON_KEY`. Correção incluída neste mesmo PR.
+- **`Role` reaproveitado de `@/types`** (`'admin' | 'coordinator' | 'teacher' | 'assistant' | 'guardian'`, definido em `src/types/school.ts`) em vez de `string` genérico — evita duas fontes de verdade pro mesmo conceito.
+- **Investigação via Claude Code** confirmou que `useSchool` (hook client-side existente) já usa exatamente os mesmos nomes de campo (`userId`, `schoolId`, `role`) e o mesmo tipo `Role` — nenhuma inconsistência de nomenclatura entre a peça nova (servidor) e a existente (cliente).
+- `requireAuthContext()` não substitui nada que já existia — é uma 5ª camada, paralela às quatro que já protegiam a tela (`proxy.ts`, `useSchool`, redirect na página, mais o próprio login). As primeiras quatro decidem o que a tela *mostra*; a nova decide o que a Server Action *executa*, um contexto onde nenhuma das outras roda.
+
 ### Pendentes
-- **#21** — tipografia (Nunito + DM Sans), depende de #20 (liberada agora).
-- **#22** — helper `requireAuthContext()`.
 - **#23** — `.env.example`.
 - **#24–#27** — primitivos (Button, Input, Card, Badge/Avatar/Chip), dependem de #20 e #21.
 
