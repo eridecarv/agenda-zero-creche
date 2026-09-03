@@ -17,6 +17,7 @@
   --color-warning: #f5c632; /* Butter Yellow · attention */
   --color-info: #5a8ed6; /* Sky Blue · informational */
   --color-danger: #e86c88; /* Rose Talc · errors, alerts */
+  --color-danger-soft: #ffdfe6; /* Rose Talc tint · error input background */
   --color-health: #9e78d8; /* Lavender · health highlights */
 
   /* ── Background and surface ── */
@@ -26,6 +27,12 @@
   /* ── Text ── */
   --color-fg1: #3a2e24; /* primary text */
   --color-fg2: #8c7060; /* secondary text, subtitles */
+  --color-placeholder: #b8a08a; /* Neutros — Escala Cream, neutral-500 · input placeholder text */
+
+  /* ── Border and focus ── */
+  --color-border-default: #f1e8e1; /* default input border */
+  --color-primary-focus-border: #febda1; /* Peach Rose tint · focused input border */
+  --color-primary-focus-shadow: #ffefe7; /* Peach Rose tint · focused input ring */
 
   /* ── Border radius ── */
   --radius-xs: 6px; /* badge, micro-element */

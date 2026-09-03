@@ -1,10 +1,10 @@
 /**
- * Tela de login.
- * Ponto de entrada para adm e responsáveis.
+ * Login screen.
+ * Entry point for admin and guardians.
  *
- * O identificador do usuário no Supabase Auth é um email fictício
- * no formato {telefone}@agendazero.internal — montado aqui,
- * invisível para quem usa.
+ * The user identifier in Supabase Auth is a fictitious email
+ * in the format {phone}@agendazero.internal — assembled here,
+ * invisible to the end user.
  */
 
 'use client'
@@ -50,24 +50,24 @@ export default function LoginPage() {
   return (
     <main
       className="flex min-h-screen items-center justify-center px-6"
-      style={{ background: 'linear-gradient(160deg, #FFF0E8 0%, #FAF7F2 100%)' }}
+      style={{ background: 'linear-gradient(160deg, #FFF0E8 0%, var(--color-bg) 100%)' }}
     >
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-10 text-center">
           <h1
-            className="text-3xl font-extrabold text-[#3A2E24]"
+            className="text-3xl font-extrabold text-fg1"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             Agenda Zero
           </h1>
-          <p className="mt-1 text-sm text-[#8C7060]">Diário da Creche ☀️</p>
+          <p className="mt-1 text-sm text-fg2">Diário da Creche ☀️</p>
         </div>
 
-        {/* Formulário */}
+        {/* Form */}
         <form
           onSubmit={handleLogin}
-          className="flex flex-col gap-4 rounded-[20px] bg-[#FFFDF9] p-6 shadow-[0_4px_16px_rgba(180,140,120,0.16)]"
+          className="flex flex-col gap-4 rounded-lg bg-surface p-6 shadow-md"
         >
           <Input
             label="Telefone com DDD"
@@ -86,7 +86,7 @@ export default function LoginPage() {
             required
           />
 
-          {error && <p className="text-center text-xs text-[#E86C88]">{error}</p>}
+          {error && <p className="text-center text-xs text-danger">{error}</p>}
 
           <div className="mt-2">
             <Button type="submit" loading={loading}>
