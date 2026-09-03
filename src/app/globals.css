@@ -9,7 +9,11 @@
 @theme {
   /* ── Semantic colors ── */
   --color-primary: #ff8c66; /* Peach Rose · primary actions, links */
+  --color-primary-soft: #ffe7db; /* Peach Rose tint · pill button background */
+  --color-primary-strong: #bf5840; /* Peach Rose shade · pill button text */
   --color-success: #72aa78; /* Sage Green · confirmations */
+  --color-success-soft: #def0df; /* Sage Green tint · secondary button background */
+  --color-success-strong: #3d6745; /* Sage Green shade · secondary button text */
   --color-warning: #f5c632; /* Butter Yellow · attention */
   --color-info: #5a8ed6; /* Sky Blue · informational */
   --color-danger: #e86c88; /* Rose Talc · errors, alerts */
