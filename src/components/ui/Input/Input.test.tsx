@@ -65,21 +65,21 @@ describe('Input', () => {
   it('applies the default state classes when there is no error', () => {
     render(<Input label="Nome da criança" />)
     const className = screen.getByLabelText('Nome da criança').className
-    expect(className).toContain('bg-[var(--color-bg)]')
-    expect(className).toContain('border-[var(--color-border-default)]')
+    expect(className).toContain('bg-bg')
+    expect(className).toContain('border-border-default')
   })
 
   it('applies the focus state classes when there is no error', () => {
     render(<Input label="Nome da criança" />)
     const className = screen.getByLabelText('Nome da criança').className
-    expect(className).toContain('focus:border-[var(--color-primary-focus-border)]')
-    expect(className).toContain('focus:ring-[var(--color-primary-focus-shadow)]')
+    expect(className).toContain('focus:border-primary-focus-border')
+    expect(className).toContain('focus:ring-primary-focus-shadow')
   })
 
   it('applies the error state classes when error is present', () => {
     render(<Input label="Email" error="Email inválido." />)
     const className = screen.getByLabelText('Email').className
-    expect(className).toContain('bg-[var(--color-danger-soft)]')
-    expect(className).toContain('border-[var(--color-danger)]')
+    expect(className).toContain('bg-danger-soft')
+    expect(className).toContain('border-danger')
   })
 })
