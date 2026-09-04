@@ -1,9 +1,9 @@
 /**
- * Card — container elevado para agrupar conteúdo relacionado.
- * Base para a maioria dos blocos visuais do app.
+ * Card — elevated container to group related content.
+ * Base for most visual blocks across the app.
  *
- * Radius 20px · sombra warm · fundo surface.
- * Aceita qualquer conteúdo via children.
+ * Radius 20px · warm shadow · surface background.
+ * Accepts any content via children.
  */
 
 type CardProps = {
@@ -23,12 +23,11 @@ export function Card({ children, onClick, padding = 'md', className = '' }: Card
   return (
     <div
       className={`
-        rounded-[20px] bg-[#FFFDF9]
-        shadow-[0_2px_8px_rgba(180,140,120,0.12)]
+        rounded-lg bg-surface shadow-sm
         ${paddings[padding]}
         ${
           onClick
-            ? 'cursor-pointer active:scale-[0.97] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)]'
+            ? 'cursor-pointer active:scale-[0.97] [transition:var(--transition-fast)] hover:shadow-md'
             : ''
         }
         ${className}
