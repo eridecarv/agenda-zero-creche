@@ -1,13 +1,13 @@
 /**
- * Avatar — representação visual de uma criança ou usuário.
- * Círculo com gradiente peach e emoji como placeholder.
- * Quando houver foto real, exibe a imagem.
+ * Avatar — visual representation of a child or user.
+ * Circle with peach gradient and emoji as placeholder.
+ * When a real photo is available, displays the image instead.
  */
 
 type AvatarProps = {
-  name: string // usado para acessibilidade e inicial
-  photo?: string // URL da foto real (opcional)
-  emoji?: string // emoji placeholder (opcional)
+  name: string // used for accessibility and initials
+  photo?: string // real photo URL (optional)
+  emoji?: string // placeholder emoji (optional)
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -23,12 +23,9 @@ export function Avatar({ name, photo, emoji = '👶', size = 'md' }: AvatarProps
       className={`
         ${sizes[size]}
         rounded-full flex items-center justify-center
-        flex-shrink-0 overflow-hidden
+        shrink-0 overflow-hidden shadow-sm
+        ${!photo ? 'bg-linear-to-br from-primary-soft to-primary' : ''}
       `}
-      style={{
-        background: photo ? undefined : 'linear-gradient(135deg, #FFD4C2 0%, #FFBCA0 100%)',
-        boxShadow: '0 2px 8px rgba(180, 140, 120, 0.2)',
-      }}
       aria-label={name}
     >
       {photo ? (

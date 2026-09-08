@@ -1,23 +1,24 @@
 /**
- * TimelineItem — item da rotina diária no feed do responsável.
- * Exibe ícone colorido + horário + título + descrição + badge de categoria.
+ * TimelineItem — daily routine item in the guardian's feed.
+ * Shows colored icon + time + title + description + category badge.
  *
- * Pode ter conteúdo expandível para detalhes adicionais.
+ * Can have expandable content for additional details.
  */
 
 import { useState } from 'react'
 import { Badge } from './Badge'
 
+type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger'
+
 type TimelineItemProps = {
   icon: string
-  iconBg: string // cor de fundo do ícone
+  iconBg: string // icon background color
   time: string
   title: string
   description?: string
   badge?: {
     label: string
-    color: string
-    textColor: string
+    variant: BadgeVariant
   }
   expandable?: boolean
   children?: React.ReactNode
@@ -36,34 +37,32 @@ export function TimelineItem({
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
-      {/* Cabeçalho */}
+    <div className="rounded-lg bg-surface shadow-sm p-4">
+      {/* Header */}
       <div className="flex items-start gap-3">
-        {/* Ícone */}
+        {/* Icon */}
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-base flex-shrink-0"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0"
           style={{ backgroundColor: iconBg }}
         >
           {icon}
         </div>
 
-        {/* Conteúdo */}
+        {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs text-[#8C7060]">{time}</p>
-              <p className="text-sm font-semibold text-[#3A2E24]">{title}</p>
+              <p className="text-xs text-fg2">{time}</p>
+              <p className="text-sm font-semibold text-fg1">{title}</p>
             </div>
-            {badge && <Badge label={badge.label} color={badge.color} textColor={badge.textColor} />}
+            {badge && <Badge label={badge.label} variant={badge.variant} />}
           </div>
 
-          {description && (
-            <p className="mt-1 text-sm text-[#8C7060] leading-relaxed">{description}</p>
-          )}
+          {description && <p className="mt-1 text-sm text-fg2 leading-relaxed">{description}</p>}
         </div>
       </div>
 
-      {/* Conteúdo expandível */}
+      {/* Expandable content */}
       {expandable && children && (
         <>
           <div className="mt-3 pt-3 border-t border-[#F0EAE4]">
@@ -71,7 +70,7 @@ export function TimelineItem({
               children
             ) : (
               <button
-                className="text-xs text-[#8C7060] underline decoration-dotted"
+                className="text-xs text-fg2 underline decoration-dotted"
                 onClick={() => setOpen(true)}
               >
                 ver detalhes →

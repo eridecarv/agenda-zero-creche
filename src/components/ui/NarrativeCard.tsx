@@ -1,10 +1,10 @@
 /**
- * NarrativeCard — card do resumo narrativo do dia.
- * É a primeira coisa que o responsável vê ao abrir o app.
+ * NarrativeCard — daily narrative summary card.
+ * The first thing the guardian sees when opening the app.
  *
- * Exibe o texto gerado automaticamente por template,
- * com trechos clicáveis que expandem detalhes (ExpandableText).
- * Mostra também as três métricas rápidas do dia.
+ * Displays the auto-generated template text, with clickable
+ * excerpts that expand details (ExpandableText). Also shows
+ * the day's three quick metrics.
  */
 
 import { Badge } from './Badge'
@@ -14,8 +14,10 @@ type Metric = {
   value: string
 }
 
+type MoodVariant = 'primary' | 'success' | 'warning' | 'danger'
+
 type NarrativeCardProps = {
-  text: React.ReactNode // aceita ExpandableText dentro do texto
+  text: React.ReactNode // accepts ExpandableText inside the text
   mood?: string
   metrics: Metric[]
   updatedAt?: string
@@ -23,11 +25,15 @@ type NarrativeCardProps = {
   onViewFullSchedule?: () => void
 }
 
-const moods: Record<string, { label: string; color: string; textColor: string }> = {
-  contente: { label: 'Contente', color: '#EAF3DE', textColor: '#3B6D11' },
-  tranquilo: { label: 'Tranquilo', color: '#EEEDFE', textColor: '#534AB7' },
-  agitado: { label: 'Agitado', color: '#FAEEDA', textColor: '#854F0B' },
-  choroso: { label: 'Choroso', color: '#FCEBEB', textColor: '#A32D2D' },
+// TODO: "tranquilo" mapped to "primary" for lack of a soft/strong pair
+// for --color-health (Lavender) — no mood badge has a real consumer
+// yet. Revisit with a value sourced from Figma once the daily summary
+// feature is actually built in Phase 2, instead of approximating here.
+const moods: Record<string, { label: string; variant: MoodVariant }> = {
+  contente: { label: 'Contente', variant: 'success' },
+  tranquilo: { label: 'Tranquilo', variant: 'primary' },
+  agitado: { label: 'Agitado', variant: 'warning' },
+  choroso: { label: 'Choroso', variant: 'danger' },
 }
 
 export function NarrativeCard({
@@ -41,41 +47,37 @@ export function NarrativeCard({
   const moodInfo = mood ? moods[mood] : null
 
   return (
-    <div className="rounded-[20px] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(180,140,120,0.12)] p-4">
-      {/* Resumo narrativo + humor */}
+    <div className="rounded-lg bg-surface shadow-sm p-4">
+      {/* Narrative summary + mood */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-sm text-[#8C7060] leading-relaxed flex-1">{text}</p>
+        <p className="text-sm text-fg2 leading-relaxed flex-1">{text}</p>
         {moodInfo && (
-          <div className="flex-shrink-0">
-            <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide mb-1">
-              HUMOR
-            </p>
-            <Badge label={moodInfo.label} color={moodInfo.color} textColor={moodInfo.textColor} />
+          <div className="shrink-0">
+            <p className="text-[9px] font-medium text-fg2 uppercase tracking-wide mb-1">HUMOR</p>
+            <Badge label={moodInfo.label} variant={moodInfo.variant} />
           </div>
         )}
       </div>
 
-      {/* Aviso de dia em andamento */}
+      {/* In-progress day notice */}
       {!dayComplete && (
-        <div className="mb-3 rounded-[10px] bg-[#FAF7F2] px-3 py-2 border-l-2 border-[#E8E0D8]">
-          <p className="text-xs text-[#8C7060] leading-relaxed">
+        <div className="mb-3 rounded-sm bg-bg px-3 py-2 border-l-2 border-border-default">
+          <p className="text-xs text-fg2 leading-relaxed">
             O dia ainda está acontecendo. Mais novidades aparecerão aqui no decorrer do dia.
           </p>
         </div>
       )}
 
-      {/* Métricas rápidas */}
+      {/* Quick metrics */}
       <div
         className="grid gap-2 mb-3"
         style={{ gridTemplateColumns: `repeat(${metrics.length}, 1fr)` }}
       >
         {metrics.map((m) => (
           <div key={m.label}>
-            <p className="text-[9px] font-medium text-[#8C7060] uppercase tracking-wide">
-              {m.label}
-            </p>
+            <p className="text-[9px] font-medium text-fg2 uppercase tracking-wide">{m.label}</p>
             <p
-              className="text-base font-bold text-[#3A2E24]"
+              className="text-base font-bold text-fg1"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {m.value}
@@ -84,11 +86,11 @@ export function NarrativeCard({
         ))}
       </div>
 
-      {/* Rodapé */}
+      {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-[#F0EAE4]">
         {updatedAt && <p className="text-xs text-[#C4B5A8]">Atualizado às {updatedAt}</p>}
         {onViewFullSchedule && (
-          <button className="text-xs font-medium text-[#FF8C66]" onClick={onViewFullSchedule}>
+          <button className="text-xs font-medium text-primary" onClick={onViewFullSchedule}>
             Ver agenda completa →
           </button>
         )}

@@ -287,7 +287,7 @@ export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildM
       <div
         className="
         fixed bottom-0 left-0 right-0 z-50
-        bg-[#FFFDF9] rounded-t-[28px]
+        bg-[#FFFDF9] rounded-t-xl
         shadow-[0_-4px_24px_rgba(180,140,120,0.18)]
         px-5 pt-5 pb-10
         max-w-lg mx-auto
@@ -385,7 +385,7 @@ export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildM
                   Desativar criança
                 </Button>
               ) : (
-                <div className="flex flex-col gap-2 p-4 rounded-[14px] bg-[#FFF5F7] border border-[#E86C88]/20">
+                <div className="flex flex-col gap-2 p-4 rounded-md bg-[#FFF5F7] border border-[#E86C88]/20">
                   <p className="text-sm text-[#3A2E24]">
                     Tem certeza? Os dados serão preservados mas a criança ficará inativa.
                   </p>
@@ -446,7 +446,7 @@ export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildM
                     type="button"
                     onClick={() => setClassId(null)}
                     className={`
-                      w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
+                      w-full text-left px-4 py-3 rounded-md text-sm transition-all border
                       ${
                         classId === null
                           ? 'border-[#FF8C66] bg-[#FFF5F0] text-[#FF8C66] font-medium'
@@ -462,7 +462,7 @@ export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildM
                       type="button"
                       onClick={() => setClassId(c.id)}
                       className={`
-                        w-full text-left px-4 py-3 rounded-[14px] text-sm transition-all border
+                        w-full text-left px-4 py-3 rounded-md text-sm transition-all border
                         ${
                           classId === c.id
                             ? 'border-[#FF8C66] bg-[#FFF5F0] font-medium text-[#3A2E24]'
@@ -491,7 +491,7 @@ export function ChildModal({ schoolId, userId, child, onClose, onSaved }: ChildM
               </label>
               <textarea
                 className="
-                  w-full rounded-[14px] border border-[#E8E0D8] px-4 py-3 text-sm
+                  w-full rounded-md border border-[#E8E0D8] px-4 py-3 text-sm
                   bg-[#FFFDF9] text-[#3A2E24] placeholder:text-[#C4B5A8]
                   outline-none transition-all duration-200 resize-none
                   focus:border-[#FF8C66] focus:ring-2 focus:ring-[#FF8C66]/20

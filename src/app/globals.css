@@ -15,9 +15,12 @@
   --color-success-soft: #def0df; /* Sage Green tint · secondary button background */
   --color-success-strong: #3d6745; /* Sage Green shade · secondary button text */
   --color-warning: #f5c632; /* Butter Yellow · attention */
+  --color-warning-soft: #fff3d0; /* Butter Yellow tint · category chip background */
+  --color-warning-strong: #b8880a; /* Butter Yellow shade · category chip text */
   --color-info: #5a8ed6; /* Sky Blue · informational */
   --color-danger: #e86c88; /* Rose Talc · errors, alerts */
   --color-danger-soft: #ffdfe6; /* Rose Talc tint · error input background */
+  --color-danger-strong: #c04868; /* Rose Talc shade · status chip text ("Atenção") */
   --color-health: #9e78d8; /* Lavender · health highlights */
 
   /* ── Background and surface ── */
@@ -28,6 +31,7 @@
   --color-fg1: #3a2e24; /* primary text */
   --color-fg2: #8c7060; /* secondary text, subtitles */
   --color-placeholder: #b8a08a; /* Neutros — Escala Cream, neutral-500 · input placeholder text */
+  --color-inactive: #f3ede3; /* Cream scale (ponto 200) · fundos neutros inativos (chip de filtro, etc) */
 
   /* ── Border and focus ── */
   --color-border-default: #f1e8e1; /* default input border */
