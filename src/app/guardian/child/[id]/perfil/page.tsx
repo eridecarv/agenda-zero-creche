@@ -78,7 +78,7 @@ type InfoRowProps = {
 function InfoRow({ emoji, label, value }: InfoRowProps) {
   return (
     <div className="flex items-center gap-4 py-3.5 border-b border-[#F0E8E0] last:border-0">
-      <div className="w-9 h-9 rounded-[10px] flex-shrink-0 flex items-center justify-center text-base bg-[#FFF0E8]">
+      <div className="w-9 h-9 rounded-sm shrink-0 flex items-center justify-center text-base bg-[#FFF0E8]">
         {emoji}
       </div>
       <div className="flex-1 min-w-0">
@@ -216,14 +216,11 @@ export default function ProfilePage() {
             )}
           </div>
           <div className="flex gap-2 flex-wrap justify-center">
-            {currentClass && (
-              <Badge label={currentClass.name} color="#EAF3DE" textColor="#3A7A42" />
-            )}
+            {currentClass && <Badge label={currentClass.name} variant="success" />}
             {currentClass?.level && (
               <Badge
                 label={LEVEL_LABEL[currentClass.level] ?? currentClass.level}
-                color="#FFF0E8"
-                textColor="#C05A2A"
+                variant="primary"
               />
             )}
           </div>
