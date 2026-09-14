@@ -1,63 +1,84 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ─────────────────────────────────────────
    AGENDA ZERO — Design System v1.0
-   Tokens de design baseados no guia visual
+   Design tokens based on Design Guidelines v1.0
+   Issues #20 (colors, radius, shadows) and #21 (type scale, fonts)
    ───────────────────────────────────────── */
 
-@theme inline {
+@theme {
+  /* ── Semantic colors ── */
+  --color-primary: #ff8c66; /* Peach Rose · primary actions, links */
+  --color-primary-soft: #ffe7db; /* Peach Rose tint · pill button background */
+  --color-primary-strong: #bf5840; /* Peach Rose shade · pill button text */
+  --color-success: #72aa78; /* Sage Green · confirmations */
+  --color-success-soft: #def0df; /* Sage Green tint · secondary button background */
+  --color-success-strong: #3d6745; /* Sage Green shade · secondary button text */
+  --color-warning: #f5c632; /* Butter Yellow · attention */
+  --color-warning-soft: #fff3d0; /* Butter Yellow tint · category chip background */
+  --color-warning-strong: #b8880a; /* Butter Yellow shade · category chip text */
+  --color-info: #5a8ed6; /* Sky Blue · informational */
+  --color-danger: #e86c88; /* Rose Talc · errors, alerts */
+  --color-danger-soft: #ffdfe6; /* Rose Talc tint · error input background */
+  --color-danger-strong: #c04868; /* Rose Talc shade · status chip text ("Atenção") */
+  --color-health: #9e78d8; /* Lavender · health highlights */
 
-  /* ── Cores principais ── */
-  --color-primary:       #FF8C66;  /* Peach Rose · ações */
-  --color-success:       #72AA78;  /* Sage Green · sucesso */
-  --color-warning:       #F5C632;  /* Butter Yellow · destaque */
-  --color-info:          #5A8ED6;  /* Sky Blue · informativo */
-  --color-lavender:      #9E78D8;  /* Lavender · saúde */
-  --color-danger:        #E86C88;  /* Rose Talc · alertas */
+  /* ── Background and surface ── */
+  --color-bg: #faf7f2; /* default screen background */
+  --color-surface: #fffdf9; /* cards, sheets, elevated surfaces */
 
-  /* ── Fundo e superfície ── */
-  --color-bg:            #FAF7F2;  /* Fundo padrão das telas */
-  --color-surface:       #FFFDF9;  /* Cards, sheets */
+  /* ── Text ── */
+  --color-fg1: #3a2e24; /* primary text */
+  --color-fg2: #8c7060; /* secondary text, subtitles */
+  --color-placeholder: #b8a08a; /* Neutros — Escala Cream, neutral-500 · input placeholder text */
+  --color-inactive: #f3ede3; /* Cream scale (ponto 200) · fundos neutros inativos (chip de filtro, etc) */
 
-  /* ── Texto ── */
-  --color-fg1:           #3A2E24;  /* Texto primário */
-  --color-fg2:           #8C7060;  /* Texto secundário */
+  /* ── Border and focus ── */
+  --color-border-default: #f1e8e1; /* default input border */
+  --color-primary-focus-border: #febda1; /* Peach Rose tint · focused input border */
+  --color-primary-focus-shadow: #ffefe7; /* Peach Rose tint · focused input ring */
 
   /* ── Border radius ── */
-  --radius-xs:           6px;      /* badge, micro-element */
-  --radius-sm:           10px;     /* tag */
-  --radius-md:           14px;     /* botão */
-  --radius-lg:           20px;     /* card */
-  --radius-xl:           28px;     /* modal, sheet */
-  --radius-pill:         999px;    /* chip */
+  --radius-xs: 6px; /* badge, micro-element */
+  --radius-sm: 10px; /* tag */
+  --radius-md: 14px; /* button */
+  --radius-lg: 20px; /* card */
+  --radius-xl: 28px; /* modal, sheet */
+  --radius-pill: 999px; /* chip */
+  --radius-circle: 50%; /* avatar */
 
-  /* ── Sombras (sempre warm, nunca preto) ── */
-  --shadow-sm:  0 2px 8px rgba(180, 140, 120, 0.12);
-  --shadow-md:  0 4px 16px rgba(180, 140, 120, 0.16);
-  --shadow-lg:  0 8px 24px rgba(180, 140, 120, 0.20);
-  --shadow-xl:  0 16px 40px rgba(180, 140, 120, 0.24);
+  /* ── Shadows — always rgba(180,140,120,…), never rgba(0,0,0,…) ── */
+  --shadow-sm: 0 2px 8px rgba(180, 140, 120, 0.12); /* resting cards */
+  --shadow-md: 0 4px 16px rgba(180, 140, 120, 0.16); /* bottom nav */
+  --shadow-lg: 0 8px 24px rgba(180, 140, 120, 0.2); /* modals, sheets */
+  --shadow-xl: 0 16px 40px rgba(180, 140, 120, 0.24); /* overlays */
 
-/* ── Tipografia ── */
-  --font-display: var(--font-display);   /* headings */
-  --font-body:    var(--font-body);      /* UI e corpo */
+  /* ── Transitions ── */
+  --transition-fast: all 0.2s ease-out; /* microinteractions: hover, focus, chip select */
+  --transition-normal: all 0.28s ease-out; /* screen transitions */
 
-  /* ── Transições ── */
-  --transition-fast:    all 0.2s ease-out;  /* microinterações */
-  --transition-normal:  all 0.28s ease-out; /* transições de tela */
+  /* ── Type scale — Design Guidelines v1.0 cheat sheet, gaps filled ── */
+  --text-display: 3rem; /* 48px · Nunito 800 · hero/greeting */
+  --text-h1: 1.75rem; /* 28px · Nunito 700 · screen title */
+  --text-h2: 1.375rem; /* 22px · Nunito 700 · subtitle */
+  --text-h3: 1.125rem; /* 18px · Nunito 600 · section label */
+  --text-body: 1rem; /* 16px · DM Sans 400 · body/UI */
+  --text-label: 0.8125rem; /* 13px · DM Sans 500 · labels, small buttons (estimated) */
+  --text-caption: 0.75rem; /* 12px · DM Sans 400 · timestamps, captions (estimated) */
 }
 
-/* ── Estilos globais ── */
+/* Font mappings — separate block using "inline": next/font already defines --font-display
+   and --font-body dynamically on <html> (see layout.tsx). Without "inline", Tailwind
+   would create its own copy of these variables in :root and the reference would break. */
+@theme inline {
+  --font-sans: var(
+    --font-body
+  ); /* DM Sans becomes the default via Preflight — no body{} rule needed */
+  --font-display: var(--font-display); /* Nunito, available via the font-display utility */
+}
+
 body {
   background-color: var(--color-bg);
   color: var(--color-fg1);
-  font-family: var(--font-body), 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display), 'Nunito', sans-serif;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
 }

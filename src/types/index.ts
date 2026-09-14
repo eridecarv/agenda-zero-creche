@@ -7,13 +7,7 @@ export type { School, User, Role } from './school'
 
 export type { Class, Shift, ClassType } from './class'
 
-export type {
-  Child,
-  ChildClass,
-  Guardianship,
-  GuardianshipType,
-  GuardianRelation,
-} from './child'
+export type { Child, ChildClass, Guardianship, GuardianshipType, GuardianRelation } from './child'
 
 export type {
   DailyLog,
@@ -27,12 +21,7 @@ export type {
   Acceptance,
 } from './routine'
 
-export type {
-  Incident,
-  IncidentAttachment,
-  IncidentRead,
-  IncidentStatus,
-} from './incident'
+export type { Incident, IncidentAttachment, IncidentRead, IncidentStatus } from './incident'
 
 export type {
   Announcement,

@@ -203,7 +203,7 @@ export default function AnnouncementsPage() {
   function ScopePill({ announcement }: { announcement: AnnouncementWithAttachments }) {
     let label = 'Toda a escola'
     if (announcement.scope === 'turma' && announcement.class_id) {
-      const cls = classes.find(c => c.id === announcement.class_id)
+      const cls = classes.find((c) => c.id === announcement.class_id)
       label = cls?.name ?? 'Turma'
     }
     if (announcement.scope === 'turno' && announcement.shift) {
@@ -226,7 +226,6 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-24">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-5 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <div className="flex items-center gap-3 mb-4">
@@ -283,15 +282,16 @@ export default function AnnouncementsPage() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <ScopePill announcement={a} />
-                  <span className="text-sm font-medium text-[#3A2E24] truncate">
-                    {a.title}
-                  </span>
+                  <span className="text-sm font-medium text-[#3A2E24] truncate">{a.title}</span>
                   {a.announcement_attachments?.length > 0 && (
                     <span className="text-xs text-[#8C7060]">📎</span>
                   )}
                 </div>
                 <span className="text-xs text-[#8C7060] shrink-0">
-                  {new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  {new Date(a.created_at).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                  })}
                 </span>
               </div>
             </button>
@@ -308,7 +308,6 @@ export default function AnnouncementsPage() {
             <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-4">Novo comunicado</h2>
 
             <div className="flex flex-col gap-4">
-
               {/* Escopo */}
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-[#3A2E24]">Para quem?</span>
@@ -317,7 +316,11 @@ export default function AnnouncementsPage() {
                     <button
                       key={s}
                       type="button"
-                      onClick={() => { setScope(s); setClassId(null); setShift(null) }}
+                      onClick={() => {
+                        setScope(s)
+                        setClassId(null)
+                        setShift(null)
+                      }}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
                         scope === s
                           ? 'bg-[#FF8C66] text-white'
@@ -413,7 +416,10 @@ export default function AnnouncementsPage() {
                     <span className="text-sm text-[#3A2E24] truncate">{file.name}</span>
                     <button
                       type="button"
-                      onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                      onClick={() => {
+                        setFile(null)
+                        if (fileInputRef.current) fileInputRef.current.value = ''
+                      }}
                       className="text-xs text-[#E86C88] ml-3 shrink-0"
                     >
                       Remover
@@ -449,7 +455,10 @@ export default function AnnouncementsPage() {
       {/* Modal de visualização */}
       {openAnnouncement && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setOpenAnnouncement(null)} />
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setOpenAnnouncement(null)}
+          />
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9] rounded-t-[28px] shadow-[0_-4px_24px_rgba(180,140,120,0.18)] px-5 pt-5 pb-10 max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
             <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
@@ -457,7 +466,9 @@ export default function AnnouncementsPage() {
               <ScopePill announcement={openAnnouncement} />
               <span className="text-xs text-[#8C7060]">
                 {new Date(openAnnouncement.created_at).toLocaleDateString('pt-BR', {
-                  day: '2-digit', month: 'long', year: 'numeric'
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
                 })}
               </span>
             </div>
@@ -470,28 +481,30 @@ export default function AnnouncementsPage() {
               {openAnnouncement.content}
             </p>
 
-            {openAnnouncement.announcement_attachments?.map((attachment: AnnouncementAttachment) => (
-              <a
-                key={attachment.id}
-                href={attachment.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 bg-[#FAF7F2] rounded-[14px] px-4 py-3 border border-[#E8E0D8] hover:border-[#FF8C66] transition-all"
-              >
-                <span className="text-xl">{attachment.type === 'pdf' ? '📄' : '🖼️'}</span>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-medium text-[#3A2E24] truncate">
-                    {attachment.file_name ?? 'Anexo'}
-                  </span>
-                  {attachment.size_bytes && (
-                    <span className="text-xs text-[#8C7060]">
-                      {(attachment.size_bytes / 1024).toFixed(0)}KB
+            {openAnnouncement.announcement_attachments?.map(
+              (attachment: AnnouncementAttachment) => (
+                <a
+                  key={attachment.id}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 bg-[#FAF7F2] rounded-[14px] px-4 py-3 border border-[#E8E0D8] hover:border-[#FF8C66] transition-all"
+                >
+                  <span className="text-xl">{attachment.type === 'pdf' ? '📄' : '🖼️'}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-medium text-[#3A2E24] truncate">
+                      {attachment.file_name ?? 'Anexo'}
                     </span>
-                  )}
-                </div>
-                <span className="text-xs text-[#FF8C66] ml-auto shrink-0">Abrir ↗</span>
-              </a>
-            ))}
+                    {attachment.size_bytes && (
+                      <span className="text-xs text-[#8C7060]">
+                        {(attachment.size_bytes / 1024).toFixed(0)}KB
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-[#FF8C66] ml-auto shrink-0">Abrir ↗</span>
+                </a>
+              )
+            )}
 
             <div className="mt-4">
               <Button variant="ghost" onClick={() => setOpenAnnouncement(null)}>
@@ -501,7 +514,6 @@ export default function AnnouncementsPage() {
           </div>
         </>
       )}
-
     </div>
   )
 }

@@ -81,7 +81,6 @@ export default function ClassroomsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-24">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-5 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -104,7 +103,6 @@ export default function ClassroomsPage() {
       </div>
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
-
         {classes.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhuma turma cadastrada ainda.</p>
@@ -120,11 +118,7 @@ export default function ClassroomsPage() {
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-[#3A2E24]">{cls.name}</span>
                 <span className="text-xs text-[#8C7060]">
-                  {[
-                    cls.level,
-                    cls.shift ? shiftLabels[cls.shift as Shift] : null,
-                    cls.year,
-                  ]
+                  {[cls.level, cls.shift ? shiftLabels[cls.shift as Shift] : null, cls.year]
                     .filter(Boolean)
                     .join(' · ')}
                 </span>
@@ -133,7 +127,6 @@ export default function ClassroomsPage() {
             </div>
           </Card>
         ))}
-
       </div>
 
       {modalOpen && schoolId && (
@@ -144,7 +137,6 @@ export default function ClassroomsPage() {
           onSaved={onSaved}
         />
       )}
-
     </div>
   )
 }

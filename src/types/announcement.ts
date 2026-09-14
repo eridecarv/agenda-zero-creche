@@ -4,15 +4,9 @@
 
 import type { Shift } from './class'
 
-export type AnnouncementScope =
-  | 'turma'
-  | 'turno'
-  | 'escola'
+export type AnnouncementScope = 'turma' | 'turno' | 'escola'
 
-export type AttachmentType =
-  | 'imagem'
-  | 'pdf'
-  | 'outro'
+export type AttachmentType = 'imagem' | 'pdf' | 'outro'
 
 export type Announcement = {
   id: string

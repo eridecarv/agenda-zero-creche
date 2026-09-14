@@ -12,7 +12,6 @@ import { ExpandableText } from './ExpandableText'
 export function NarrativeCardExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }}>
-
       {/* ── Dia concluído ── */}
       <NarrativeCard
         mood="contente"
@@ -26,7 +25,8 @@ export function NarrativeCardExamples() {
         onViewFullSchedule={() => alert('Ver agenda completa')}
         text={
           <>
-            Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio amoada —{' '}
+            Sofia comeu bem, repetiu na hora do almoço. Fez coco, tomou banho. De tarde ficou meio
+            amoada —{' '}
             <ExpandableText
               text="dormiu pouco"
               detail="Cochilou menos de meia hora de manhã e um pouquinho depois do almoço, mas ficou inquieta."
@@ -60,7 +60,6 @@ export function NarrativeCardExamples() {
         ]}
         text="Lara teve um dia tranquilo. Comeu bem e dormiu direitinho."
       />
-
     </div>
   )
 }

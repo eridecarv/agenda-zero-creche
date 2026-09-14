@@ -28,8 +28,13 @@ export default function DailyLogChildPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
       setUserId(user.id)
 
@@ -66,7 +71,6 @@ export default function DailyLogChildPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-16">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -78,12 +82,12 @@ export default function DailyLogChildPage() {
         <div className="flex items-center gap-3">
           <Avatar name={child.name} size="md" />
           <div>
-            <h1 className="font-display text-xl font-bold text-[#3A2E24]">
-              {child.name}
-            </h1>
+            <h1 className="font-display text-xl font-bold text-[#3A2E24]">{child.name}</h1>
             <p className="text-xs text-[#8C7060] mt-0.5">
-              Diário de hoje · {new Date().toLocaleDateString('pt-BR', {
-                day: 'numeric', month: 'long'
+              Diário de hoje ·{' '}
+              {new Date().toLocaleDateString('pt-BR', {
+                day: 'numeric',
+                month: 'long',
               })}
             </p>
           </div>
@@ -99,7 +103,6 @@ export default function DailyLogChildPage() {
           onSaved={() => router.push(`/adm/dailylogs/${classId}`)}
         />
       </div>
-
     </div>
   )
 }

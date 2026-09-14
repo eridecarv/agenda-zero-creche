@@ -60,9 +60,7 @@ export default function ChildLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col">
-      <div className="flex-1 pb-24">
-        {children}
-      </div>
+      <div className="flex-1 pb-24">{children}</div>
       <BottomNav items={items} />
     </div>
   )

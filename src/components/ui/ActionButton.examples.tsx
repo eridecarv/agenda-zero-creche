@@ -11,7 +11,6 @@ import { ActionButton } from './ActionButton'
 export function ActionButtonExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
-
       {/* ── Grade 2x2 — uso típico no dashboard ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <ActionButton
@@ -45,7 +44,6 @@ export function ActionButtonExamples() {
         <ActionButton icon="📢" title="Comunicado" />
         <ActionButton icon="👶" title="Cadastros" />
       </div>
-
     </div>
   )
 }

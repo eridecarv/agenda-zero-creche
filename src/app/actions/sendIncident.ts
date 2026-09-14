@@ -15,13 +15,9 @@ type SendIncidentInput = {
   sentBy: string
 }
 
-type SendIncidentResult =
-  | { ok: true }
-  | { ok: false; error: string }
+type SendIncidentResult = { ok: true } | { ok: false; error: string }
 
-export async function sendIncident(
-  input: SendIncidentInput
-): Promise<SendIncidentResult> {
+export async function sendIncident(input: SendIncidentInput): Promise<SendIncidentResult> {
   try {
     const supabase = createAdminClient()
 
@@ -57,7 +53,6 @@ export async function sendIncident(
     }
 
     return { ok: true }
-
   } catch (error) {
     console.error('[sendIncident]', error)
     return { ok: false, error: 'Erro interno. Tente novamente.' }

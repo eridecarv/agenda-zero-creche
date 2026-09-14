@@ -11,7 +11,6 @@ import { BottomNav } from './BottomNav'
 export function BottomNavExamples() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 48, padding: 24 }}>
-
       {/* ── Nav do responsável ── */}
       <div style={{ position: 'relative', height: 60 }}>
         <BottomNav
@@ -35,7 +34,6 @@ export function BottomNavExamples() {
           ]}
         />
       </div>
-
     </div>
   )
 }

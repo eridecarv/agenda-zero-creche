@@ -85,8 +85,7 @@ function AssignmentRow({
     if (!search.trim()) return true
     const term = search.toLowerCase()
     return (
-      s.name.toLowerCase().includes(term) ||
-      (s.nickname?.toLowerCase().includes(term) ?? false)
+      s.name.toLowerCase().includes(term) || (s.nickname?.toLowerCase().includes(term) ?? false)
     )
   })
 
@@ -98,7 +97,6 @@ function AssignmentRow({
 
   return (
     <div className="flex flex-col gap-2 p-3 rounded-[14px] bg-[#FAF7F2] border border-[#E8E0D8]">
-
       {/* Chips de cargo + botão remover */}
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap gap-1.5">
@@ -113,9 +111,10 @@ function AssignmentRow({
               }}
               className={`
                 px-3 py-1 rounded-full text-xs font-medium transition-all duration-150
-                ${assignment.role === role
-                  ? 'bg-[#FF8C66] text-white'
-                  : 'bg-white text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
+                ${
+                  assignment.role === role
+                    ? 'bg-[#FF8C66] text-white'
+                    : 'bg-white text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
                 }
               `}
             >
@@ -160,12 +159,14 @@ function AssignmentRow({
 
           {/* Dropdown de resultados */}
           {open && filteredStaff.length > 0 && (
-            <div className="
+            <div
+              className="
               absolute top-full left-0 right-0 z-10 mt-1
               bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
               shadow-[0_4px_16px_rgba(180,140,120,0.16)]
               overflow-hidden
-            ">
+            "
+            >
               {filteredStaff.map((s) => (
                 <button
                   key={s.id}
@@ -180,9 +181,7 @@ function AssignmentRow({
                   <span className="font-medium text-[#3A2E24]">
                     {s.nickname || s.name.split(' ')[0]}
                   </span>
-                  {s.nickname && (
-                    <span className="text-xs text-[#8C7060] ml-1">({s.name})</span>
-                  )}
+                  {s.nickname && <span className="text-xs text-[#8C7060] ml-1">({s.name})</span>}
                 </button>
               ))}
             </div>
@@ -190,33 +189,26 @@ function AssignmentRow({
 
           {/* Nenhum resultado */}
           {open && search.trim() && filteredStaff.length === 0 && (
-            <div className="
+            <div
+              className="
               absolute top-full left-0 right-0 z-10 mt-1
               bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
               px-3 py-2.5
-            ">
+            "
+            >
               <span className="text-xs text-[#B0A090]">Nenhum resultado</span>
             </div>
           )}
         </div>
       )}
-
     </div>
   )
 }
 
 // ── Componente principal ──────────────────────────────────────
-export function AssignmentList({
-  staffMembers,
-  assignments,
-  onChange,
-}: AssignmentListProps) {
-
+export function AssignmentList({ staffMembers, assignments, onChange }: AssignmentListProps) {
   function addRow() {
-    onChange([
-      ...assignments,
-      { id: crypto.randomUUID(), role: null, user: null },
-    ])
+    onChange([...assignments, { id: crypto.randomUUID(), role: null, user: null }])
   }
 
   function removeRow(id: string) {
@@ -224,16 +216,15 @@ export function AssignmentList({
   }
 
   function updateRole(id: string, role: Role) {
-    onChange(assignments.map((a) => a.id === id ? { ...a, role, user: null } : a))
+    onChange(assignments.map((a) => (a.id === id ? { ...a, role, user: null } : a)))
   }
 
   function updateUser(id: string, user: User) {
-    onChange(assignments.map((a) => a.id === id ? { ...a, user } : a))
+    onChange(assignments.map((a) => (a.id === id ? { ...a, user } : a)))
   }
 
   return (
     <div className="flex flex-col gap-2">
-
       {assignments.length === 0 && (
         <p className="text-xs text-[#B0A090]">Nenhum colaborador atribuído ainda.</p>
       )}
@@ -260,7 +251,6 @@ export function AssignmentList({
         <span className="text-lg leading-none">+</span>
         Adicionar colaborador
       </button>
-
     </div>
   )
 }

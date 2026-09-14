@@ -38,7 +38,9 @@ export default function DailyLogsPage() {
   }, [])
 
   const today = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', day: 'numeric', month: 'long'
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
   })
 
   if (loading) {
@@ -51,7 +53,6 @@ export default function DailyLogsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-16">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -72,7 +73,7 @@ export default function DailyLogsPage() {
           </div>
         )}
 
-        {classes.map(c => (
+        {classes.map((c) => (
           <button
             key={c.id}
             onClick={() => router.push(`/adm/dailylogs/${c.id}`)}
@@ -86,9 +87,7 @@ export default function DailyLogsPage() {
             <div>
               <p className="text-sm font-semibold text-[#3A2E24]">{c.name}</p>
               {c.shift && (
-                <p className="text-xs text-[#8C7060] mt-0.5">
-                  {SHIFT_LABEL[c.shift] ?? c.shift}
-                </p>
+                <p className="text-xs text-[#8C7060] mt-0.5">{SHIFT_LABEL[c.shift] ?? c.shift}</p>
               )}
             </div>
             <span className="text-[#C8B8A8]">›</span>

@@ -11,36 +11,36 @@ import type { Mood, Sleep, Meal, Acceptance } from '@/types'
 // ── Templates ────────────────────────────────────────────
 
 const MOOD_TEMPLATES: Record<Mood, string[]> = {
-  happy:    ['ficou contente o dia todo', 'estava bem-humorada'],
-  calm:     ['passou o dia tranquila', 'ficou calma e serena'],
+  happy: ['ficou contente o dia todo', 'estava bem-humorada'],
+  calm: ['passou o dia tranquila', 'ficou calma e serena'],
   restless: ['ficou um pouco agitada hoje', 'teve um dia mais agitado'],
-  tearful:  ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
+  tearful: ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
 }
 
 const SLEEP_TEMPLATES: Record<Sleep, string[]> = {
-  good:          ['descansou bem no horário', 'dormiu direitinho'],
-  fair:          ['dormiu um pouco', 'o soninho foi tranquilo'],
-  poor:          ['teve dificuldade para dormir', 'dormiu mal hoje'],
+  good: ['descansou bem no horário', 'dormiu direitinho'],
+  fair: ['dormiu um pouco', 'o soninho foi tranquilo'],
+  poor: ['teve dificuldade para dormir', 'dormiu mal hoje'],
   did_not_sleep: ['não conseguiu dormir hoje', 'ficou sem dormir'],
 }
 
 const ACCEPTANCE_TEMPLATES: Record<Acceptance, string[]> = {
-  good:    ['comeu bem', 'aceitou bem as refeições'],
-  fair:    ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
+  good: ['comeu bem', 'aceitou bem as refeições'],
+  fair: ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
   refused: ['não quis comer muito hoje', 'teve pouco apetite'],
 }
 
 const MEAL_LABEL: Record<Meal, string> = {
-  breakfast:       'Café da manhã',
-  morning_snack:   'Lanche da manhã',
-  lunch:           'Almoço',
+  breakfast: 'Café da manhã',
+  morning_snack: 'Lanche da manhã',
+  lunch: 'Almoço',
   afternoon_snack: 'Lanche da tarde',
-  dinner:          'Jantar',
+  dinner: 'Jantar',
 }
 
 const ACCEPTANCE_STYLE: Record<Acceptance, { bg: string; text: string; label: string }> = {
-  good:    { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
-  fair:    { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
+  good: { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
+  fair: { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
   refused: { bg: '#FDE8EC', text: '#A03050', label: 'Recusou' },
 }
 
@@ -60,7 +60,12 @@ type DayLog = {
   check_out: string | null
   picked_up_name: string | null
   feeding: { meal: Meal; acceptance: Acceptance; notes: string | null }[]
-  hygiene: { bath: boolean; brushing: boolean; bowel_movement: boolean; notes: string | null } | null
+  hygiene: {
+    bath: boolean
+    brushing: boolean
+    bowel_movement: boolean
+    notes: string | null
+  } | null
 }
 
 // ── Subcomponentes ────────────────────────────────────────
@@ -77,22 +82,44 @@ function Chip({ label, bg, text }: { label: string; bg: string; text: string }) 
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <p style={{ color: '#C4A882' }} className="text-xs font-medium mb-3">{children}</p>
-}
-
-function Divider() {
-  return <div style={{ height: '0.5px', backgroundColor: '#C4A882', opacity: 0.25, margin: '10px 0' }} />
-}
-
-function PrimaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>{children}</p>
+    <p style={{ color: '#C4A882' }} className="text-xs font-medium mb-3">
+      {children}
+    </p>
   )
 }
 
-function SecondaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function Divider() {
   return (
-    <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>{children}</p>
+    <div style={{ height: '0.5px', backgroundColor: '#C4A882', opacity: 0.25, margin: '10px 0' }} />
+  )
+}
+
+function PrimaryText({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>
+      {children}
+    </p>
+  )
+}
+
+function SecondaryText({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>
+      {children}
+    </p>
   )
 }
 
@@ -107,15 +134,18 @@ function hygienePhrase(h: DayLog['hygiene']): string {
   if (done.length === 1) return `${first}.`
   const rest = done.slice(1)
   const last = rest.pop()
-  return rest.length > 0
-    ? `${first}, ${rest.join(', ')} e ${last}.`
-    : `${first} e ${last}.`
+  return rest.length > 0 ? `${first}, ${rest.join(', ')} e ${last}.` : `${first} e ${last}.`
 }
 
 function formatLongDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
   const d = new Date(year, month - 1, day)
-  return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 // ── Componente principal ──────────────────────────────────
@@ -134,11 +164,15 @@ export default function DailyLogDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
-      const { data: child } = await supabase
-        .from('children').select('name').eq('id', id).single()
+      const { data: child } = await supabase.from('children').select('name').eq('id', id).single()
       if (child) setChildName(child.name.split(' ')[0])
 
       const { data: dl } = await supabase
@@ -148,7 +182,11 @@ export default function DailyLogDetailPage() {
         .eq('date', date)
         .single()
 
-      if (!dl) { setNotFound(true); setLoading(false); return }
+      if (!dl) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
 
       const { data: al } = await supabase
         .from('attendance_logs')
@@ -204,29 +242,35 @@ export default function DailyLogDetailPage() {
     if (dayLog.mood) {
       const template = pickRandom(MOOD_TEMPLATES[dayLog.mood])
       parts.push(
-        dayLog.mood_notes
-          ? <ExpandableText key="mood" text={template} detail={dayLog.mood_notes} />
-          : <span key="mood">{template}</span>
+        dayLog.mood_notes ? (
+          <ExpandableText key="mood" text={template} detail={dayLog.mood_notes} />
+        ) : (
+          <span key="mood">{template}</span>
+        )
       )
     }
 
-    const lunch = dayLog.feeding.find(f => f.meal === 'lunch')
+    const lunch = dayLog.feeding.find((f) => f.meal === 'lunch')
     const mainMeal = lunch ?? dayLog.feeding[0]
     if (mainMeal) {
       const template = pickRandom(ACCEPTANCE_TEMPLATES[mainMeal.acceptance])
       parts.push(
-        mainMeal.notes
-          ? <ExpandableText key="feeding" text={template} detail={mainMeal.notes} />
-          : <span key="feeding">{template}</span>
+        mainMeal.notes ? (
+          <ExpandableText key="feeding" text={template} detail={mainMeal.notes} />
+        ) : (
+          <span key="feeding">{template}</span>
+        )
       )
     }
 
     if (dayLog.sleep) {
       const template = pickRandom(SLEEP_TEMPLATES[dayLog.sleep])
       parts.push(
-        dayLog.sleep_notes
-          ? <ExpandableText key="sleep" text={template} detail={dayLog.sleep_notes} />
-          : <span key="sleep">{template}</span>
+        dayLog.sleep_notes ? (
+          <ExpandableText key="sleep" text={template} detail={dayLog.sleep_notes} />
+        ) : (
+          <span key="sleep">{template}</span>
+        )
       )
     }
 
@@ -257,23 +301,26 @@ export default function DailyLogDetailPage() {
 
     if (dayLog.sleep) {
       const sleepLabel: Record<Sleep, string> = {
-        good:          'Dormiu bem',
-        fair:          'Dormiu um pouco',
-        poor:          'Dormiu mal',
+        good: 'Dormiu bem',
+        fair: 'Dormiu um pouco',
+        poor: 'Dormiu mal',
         did_not_sleep: 'Não dormiu',
       }
       const sleepColor: Record<Sleep, { bg: string; text: string }> = {
-        good:          { bg: '#EEF0FE', text: '#4A4AAA' },
-        fair:          { bg: '#FEF6E4', text: '#9A6F2A' },
-        poor:          { bg: '#FDE8EC', text: '#A03050' },
+        good: { bg: '#EEF0FE', text: '#4A4AAA' },
+        fair: { bg: '#FEF6E4', text: '#9A6F2A' },
+        poor: { bg: '#FDE8EC', text: '#A03050' },
         did_not_sleep: { bg: '#F5EFE8', text: '#8C7060' },
       }
       chips.push({ label: sleepLabel[dayLog.sleep], ...sleepColor[dayLog.sleep] })
     }
 
     if (dayLog.hygiene) {
-      const done = [dayLog.hygiene.bath, dayLog.hygiene.brushing, dayLog.hygiene.bowel_movement]
-        .filter(Boolean).length
+      const done = [
+        dayLog.hygiene.bath,
+        dayLog.hygiene.brushing,
+        dayLog.hygiene.bowel_movement,
+      ].filter(Boolean).length
       if (done > 0) chips.push({ label: 'Cuidados feitos', bg: '#FEF0E8', text: '#9A5A2A' })
     }
 
@@ -283,7 +330,9 @@ export default function DailyLogDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
-        <span style={{ color: '#C4A882' }} className="text-sm">Carregando...</span>
+        <span style={{ color: '#C4A882' }} className="text-sm">
+          Carregando...
+        </span>
       </div>
     )
   }
@@ -308,11 +357,12 @@ export default function DailyLogDetailPage() {
       </div>
 
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
-
         {notFound && (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#F5EFE8] flex items-center justify-center text-3xl">📋</div>
+              <div className="w-16 h-16 rounded-full bg-[#F5EFE8] flex items-center justify-center text-3xl">
+                📋
+              </div>
               <p style={{ color: '#A08060' }} className="text-base font-semibold">
                 Nenhum registro encontrado
               </p>
@@ -346,7 +396,9 @@ export default function DailyLogDetailPage() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              {buildChips().map((chip, i) => <Chip key={i} {...chip} />)}
+              {buildChips().map((chip, i) => (
+                <Chip key={i} {...chip} />
+              ))}
             </div>
           </Card>
         )}
@@ -377,15 +429,19 @@ export default function DailyLogDetailPage() {
           </Card>
         )}
 
-        {dayLog?.hygiene && (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
-          <Card padding="lg">
-            <SectionTitle>Cuidados do dia</SectionTitle>
-            <PrimaryText>{hygienePhrase(dayLog.hygiene)}</PrimaryText>
-            {dayLog.hygiene.notes && (
-              <><Divider /><SecondaryText>{dayLog.hygiene.notes}</SecondaryText></>
-            )}
-          </Card>
-        )}
+        {dayLog?.hygiene &&
+          (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
+            <Card padding="lg">
+              <SectionTitle>Cuidados do dia</SectionTitle>
+              <PrimaryText>{hygienePhrase(dayLog.hygiene)}</PrimaryText>
+              {dayLog.hygiene.notes && (
+                <>
+                  <Divider />
+                  <SecondaryText>{dayLog.hygiene.notes}</SecondaryText>
+                </>
+              )}
+            </Card>
+          )}
       </div>
     </div>
   )

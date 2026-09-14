@@ -57,7 +57,6 @@ export default function RegistrationsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-24">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -96,7 +95,6 @@ export default function RegistrationsPage() {
           </button>
         ))}
       </div>
-
     </div>
   )
 }

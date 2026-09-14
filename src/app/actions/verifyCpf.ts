@@ -24,9 +24,7 @@ type GuardianFound = {
   hasActiveAccount: boolean
 } | null
 
-export async function verifyCpf(
-  input: VerifyCpfInput
-): Promise<GuardianFound> {
+export async function verifyCpf(input: VerifyCpfInput): Promise<GuardianFound> {
   try {
     const supabase = createAdminClient()
 

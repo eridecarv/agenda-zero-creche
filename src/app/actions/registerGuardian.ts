@@ -34,8 +34,7 @@ type RegisterGuardianInput = {
 }
 
 type RegisterGuardianResult =
-  | { ok: true; token: string; userId: string }
-  | { ok: false; error: string }
+  { ok: true; token: string; userId: string } | { ok: false; error: string }
 
 export async function registerGuardian(
   input: RegisterGuardianInput
@@ -70,23 +69,18 @@ export async function registerGuardian(
     }
 
     // ── 3. Insere vínculo com a criança ──
-    const { error: guardianshipError } = await supabase
-      .from('guardianships')
-      .insert({
-        school_id: input.schoolId,
-        child_id: input.childId,
-        user_id: newUser.id,
-        type: 'principal',
-        relation: input.relation,
-        added_by: input.registeredBy,
-        start_date: new Date().toISOString().split('T')[0],
-      })
+    const { error: guardianshipError } = await supabase.from('guardianships').insert({
+      school_id: input.schoolId,
+      child_id: input.childId,
+      user_id: newUser.id,
+      type: 'principal',
+      relation: input.relation,
+      added_by: input.registeredBy,
+      start_date: new Date().toISOString().split('T')[0],
+    })
 
     if (guardianshipError) {
-      const { error: deleteError } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', newUser.id)
+      const { error: deleteError } = await supabase.from('users').delete().eq('id', newUser.id)
 
       if (deleteError) {
         console.error('ROLLBACK FALHOU — usuário órfão criado:', {
@@ -107,15 +101,13 @@ export async function registerGuardian(
     const token = crypto.randomUUID()
     const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString()
 
-    const { error: inviteError } = await supabase
-      .from('invites')
-      .insert({
-        school_id: input.schoolId,
-        user_id: newUser.id,
-        token,
-        expires_at: expiresAt,
-        created_by: input.registeredBy,
-      })
+    const { error: inviteError } = await supabase.from('invites').insert({
+      school_id: input.schoolId,
+      user_id: newUser.id,
+      token,
+      expires_at: expiresAt,
+      created_by: input.registeredBy,
+    })
 
     if (inviteError) {
       return { ok: false, error: 'Erro ao gerar convite.' }
@@ -123,7 +115,6 @@ export async function registerGuardian(
 
     // ── 5. Retorna o token (link montado no frontend) ──
     return { ok: true, token, userId: newUser.id }
-
   } catch (error) {
     console.error('[registerGuardian]', error)
     return { ok: false, error: 'Erro interno. Tente novamente.' }

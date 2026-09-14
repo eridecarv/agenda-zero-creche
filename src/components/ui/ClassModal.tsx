@@ -49,7 +49,7 @@ type ClassModalProps = {
 
 // ── Tipo interno de atribuição ─────────────────────────────────
 type SavedAssignment = {
-  recordId: string    // id na tabela class_staff
+  recordId: string // id na tabela class_staff
   user: User
 }
 
@@ -80,9 +80,10 @@ function ChipGroup<T extends string>({
             onClick={() => onChange(opt)}
             className={`
               px-4 py-2 rounded-full text-sm font-medium transition-all duration-150
-              ${value === opt
-                ? 'bg-[#FF8C66] text-white shadow-[0_2px_8px_rgba(180,140,120,0.25)]'
-                : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
+              ${
+                value === opt
+                  ? 'bg-[#FF8C66] text-white shadow-[0_2px_8px_rgba(180,140,120,0.25)]'
+                  : 'bg-[#FAF7F2] text-[#8C7060] border border-[#E8E0D8] hover:border-[#FF8C66]'
               }
             `}
           >
@@ -121,9 +122,7 @@ function PersonSearch({
   onClear?: () => void
   showClear?: boolean
 }) {
-  const [search, setSearch] = useState(
-    value?.nickname || value?.name.split(' ')[0] || ''
-  )
+  const [search, setSearch] = useState(value?.nickname || value?.name.split(' ')[0] || '')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -145,17 +144,14 @@ function PersonSearch({
     if (!search.trim()) return true
     const term = search.toLowerCase()
     return (
-      s.name.toLowerCase().includes(term) ||
-      (s.nickname?.toLowerCase().includes(term) ?? false)
+      s.name.toLowerCase().includes(term) || (s.nickname?.toLowerCase().includes(term) ?? false)
     )
   })
 
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1" ref={ref}>
-        {label && (
-          <span className="text-xs text-[#8C7060] mb-1 block">{label}</span>
-        )}
+        {label && <span className="text-xs text-[#8C7060] mb-1 block">{label}</span>}
         <input
           type="text"
           placeholder="Buscar pelo nome..."
@@ -174,12 +170,14 @@ function PersonSearch({
         />
 
         {open && filtered.length > 0 && (
-          <div className="
+          <div
+            className="
             absolute top-full left-0 right-0 z-20 mt-1
             bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
             shadow-[0_4px_16px_rgba(180,140,120,0.16)]
             overflow-hidden
-          ">
+          "
+          >
             {filtered.map((s) => (
               <button
                 key={s.id}
@@ -198,20 +196,20 @@ function PersonSearch({
                 <span className="font-medium text-[#3A2E24]">
                   {s.nickname || s.name.split(' ')[0]}
                 </span>
-                {s.nickname && (
-                  <span className="text-xs text-[#8C7060] ml-1">{s.name}</span>
-                )}
+                {s.nickname && <span className="text-xs text-[#8C7060] ml-1">{s.name}</span>}
               </button>
             ))}
           </div>
         )}
 
         {open && search.trim() && filtered.length === 0 && (
-          <div className="
+          <div
+            className="
             absolute top-full left-0 right-0 z-20 mt-1
             bg-[#FFFDF9] rounded-[10px] border border-[#E8E0D8]
             px-3 py-2.5
-          ">
+          "
+          >
             <span className="text-xs text-[#B0A090]">Nenhum resultado</span>
           </div>
         )}
@@ -238,13 +236,13 @@ function PersonSearch({
 export function ClassModal({ schoolId, class: classData, onClose, onSaved }: ClassModalProps) {
   const supabase = createClient()
 
-  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(
-    classData ? 'view' : 'create'
-  )
+  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(classData ? 'view' : 'create')
 
   // Form
   const [name, setName] = useState(classData?.name ?? '')
-  const [year, setYear] = useState(classData?.year?.toString() ?? new Date().getFullYear().toString())
+  const [year, setYear] = useState(
+    classData?.year?.toString() ?? new Date().getFullYear().toString()
+  )
   const [type, setType] = useState<ClassType>(classData?.type ?? 'regular')
   const [level, setLevel] = useState(classData?.level ?? '')
   const [shift, setShift] = useState<Shift | null>(classData?.shift ?? null)
@@ -288,9 +286,9 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
       .order('name')
 
     if (data) {
-	setCoordinators(data.filter((u: User) => u.role === 'coordinator'))
-	setTeachers(data.filter((u: User) => u.role === 'teacher'))
-	setAssistants(data.filter((u: User) => u.role === 'assistant'))
+      setCoordinators(data.filter((u: User) => u.role === 'coordinator'))
+      setTeachers(data.filter((u: User) => u.role === 'teacher'))
+      setAssistants(data.filter((u: User) => u.role === 'assistant'))
     }
   }
 
@@ -311,9 +309,9 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
     setOriginalAssignments(originals)
 
     // Preenche os campos da equipe
-	const coord = originals.find((a) => a.user.role === 'coordinator')
-	const teacher = originals.find((a) => a.user.role === 'teacher')
-	const assists = originals.filter((a) => a.user.role === 'assistant')
+    const coord = originals.find((a) => a.user.role === 'coordinator')
+    const teacher = originals.find((a) => a.user.role === 'teacher')
+    const assists = originals.filter((a) => a.user.role === 'assistant')
 
     if (coord) setSelectedCoordinator(coord.user)
     if (teacher) setSelectedTeacher(teacher.user)
@@ -338,16 +336,14 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
     const currentUsers: User[] = [
       ...(selectedCoordinator ? [selectedCoordinator] : []),
       ...(selectedTeacher ? [selectedTeacher] : []),
-      ...selectedAssistants.filter(Boolean) as User[],
+      ...(selectedAssistants.filter(Boolean) as User[]),
     ]
 
     const originalIds = originalAssignments.map((a) => a.user.id)
     const currentIds = currentUsers.map((u) => u.id)
 
     // Removidos — preenche removed_at
-    const removed = originalAssignments.filter(
-      (a) => !currentIds.includes(a.user.id)
-    )
+    const removed = originalAssignments.filter((a) => !currentIds.includes(a.user.id))
     for (const r of removed) {
       await supabase
         .from('class_staff')
@@ -393,7 +389,6 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
         return
       }
       await syncStaff(classData.id)
-
     } else {
       const { data: newClass, error } = await supabase
         .from('classes')
@@ -437,21 +432,22 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
   }
 
   // ── Nome de exibição ──
-  const displayName = (u: User | null) =>
-    u ? (u.nickname || u.name.split(' ')[0]) : '—'
+  const displayName = (u: User | null) => (u ? u.nickname || u.name.split(' ')[0] : '—')
 
   return (
     <>
       <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
 
-      <div className="
+      <div
+        className="
         fixed bottom-0 left-0 right-0 z-50
         bg-[#FFFDF9] rounded-t-[28px]
         shadow-[0_-4px_24px_rgba(180,140,120,0.18)]
         px-5 pt-5 pb-10
         max-w-lg mx-auto
         max-h-[90vh] overflow-y-auto
-      ">
+      "
+      >
         <div className="w-10 h-1 bg-[#E8E0D8] rounded-full mx-auto mb-5" />
 
         <h2 className="font-display text-lg font-bold text-[#3A2E24] mb-5">
@@ -465,31 +461,42 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
             <DetailRow label="Ano letivo" value={classData.year.toString()} />
             <DetailRow label="Tipo" value={classTypeLabels[classData.type]} />
             <DetailRow label="Nível" value={classData.level} />
-            <DetailRow label="Turno" value={classData.shift ? shiftLabels[classData.shift] : null} />
+            <DetailRow
+              label="Turno"
+              value={classData.shift ? shiftLabels[classData.shift] : null}
+            />
 
             <div className="mt-2">
               <span className="text-xs text-[#8C7060]">Equipe</span>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Coordenação</span>
-                <span className="text-sm font-medium text-[#3A2E24]">{displayName(selectedCoordinator)}</span>
+                <span className="text-sm font-medium text-[#3A2E24]">
+                  {displayName(selectedCoordinator)}
+                </span>
               </div>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Professora</span>
-                <span className="text-sm font-medium text-[#3A2E24]">{displayName(selectedTeacher)}</span>
+                <span className="text-sm font-medium text-[#3A2E24]">
+                  {displayName(selectedTeacher)}
+                </span>
               </div>
               <div className="flex justify-between py-2.5 border-b border-[#F0EAE3]">
                 <span className="text-xs text-[#8C7060]">Assistentes</span>
                 <span className="text-sm font-medium text-[#3A2E24]">
                   {selectedAssistants.filter(Boolean).length > 0
-                    ? selectedAssistants.filter(Boolean).map((u) => displayName(u)).join(', ')
-                    : '—'
-                  }
+                    ? selectedAssistants
+                        .filter(Boolean)
+                        .map((u) => displayName(u))
+                        .join(', ')
+                    : '—'}
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col gap-2 mt-5">
-              <Button variant="primary" onClick={() => setMode('edit')}>Editar</Button>
+              <Button variant="primary" onClick={() => setMode('edit')}>
+                Editar
+              </Button>
 
               {!confirmDeactivate ? (
                 <Button variant="ghost" onClick={() => setConfirmDeactivate(true)}>
@@ -501,17 +508,29 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
                     Tem certeza? A turma ficará inativa mas os dados serão preservados.
                   </p>
                   <div className="flex gap-2">
-                    <Button variant="ghost" fullWidth={false} onClick={() => setConfirmDeactivate(false)}>
+                    <Button
+                      variant="ghost"
+                      fullWidth={false}
+                      onClick={() => setConfirmDeactivate(false)}
+                    >
                       Cancelar
                     </Button>
-                    <Button fullWidth={false} loading={deactivating} customColor="#E86C88" customTextColor="#fff" onClick={handleDeactivate}>
+                    <Button
+                      fullWidth={false}
+                      loading={deactivating}
+                      customColor="#E86C88"
+                      customTextColor="#fff"
+                      onClick={handleDeactivate}
+                    >
                       Confirmar
                     </Button>
                   </div>
                 </div>
               )}
 
-              <Button variant="ghost" onClick={onClose}>Fechar</Button>
+              <Button variant="ghost" onClick={onClose}>
+                Fechar
+              </Button>
             </div>
           </div>
         )}
@@ -519,7 +538,6 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
         {/* ── Edição / Criação ── */}
         {(mode === 'edit' || mode === 'create') && (
           <div className="flex flex-col gap-4">
-
             <Input
               label="Nome da turma"
               placeholder="Ex: Maternal 1 A"
@@ -606,9 +624,7 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
                     }}
                     showClear={selectedAssistants.length > 1}
                     onClear={() => {
-                      setSelectedAssistants(
-                        selectedAssistants.filter((_, i) => i !== index)
-                      )
+                      setSelectedAssistants(selectedAssistants.filter((_, i) => i !== index))
                     }}
                   />
                 ))}
@@ -624,24 +640,17 @@ export function ClassModal({ schoolId, class: classData, onClose, onSaved }: Cla
               </div>
             </div>
 
-            {errors.general && (
-              <span className="text-xs text-[#E86C88]">{errors.general}</span>
-            )}
+            {errors.general && <span className="text-xs text-[#E86C88]">{errors.general}</span>}
 
             <Button variant="primary" loading={saving} onClick={handleSave}>
               {mode === 'edit' ? 'Salvar alterações' : 'Criar turma'}
             </Button>
 
-            <Button
-              variant="ghost"
-              onClick={() => mode === 'edit' ? setMode('view') : onClose()}
-            >
+            <Button variant="ghost" onClick={() => (mode === 'edit' ? setMode('view') : onClose())}>
               Cancelar
             </Button>
-
           </div>
         )}
-
       </div>
     </>
   )

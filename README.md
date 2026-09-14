@@ -53,7 +53,7 @@ npm install
 
 # Configurar variáveis de ambiente
 cp .env.example .env.local
-# Preencher NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Preencher NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
 # Iniciar servidor de desenvolvimento
 npm run dev

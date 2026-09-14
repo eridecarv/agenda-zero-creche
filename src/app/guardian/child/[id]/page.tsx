@@ -11,36 +11,36 @@ import type { Mood, Sleep, Meal, Acceptance } from '@/types'
 // ── Templates ─────────────────────────────────────────────
 
 const MOOD_TEMPLATES: Record<Mood, string[]> = {
-  happy:    ['ficou contente o dia todo', 'estava bem-humorada'],
-  calm:     ['passou o dia tranquila', 'ficou calma e serena'],
+  happy: ['ficou contente o dia todo', 'estava bem-humorada'],
+  calm: ['passou o dia tranquila', 'ficou calma e serena'],
   restless: ['ficou um pouco agitada hoje', 'teve um dia mais agitado'],
-  tearful:  ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
+  tearful: ['teve um dia mais difícil', 'ficou chorosa durante o dia'],
 }
 
 const SLEEP_TEMPLATES: Record<Sleep, string[]> = {
-  good:          ['descansou bem no horário', 'dormiu direitinho'],
-  fair:          ['dormiu um pouco', 'o soninho foi tranquilo'],
-  poor:          ['teve dificuldade para dormir', 'dormiu mal hoje'],
+  good: ['descansou bem no horário', 'dormiu direitinho'],
+  fair: ['dormiu um pouco', 'o soninho foi tranquilo'],
+  poor: ['teve dificuldade para dormir', 'dormiu mal hoje'],
   did_not_sleep: ['não conseguiu dormir hoje', 'ficou sem dormir'],
 }
 
 const ACCEPTANCE_TEMPLATES: Record<Acceptance, string[]> = {
-  good:    ['comeu bem', 'aceitou bem as refeições'],
-  fair:    ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
+  good: ['comeu bem', 'aceitou bem as refeições'],
+  fair: ['comeu razoavelmente', 'aceitou parcialmente as refeições'],
   refused: ['não quis comer muito hoje', 'teve pouco apetite'],
 }
 
 const MEAL_LABEL: Record<Meal, string> = {
-  breakfast:       'Café da manhã',
-  morning_snack:   'Lanche da manhã',
-  lunch:           'Almoço',
+  breakfast: 'Café da manhã',
+  morning_snack: 'Lanche da manhã',
+  lunch: 'Almoço',
   afternoon_snack: 'Lanche da tarde',
-  dinner:          'Jantar',
+  dinner: 'Jantar',
 }
 
 const ACCEPTANCE_STYLE: Record<Acceptance, { bg: string; text: string; label: string }> = {
-  good:    { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
-  fair:    { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
+  good: { bg: '#EAF3DE', text: '#4A7A3A', label: 'Comeu bem' },
+  fair: { bg: '#FEF6E4', text: '#9A6F2A', label: 'Razoável' },
   refused: { bg: '#FDE8EC', text: '#A03050', label: 'Recusou' },
 }
 
@@ -60,7 +60,12 @@ type DayLog = {
   check_out: string | null
   picked_up_name: string | null
   feeding: { meal: Meal; acceptance: Acceptance; notes: string | null }[]
-  hygiene: { bath: boolean; brushing: boolean; bowel_movement: boolean; notes: string | null } | null
+  hygiene: {
+    bath: boolean
+    brushing: boolean
+    bowel_movement: boolean
+    notes: string | null
+  } | null
   messages: { id: string; content: string; created_at: string; read: boolean }[]
 }
 
@@ -78,7 +83,11 @@ function Chip({ label, bg, text }: { label: string; bg: string; text: string }) 
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <p style={{ color: '#C4A882' }} className="text-xs font-medium mb-3">{children}</p>
+  return (
+    <p style={{ color: '#C4A882' }} className="text-xs font-medium mb-3">
+      {children}
+    </p>
+  )
 }
 
 function Divider() {
@@ -87,7 +96,13 @@ function Divider() {
   )
 }
 
-function PrimaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function PrimaryText({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   return (
     <p style={{ color: '#A08060' }} className={`text-sm leading-relaxed ${className}`}>
       {children}
@@ -95,7 +110,13 @@ function PrimaryText({ children, className = '' }: { children: React.ReactNode; 
   )
 }
 
-function SecondaryText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function SecondaryText({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   return (
     <p style={{ color: '#C4A882' }} className={`text-xs leading-relaxed ${className}`}>
       {children}
@@ -144,11 +165,15 @@ export default function ChildHomePage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
 
-      const { data: child } = await supabase
-        .from('children').select('name').eq('id', id).single()
+      const { data: child } = await supabase.from('children').select('name').eq('id', id).single()
       if (child) setChildName(child.name.split(' ')[0])
 
       const { data: dl } = await supabase
@@ -158,7 +183,10 @@ export default function ChildHomePage() {
         .eq('date', today)
         .single()
 
-      if (!dl) { setLoading(false); return }
+      if (!dl) {
+        setLoading(false)
+        return
+      }
 
       const { data: al } = await supabase
         .from('attendance_logs')
@@ -228,7 +256,7 @@ export default function ChildHomePage() {
       }
     }
 
-    const lunch = dayLog.feeding.find(f => f.meal === 'lunch')
+    const lunch = dayLog.feeding.find((f) => f.meal === 'lunch')
     const mainMeal = lunch ?? dayLog.feeding[0]
     if (mainMeal) {
       const template = pickRandom(ACCEPTANCE_TEMPLATES[mainMeal.acceptance])
@@ -275,23 +303,26 @@ export default function ChildHomePage() {
 
     if (dayLog.sleep) {
       const sleepLabel: Record<Sleep, string> = {
-        good:          'Dormiu bem',
-        fair:          'Dormiu um pouco',
-        poor:          'Dormiu mal',
+        good: 'Dormiu bem',
+        fair: 'Dormiu um pouco',
+        poor: 'Dormiu mal',
         did_not_sleep: 'Não dormiu',
       }
       const sleepColor: Record<Sleep, { bg: string; text: string }> = {
-        good:          { bg: '#EEF0FE', text: '#4A4AAA' },
-        fair:          { bg: '#FEF6E4', text: '#9A6F2A' },
-        poor:          { bg: '#FDE8EC', text: '#A03050' },
+        good: { bg: '#EEF0FE', text: '#4A4AAA' },
+        fair: { bg: '#FEF6E4', text: '#9A6F2A' },
+        poor: { bg: '#FDE8EC', text: '#A03050' },
         did_not_sleep: { bg: '#F5EFE8', text: '#8C7060' },
       }
       chips.push({ label: sleepLabel[dayLog.sleep], ...sleepColor[dayLog.sleep] })
     }
 
     if (dayLog.hygiene) {
-      const done = [dayLog.hygiene.bath, dayLog.hygiene.brushing, dayLog.hygiene.bowel_movement]
-        .filter(Boolean).length
+      const done = [
+        dayLog.hygiene.bath,
+        dayLog.hygiene.brushing,
+        dayLog.hygiene.bowel_movement,
+      ].filter(Boolean).length
       if (done > 0) chips.push({ label: 'Cuidados feitos', bg: '#FEF0E8', text: '#9A5A2A' })
     }
 
@@ -301,13 +332,17 @@ export default function ChildHomePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
-        <span style={{ color: '#C4A882' }} className="text-sm">Carregando...</span>
+        <span style={{ color: '#C4A882' }} className="text-sm">
+          Carregando...
+        </span>
       </div>
     )
   }
 
   const todayFormatted = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', day: 'numeric', month: 'long',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
   })
 
   const dayComplete = !!dayLog?.check_out
@@ -316,19 +351,22 @@ export default function ChildHomePage() {
     <div className="min-h-screen bg-[#FAF7F2] pb-8">
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.06)]">
-        <p style={{ color: '#C4A882' }} className="text-xs capitalize mb-1">{todayFormatted}</p>
+        <p style={{ color: '#C4A882' }} className="text-xs capitalize mb-1">
+          {todayFormatted}
+        </p>
         <h1 style={{ color: '#A08060' }} className="font-display text-2xl font-bold">
           O dia de {childName}
         </h1>
       </div>
 
       <div className="px-5 pt-6 max-w-lg mx-auto flex flex-col gap-4">
-
         {/* Sem registro */}
         {!dayLog && (
           <Card padding="lg">
             <div className="flex flex-col items-center text-center py-8 gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#FEF0E8] flex items-center justify-center text-3xl">🌸</div>
+              <div className="w-16 h-16 rounded-full bg-[#FEF0E8] flex items-center justify-center text-3xl">
+                🌸
+              </div>
               <p style={{ color: '#A08060' }} className="text-base font-semibold">
                 O dia ainda está começando
               </p>
@@ -369,7 +407,9 @@ export default function ChildHomePage() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              {buildChips().map((chip, i) => <Chip key={i} {...chip} />)}
+              {buildChips().map((chip, i) => (
+                <Chip key={i} {...chip} />
+              ))}
             </div>
           </Card>
         )}
@@ -402,15 +442,19 @@ export default function ChildHomePage() {
         )}
 
         {/* Higiene */}
-        {dayLog?.hygiene && (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
-          <Card padding="lg">
-            <SectionTitle>Cuidados do dia</SectionTitle>
-            <PrimaryText>{hygienePhrase(dayLog.hygiene)}</PrimaryText>
-            {dayLog.hygiene.notes && (
-              <><Divider /><SecondaryText>{dayLog.hygiene.notes}</SecondaryText></>
-            )}
-          </Card>
-        )}
+        {dayLog?.hygiene &&
+          (dayLog.hygiene.bath || dayLog.hygiene.brushing || dayLog.hygiene.bowel_movement) && (
+            <Card padding="lg">
+              <SectionTitle>Cuidados do dia</SectionTitle>
+              <PrimaryText>{hygienePhrase(dayLog.hygiene)}</PrimaryText>
+              {dayLog.hygiene.notes && (
+                <>
+                  <Divider />
+                  <SecondaryText>{dayLog.hygiene.notes}</SecondaryText>
+                </>
+              )}
+            </Card>
+          )}
 
         {/* Recados */}
         {dayLog && dayLog.messages.length > 0 && (
@@ -431,7 +475,10 @@ export default function ChildHomePage() {
                     )}
                   </div>
                   <p style={{ color: '#C4A882' }} className="text-[10px] pb-1">
-                    {new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(m.created_at).toLocaleTimeString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </p>
                   {i < dayLog.messages.length - 1 && <Divider />}
                 </div>

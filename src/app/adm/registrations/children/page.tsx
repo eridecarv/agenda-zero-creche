@@ -27,8 +27,6 @@ type ChildWithClass = Child & {
   class_name: string | null
 }
 
-
-
 export default function ChildrenPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -45,13 +43,15 @@ export default function ChildrenPage() {
   async function loadChildren(sid: string) {
     const { data } = await supabase
       .from('children')
-      .select(`
+      .select(
+        `
         *,
         child_class!left (
           end_date,
           classes ( name )
         )
-      `)
+      `
+      )
       .eq('school_id', sid)
       .eq('active', true)
       .order('name')
@@ -98,7 +98,6 @@ export default function ChildrenPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-24">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-5 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -121,7 +120,6 @@ export default function ChildrenPage() {
       </div>
 
       <div className="px-5 pt-6 flex flex-col gap-3 max-w-lg mx-auto">
-
         {children.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-[#B0A090] mb-4">Nenhuma criança cadastrada ainda.</p>
@@ -137,10 +135,9 @@ export default function ChildrenPage() {
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-[#3A2E24]">{child.name}</span>
                 <span className="text-xs text-[#8C7060]">
-                  {[
-                    calculateAge(child.birth_date),
-                    child.class_name ?? 'Sem turma',
-                  ].filter(Boolean).join(' · ')}
+                  {[calculateAge(child.birth_date), child.class_name ?? 'Sem turma']
+                    .filter(Boolean)
+                    .join(' · ')}
                 </span>
                 {child.notes && (
                   <span className="text-xs text-[#E86C88] mt-0.5">⚠ {child.notes}</span>
@@ -150,7 +147,6 @@ export default function ChildrenPage() {
             </div>
           </Card>
         ))}
-
       </div>
 
       {modalOpen && schoolId && userId && (
@@ -162,7 +158,6 @@ export default function ChildrenPage() {
           onSaved={onSaved}
         />
       )}
-
     </div>
   )
 }

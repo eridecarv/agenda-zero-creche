@@ -23,11 +23,7 @@ export default function DailyLogsClassPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: cls } = await supabase
-        .from('classes')
-        .select('*')
-        .eq('id', classId)
-        .single()
+      const { data: cls } = await supabase.from('classes').select('*').eq('id', classId).single()
 
       if (cls) setCurrentClass(cls)
 
@@ -60,7 +56,6 @@ export default function DailyLogsClassPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] pb-16">
-
       {/* Header */}
       <div className="bg-[#FFFDF9] px-5 pt-12 pb-6 shadow-[0_2px_8px_rgba(180,140,120,0.08)]">
         <button
@@ -85,7 +80,7 @@ export default function DailyLogsClassPage() {
           </div>
         )}
 
-        {children.map(child => (
+        {children.map((child) => (
           <button
             key={child.id}
             onClick={() => router.push(`/adm/dailylogs/${classId}/${child.id}`)}
@@ -97,13 +92,13 @@ export default function DailyLogsClassPage() {
             "
           >
             <Avatar name={child.name} size="sm" />
-            <span className="flex-1 text-sm font-semibold text-[#3A2E24]">
-              {child.name}
-            </span>
-            <span className="
+            <span className="flex-1 text-sm font-semibold text-[#3A2E24]">{child.name}</span>
+            <span
+              className="
               text-xs font-medium text-[#FF8C66]
               bg-[#FFF0E8] px-3 py-1 rounded-full
-            ">
+            "
+            >
               + Registrar
             </span>
           </button>

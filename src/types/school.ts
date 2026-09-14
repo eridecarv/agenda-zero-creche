@@ -2,12 +2,7 @@
  * Tipos relacionados à entidade Escola e perfis de usuário.
  */
 
-export type Role =
-  | 'admin'
-  | 'coordinator'
-  | 'teacher'
-  | 'assistant'
-  | 'guardian'
+export type Role = 'admin' | 'coordinator' | 'teacher' | 'assistant' | 'guardian'
 
 export type School = {
   id: string

@@ -14,6 +14,4 @@ export type Session = {
 }
 
 // Retorno padrão de ações de autenticação
-export type AuthResult =
-  | { success: true; session: Session }
-  | { success: false; error: string }
+export type AuthResult = { success: true; session: Session } | { success: false; error: string }

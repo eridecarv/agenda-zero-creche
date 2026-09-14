@@ -8,7 +8,7 @@ vi.mock('@/hooks/useSchool', () => ({
     userId: 'user-1',
     role: 'admin',
     loading: false,
-  })
+  }),
 }))
 
 vi.mock('@/lib/supabase', () => {
@@ -22,12 +22,10 @@ vi.mock('@/lib/supabase', () => {
       child_id: '123',
       children: { name: 'Maria Alice' },
       incident_attachments: [],
-    }
+    },
   ]
 
-  const children = [
-    { id: '123', name: 'Maria Alice' }
-  ]
+  const children = [{ id: '123', name: 'Maria Alice' }]
 
   return {
     createClient: () => ({

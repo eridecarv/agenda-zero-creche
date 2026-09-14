@@ -11,76 +11,76 @@
  * Rota: /adm
  */
 
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { useSchool } from "@/hooks/useSchool";
-import { createClient } from "@/lib/supabase";
+import { useRouter } from 'next/navigation'
+import { useSchool } from '@/hooks/useSchool'
+import { createClient } from '@/lib/supabase'
 
 // ── Tipo de item de navegação ──
 type NavItem = {
-  label: string;
-  descricao: string;
-  emoji: string;
-  href: string;
-  available: boolean;
-};
+  label: string
+  descricao: string
+  emoji: string
+  href: string
+  available: boolean
+}
 
 const navItems: NavItem[] = [
   {
-    label: "Cadastros",
-    descricao: "Turmas, crianças, colaboradores e responsáveis",
-    emoji: "📋",
-    href: "/adm/registrations",
+    label: 'Cadastros',
+    descricao: 'Turmas, crianças, colaboradores e responsáveis',
+    emoji: '📋',
+    href: '/adm/registrations',
     available: true,
   },
   {
-    label: "Ocorrências",
-    descricao: "Registre e acompanhe ocorrências das crianças",
-    emoji: "📝",
-    href: "/adm/incidents",
+    label: 'Ocorrências',
+    descricao: 'Registre e acompanhe ocorrências das crianças',
+    emoji: '📝',
+    href: '/adm/incidents',
     available: true,
   },
   {
-    label: "Comunicados",
-    descricao: "Envie avisos para turmas ou toda a escola",
-    emoji: "📣",
-    href: "/adm/announcements",
+    label: 'Comunicados',
+    descricao: 'Envie avisos para turmas ou toda a escola',
+    emoji: '📣',
+    href: '/adm/announcements',
     available: true,
   },
   {
-    label: "Cardápio",
-    descricao: "Gerencie o cardápio semanal",
-    emoji: "🍽",
-    href: "/adm/menu",
+    label: 'Cardápio',
+    descricao: 'Gerencie o cardápio semanal',
+    emoji: '🍽',
+    href: '/adm/menu',
     available: false,
   },
   {
-    label: "Diários",
-    descricao: "Registre o dia a dia das crianças por turma",
-    emoji: "📖",
-    href: "/adm/dailylogs",
+    label: 'Diários',
+    descricao: 'Registre o dia a dia das crianças por turma',
+    emoji: '📖',
+    href: '/adm/dailylogs',
     available: true,
   },
   {
-    label: "Configurações",
-    descricao: "Dados da escola e preferências",
-    emoji: "⚙️",
-    href: "/adm/settings",
+    label: 'Configurações',
+    descricao: 'Dados da escola e preferências',
+    emoji: '⚙️',
+    href: '/adm/settings',
     available: false,
   },
-];
+]
 
 export default function AdmPage() {
-  const router = useRouter();
-  const { loading } = useSchool();
+  const router = useRouter()
+  const { loading } = useSchool()
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
         <span className="text-sm text-[#8C7060]">Carregando...</span>
       </div>
-    );
+    )
   }
 
   return (
@@ -90,15 +90,13 @@ export default function AdmPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-[#8C7060] mb-1">Painel administrativo</p>
-            <h1 className="font-display text-2xl font-bold text-[#3A2E24]">
-              Agenda Zero
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-[#3A2E24]">Agenda Zero</h1>
           </div>
           <button
             onClick={async () => {
-              const supabase = createClient();
-              await supabase.auth.signOut();
-              router.push("/login");
+              const supabase = createClient()
+              await supabase.auth.signOut()
+              router.push('/login')
             }}
             className="text-sm text-[#8C7060] hover:text-[#E86C88] transition-colors"
           >
@@ -120,8 +118,8 @@ export default function AdmPage() {
               transition-all duration-200
               ${
                 item.available
-                  ? "active:scale-[0.97] hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)] cursor-pointer"
-                  : "opacity-40 cursor-not-allowed"
+                  ? 'active:scale-[0.97] hover:shadow-[0_4px_16px_rgba(180,140,120,0.16)] cursor-pointer'
+                  : 'opacity-40 cursor-not-allowed'
               }
             `}
           >
@@ -129,12 +127,8 @@ export default function AdmPage() {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{item.emoji}</span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-semibold text-[#3A2E24]">
-                    {item.label}
-                  </span>
-                  <span className="text-xs text-[#8C7060]">
-                    {item.descricao}
-                  </span>
+                  <span className="text-sm font-semibold text-[#3A2E24]">{item.label}</span>
+                  <span className="text-xs text-[#8C7060]">{item.descricao}</span>
                 </div>
               </div>
               {item.available ? (
@@ -147,5 +141,5 @@ export default function AdmPage() {
         ))}
       </div>
     </div>
-  );
+  )
 }
