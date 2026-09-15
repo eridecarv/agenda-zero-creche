@@ -9,7 +9,7 @@ O projeto nasceu de uma observação simples: pais e responsáveis de bebês em 
 ## Stack
 Todas as ferramentas operam dentro de tiers gratuitos. Essa restrição foi imposta intencionalmente para estimular a criação de soluções criativas dentro de limites reais, como qualquer projeto early-stage deveria considerar.
 
-- **Next.js 14** com App Router e Server Actions
+- **Next.js 16** com App Router e Server Actions
 - **TypeScript**
 - **Tailwind CSS**
 - **Supabase**  PostgreSQL, autenticação, Row Level Security
