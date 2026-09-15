@@ -65,7 +65,7 @@ Then, once and for all:
 
 **Workflow from here on:** `feature/name` → `dev` → `main`. Each unit of work branches off `dev`; when stable it goes to `dev` via PR; when a set is solid, `dev` merges to `main` and only then does Vercel publish.
 
-**Integration strategy:** let `dev` accumulate the whole rewrite and merge to `main` at the end. The UI will be in a mixed state (some screens new, some old) for a while, and that mixed state should not sit in production.
+**Integration strategy (revised — see section 11):** the original plan below has been reversed. Phase 1's foundation merged to `main` once, as a single event (#50). From Phase 2 onward, each migrated feature/page gets its own PR `dev` → `main` as soon as it closes, instead of `dev` accumulating the whole rewrite. Production runs in a mixed state (some screens new, some old) for the length of the migration — accepted, not avoided.
 
 ---
 
@@ -113,7 +113,7 @@ Rewrite the shared primitives in `components/ui/` to consume the tokens, with th
 - `Button` — Primary / Secondary / Ghost / Pill, plus disabled
 - `Input` — default, active/focus, and error states
 - `Card`, `Badge`, `Avatar`, `Chip` — per the component library page of the guide
-- Keep the `.examples.tsx` pattern as the visual catalogue. No Storybook — it solves a team-scale discovery problem this solo project does not have.
+- Visual catalogue is Storybook (adopted in #41, reversing the plan below — see section 11). Every primitive ships with a `.stories.tsx`. `.examples.tsx` is legacy; none are created for new primitives, and the remaining ones are cleaned up in Phase 2's bloco 0.
 
 None of this touches existing screens — they don't import the new primitives until Phase 2 pulls them in.
 
@@ -230,13 +230,6 @@ When migrating a module, do not port these patterns. Replace them.
 | Page does data-fetch + state + business logic + JSX | Page orchestrates; logic in hooks/services/components |
 | Commit straight to `main` | `feature/name` → `dev` → `main` |
 
-## TODO comments
-
-Format: `// TODO(#N): short description` when a tracking issue exists — the
-number lets anyone jump from the code straight to the issue's full context.
-`// TODO: short description` (no number) when there isn't one yet. Either way,
-greppable (`grep -rn "TODO"`) so nothing adiado fica esquecido no meio do código.
-
 ---
 
 ## 8. Things Already True in This Repo
@@ -283,6 +276,22 @@ Root cause of the 7 critical findings is one thing: every Server Action uses `cr
 | Where do domain types live? | `src/types/` (barrel in `index.ts`) |
 | Reference feature structure? | the first feature you migrate — keep it clean as the template |
 | What each finding needs? | Section 9 of this document |
+
+---
+
+## 11. Phase 2 — Decisions Log
+
+Decisions made during Phase 2 planning that supersede or extend what is written above. Kept here, dated by issue number, so this document does not fall out of sync with reality a second time.
+
+**Merge strategy — per feature, not accumulated.** Section 3's original integration strategy is reversed. The Phase 1 foundation merged to `main` as a single event (#50); from Phase 2 on, each migrated feature/page gets its own PR `dev` → `main` as soon as it closes. Production runs in a mixed visual state (new screens next to old ones) for the length of the migration. Accepted, because the current audience is small (portfolio/demo) and each page ships independently testable and revertible, instead of concentrating all risk into one merge at the end.
+
+**Database stays mocked through Phase 2.** `requireAuthContext()` keeps returning mocked `schoolId`/`role` for the whole phase. Every Server Action still calls the guard and acts on `ctx`, so the security posture in section 9 is structurally correct — but confidence against the real schema only arrives with the remodel, tracked in the umbrella issue #54. Every point where a feature touches the database carries a `TODO(#54)` comment.
+
+**Mocks split in two levels.** Domain-shared data (`Child`, `Guardian`, `School` — anything more than one feature reads) lives in `src/__mocks__/`, typed against `src/types/`. Operation-contract data (one action's input/output — `CreateIncidentInput` and similar) stays in the feature's own `features/{name}/__mocks__/`. Same split logic as the types rule in section 6: does it describe the domain, or one operation?
+
+**Storybook is for primitives only.** Feature components (`ChildModal`, `DailyLogForm`, etc., once migrated into `features/`) get colocated tests and mocks — no `.stories.tsx`. If a feature component later becomes genuinely shared across features, it graduates to `components/ui/` and earns a story at that point, not before.
+
+**Full task breakdown lives in `PHASE_2_TASKS.md`.** Feature order, per-feature scope, and the block-by-block plan are tracked there instead of here, so this document does not go stale on specifics a second time.
 
 ---
 
